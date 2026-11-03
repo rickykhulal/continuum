@@ -78,29 +78,38 @@ traffic budget.
 
 `npm run perf` samples every route against the shipped same-origin topology and writes
 `docs/perf-report.json`. The run recorded here is loopback, one client, sequential, uncached, with rate
-limits raised — service time on that machine (Node v24.19.0, 8 CPUs), not capacity:
+limits raised — service time on that machine (Node v24.19.0, 8 CPUs), not capacity. Measured
+2026-11-03T12:14Z on the chunk that ships at `HEAD`; 216 requests, 0 server errors:
 
 | Route | p50 | p95 | max |
 | --- | --- | --- | --- |
-| `POST /area/summary` (pilot region) | 15.7 ms | 16.3 ms | 16.3 ms |
-| `POST /area/summary` (country border, Kenya) | 16.0 ms | 16.5 ms | 16.5 ms |
-| `POST /area/summary` (drawn polygon) | 15.8 ms | 17.1 ms | 17.1 ms |
-| `POST /area/status` | 13.4 ms | 17.4 ms | 17.4 ms |
-| `POST /area/calendar` (pilot, 10 months) | 15.3 ms | 16.9 ms | 16.9 ms |
-| `POST /area/calendar` (Russia, 2000→today, 9,498 rows) | 34.2 ms | 63.1 ms | 63.1 ms |
-| `POST /area/month-compare` | 15.2 ms | 16.6 ms | 16.6 ms |
-| `POST /area/twin` | 16.0 ms | 17.5 ms | 17.5 ms |
-| `POST /export/csv` | 15.3 ms | 16.2 ms | 16.2 ms |
-| `POST /export/geojson` | 75.1 ms | 126.4 ms | 126.4 ms |
-| `POST /brief` (PDF) | 14.9 ms | 19.4 ms | 19.4 ms |
-| `GET /meta` (with the 241-area index) | 15.7 ms | 16.5 ms | 16.5 ms |
-| `GET /ready` (re-hashes the bundle) | 45.6 ms | 62.9 ms | 62.9 ms |
+| `GET /health` | 14.8 ms | 15.7 ms | 15.7 ms |
+| `GET /meta` (with the 241-area index) | 15.1 ms | 16.2 ms | 16.2 ms |
+| `GET /ready` | 39.8 ms | 54.5 ms | 54.5 ms |
+| `POST /area/summary` (pilot region) | 15.3 ms | 16.5 ms | 16.5 ms |
+| `POST /area/summary` (country border, Kenya) | 15.0 ms | 15.9 ms | 15.9 ms |
+| `POST /area/summary` (drawn polygon) | 15.3 ms | 16.2 ms | 16.2 ms |
+| `POST /area/status` | 14.9 ms | 16.3 ms | 16.3 ms |
+| `POST /area/day` | 15.2 ms | 16.3 ms | 16.3 ms |
+| `POST /area/bias` | 13.6 ms | 19.0 ms | 19.0 ms |
+| `POST /area/calendar` (pilot, 10 months) | 14.8 ms | 16.5 ms | 16.5 ms |
+| `POST /area/calendar` (Russia, 2000→today, 9,498 rows) | 29.3 ms | 37.0 ms | 37.0 ms |
+| `POST /area/month-compare` | 15.6 ms | 16.1 ms | 16.1 ms |
+| `POST /area/twin` | 15.0 ms | 15.8 ms | 15.8 ms |
+| `POST /sandbox/run` | 15.0 ms | 16.1 ms | 16.1 ms |
+| `POST /export/csv` | 14.5 ms | 15.9 ms | 15.9 ms |
+| `POST /export/geojson` | 80.4 ms | 94.2 ms | 94.2 ms |
+| `POST /brief` (text) | 13.5 ms | 19.4 ms | 19.4 ms |
+| `POST /brief` (PDF) | 13.8 ms | 18.5 ms | 18.5 ms |
 
-Recorded 2026-11-03T09:11Z at bundle `continuum-2026-11-02-954f24dbc630`; the two country rows were
-added with the world layer, so a border is measured on the same footing as a pilot area rather than
-asserted to be as fast.
+`/ready` is the only endpoint that re-hashes every bundled file on each call, which is why it costs an
+order of magnitude more than a summary; the two exports are the slowest data paths and both sit under a
+10 s objective.
 
-`GET /ready` is 45.6 ms p50 / 62.9 ms p95 — it re-hashes every bundled file on each call on purpose, because
+The two country rows were added with the world layer, so a border is measured on the same footing as a
+pilot area rather than asserted to be as fast.
+
+`GET /ready` is 39.8 ms p50 / 54.5 ms p95 — it re-hashes every bundled file on each call on purpose, because
 a stale readiness verdict is worse than a slow one. `/metrics` caches that verdict for at most 10 s.
 
 - GeoJSON is the only export whose cost is the payload: it serialises every live hotspot in the window.

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T09:11:45.016Z",
+  "generated_at": "2026-11-03T12:14:22.392Z",
   "kind": "local single-origin probe",
   "environment": {
     "origin": "http://127.0.0.1:4182",
@@ -34,12 +34,12 @@
         "endpoint": "health",
         "route": "GET /api/v1/health",
         "samples": 15,
-        "mean_ms": 12.408,
-        "min_ms": 0.957,
-        "p50_ms": 15.141,
-        "p95_ms": 16.323,
-        "p99_ms": 16.323,
-        "max_ms": 16.323,
+        "mean_ms": 12.206,
+        "min_ms": 0.76,
+        "p50_ms": 14.785,
+        "p95_ms": 15.711,
+        "p99_ms": 15.711,
+        "max_ms": 15.711,
         "mean_response_bytes": 170,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -49,12 +49,12 @@
         "endpoint": "meta",
         "route": "GET /api/v1/meta",
         "samples": 15,
-        "mean_ms": 12.645,
-        "min_ms": 0.959,
-        "p50_ms": 15.721,
-        "p95_ms": 16.476,
-        "p99_ms": 16.476,
-        "max_ms": 16.476,
+        "mean_ms": 14.295,
+        "min_ms": 2.309,
+        "p50_ms": 15.058,
+        "p95_ms": 16.154,
+        "p99_ms": 16.154,
+        "max_ms": 16.154,
         "mean_response_bytes": 47025,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -64,12 +64,12 @@
         "endpoint": "ready",
         "route": "GET /api/v1/ready",
         "samples": 15,
-        "mean_ms": 45.807,
-        "min_ms": 32.295,
-        "p50_ms": 45.567,
-        "p95_ms": 62.947,
-        "p99_ms": 62.947,
-        "max_ms": 62.947,
+        "mean_ms": 42.052,
+        "min_ms": 31.425,
+        "p50_ms": 39.816,
+        "p95_ms": 54.484,
+        "p99_ms": 54.484,
+        "max_ms": 54.484,
         "mean_response_bytes": 346,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -79,12 +79,12 @@
         "endpoint": "summary",
         "route": "POST /api/v1/area/summary",
         "samples": 15,
-        "mean_ms": 15.623,
-        "min_ms": 14.741,
-        "p50_ms": 15.691,
-        "p95_ms": 16.297,
-        "p99_ms": 16.297,
-        "max_ms": 16.297,
+        "mean_ms": 13.273,
+        "min_ms": 2.858,
+        "p50_ms": 15.269,
+        "p95_ms": 16.481,
+        "p99_ms": 16.481,
+        "max_ms": 16.481,
         "mean_response_bytes": 537,
         "objective_p95_ms": 2000,
         "meets_objective": true,
@@ -94,12 +94,12 @@
         "endpoint": "status",
         "route": "POST /api/v1/area/status",
         "samples": 15,
-        "mean_ms": 12.407,
-        "min_ms": 2.904,
-        "p50_ms": 13.417,
-        "p95_ms": 17.448,
-        "p99_ms": 17.448,
-        "max_ms": 17.448,
+        "mean_ms": 13.335,
+        "min_ms": 2.829,
+        "p50_ms": 14.935,
+        "p95_ms": 16.308,
+        "p99_ms": 16.308,
+        "max_ms": 16.308,
         "mean_response_bytes": 900,
         "objective_p95_ms": 2000,
         "meets_objective": true,
@@ -109,12 +109,12 @@
         "endpoint": "day",
         "route": "POST /api/v1/area/day",
         "samples": 15,
-        "mean_ms": 14.365,
-        "min_ms": 4.816,
-        "p50_ms": 15.639,
-        "p95_ms": 16.633,
-        "p99_ms": 16.633,
-        "max_ms": 16.633,
+        "mean_ms": 14.329,
+        "min_ms": 4.064,
+        "p50_ms": 15.249,
+        "p95_ms": 16.308,
+        "p99_ms": 16.308,
+        "max_ms": 16.308,
         "mean_response_bytes": 1869,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -124,12 +124,12 @@
         "endpoint": "bias",
         "route": "POST /api/v1/area/bias",
         "samples": 15,
-        "mean_ms": 15.684,
-        "min_ms": 9.237,
-        "p50_ms": 15.771,
-        "p95_ms": 20.327,
-        "p99_ms": 20.327,
-        "max_ms": 20.327,
+        "mean_ms": 12.152,
+        "min_ms": 5.506,
+        "p50_ms": 13.56,
+        "p95_ms": 19.036,
+        "p99_ms": 19.036,
+        "max_ms": 19.036,
         "mean_response_bytes": 3219,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -139,12 +139,12 @@
         "endpoint": "calendar",
         "route": "POST /api/v1/area/calendar",
         "samples": 15,
-        "mean_ms": 12.57,
-        "min_ms": 2.092,
-        "p50_ms": 15.309,
-        "p95_ms": 16.853,
-        "p99_ms": 16.853,
-        "max_ms": 16.853,
+        "mean_ms": 12.267,
+        "min_ms": 1.697,
+        "p50_ms": 14.751,
+        "p95_ms": 16.472,
+        "p99_ms": 16.472,
+        "max_ms": 16.472,
         "mean_response_bytes": 50963,
         "objective_p95_ms": 3000,
         "meets_objective": true,
@@ -154,12 +154,12 @@
         "endpoint": "month-compare",
         "route": "POST /api/v1/area/month-compare",
         "samples": 15,
-        "mean_ms": 12.535,
-        "min_ms": 0.892,
-        "p50_ms": 15.174,
-        "p95_ms": 16.553,
-        "p99_ms": 16.553,
-        "max_ms": 16.553,
+        "mean_ms": 14.616,
+        "min_ms": 1.084,
+        "p50_ms": 15.564,
+        "p95_ms": 16.14,
+        "p99_ms": 16.14,
+        "max_ms": 16.14,
         "mean_response_bytes": 1946,
         "objective_p95_ms": 3000,
         "meets_objective": true,
@@ -169,12 +169,12 @@
         "endpoint": "drawn-polygon-summary",
         "route": "POST /api/v1/area/summary",
         "samples": 15,
-        "mean_ms": 15.761,
-        "min_ms": 13.902,
-        "p50_ms": 15.823,
-        "p95_ms": 17.06,
-        "p99_ms": 17.06,
-        "max_ms": 17.06,
+        "mean_ms": 14.258,
+        "min_ms": 2.318,
+        "p50_ms": 15.266,
+        "p95_ms": 16.237,
+        "p99_ms": 16.237,
+        "max_ms": 16.237,
         "mean_response_bytes": 559,
         "objective_p95_ms": 2000,
         "meets_objective": true,
@@ -184,12 +184,12 @@
         "endpoint": "country-summary",
         "route": "POST /api/v1/area/summary",
         "samples": 15,
-        "mean_ms": 15.951,
-        "min_ms": 15.604,
-        "p50_ms": 15.972,
-        "p95_ms": 16.521,
-        "p99_ms": 16.521,
-        "max_ms": 16.521,
+        "mean_ms": 13.258,
+        "min_ms": 1.239,
+        "p50_ms": 15.046,
+        "p95_ms": 15.945,
+        "p99_ms": 15.945,
+        "max_ms": 15.945,
         "mean_response_bytes": 545,
         "objective_p95_ms": 2000,
         "meets_objective": true,
@@ -199,12 +199,12 @@
         "endpoint": "country-calendar",
         "route": "POST /api/v1/area/calendar",
         "samples": 15,
-        "mean_ms": 36.447,
-        "min_ms": 25.386,
-        "p50_ms": 34.237,
-        "p95_ms": 63.122,
-        "p99_ms": 63.122,
-        "max_ms": 63.122,
+        "mean_ms": 29.331,
+        "min_ms": 24.087,
+        "p50_ms": 29.262,
+        "p95_ms": 36.986,
+        "p99_ms": 36.986,
+        "max_ms": 36.986,
         "mean_response_bytes": 1761274,
         "objective_p95_ms": 3000,
         "meets_objective": true,
@@ -214,12 +214,12 @@
         "endpoint": "twin",
         "route": "POST /api/v1/area/twin",
         "samples": 6,
-        "mean_ms": 16.189,
-        "min_ms": 14.768,
-        "p50_ms": 16.029,
-        "p95_ms": 17.541,
-        "p99_ms": 17.541,
-        "max_ms": 17.541,
+        "mean_ms": 15.217,
+        "min_ms": 14.837,
+        "p50_ms": 15.03,
+        "p95_ms": 15.816,
+        "p99_ms": 15.816,
+        "max_ms": 15.816,
         "mean_response_bytes": 802,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -229,12 +229,12 @@
         "endpoint": "sandbox",
         "route": "POST /api/v1/sandbox/run",
         "samples": 6,
-        "mean_ms": 15.6,
-        "min_ms": 13.81,
-        "p50_ms": 15.351,
-        "p95_ms": 16.773,
-        "p99_ms": 16.773,
-        "max_ms": 16.773,
+        "mean_ms": 15.245,
+        "min_ms": 14.072,
+        "p50_ms": 14.979,
+        "p95_ms": 16.09,
+        "p99_ms": 16.09,
+        "max_ms": 16.09,
         "mean_response_bytes": 12195,
         "objective_p95_ms": null,
         "meets_objective": null,
@@ -244,12 +244,12 @@
         "endpoint": "export-csv",
         "route": "POST /api/v1/export/csv",
         "samples": 6,
-        "mean_ms": 15.551,
-        "min_ms": 14.954,
-        "p50_ms": 15.322,
-        "p95_ms": 16.157,
-        "p99_ms": 16.157,
-        "max_ms": 16.157,
+        "mean_ms": 12.587,
+        "min_ms": 2.976,
+        "p50_ms": 14.489,
+        "p95_ms": 15.892,
+        "p99_ms": 15.892,
+        "max_ms": 15.892,
         "mean_response_bytes": 27680,
         "objective_p95_ms": 10000,
         "meets_objective": true,
@@ -259,12 +259,12 @@
         "endpoint": "export-geojson",
         "route": "POST /api/v1/export/geojson",
         "samples": 6,
-        "mean_ms": 85.866,
-        "min_ms": 71.211,
-        "p50_ms": 75.11,
-        "p95_ms": 126.401,
-        "p99_ms": 126.401,
-        "max_ms": 126.401,
+        "mean_ms": 85.844,
+        "min_ms": 79.559,
+        "p50_ms": 80.448,
+        "p95_ms": 94.231,
+        "p99_ms": 94.231,
+        "max_ms": 94.231,
         "mean_response_bytes": 4215,
         "objective_p95_ms": 10000,
         "meets_objective": true,
@@ -274,12 +274,12 @@
         "endpoint": "brief-text",
         "route": "POST /api/v1/brief",
         "samples": 6,
-        "mean_ms": 14.629,
-        "min_ms": 7.854,
-        "p50_ms": 13.146,
-        "p95_ms": 25.188,
-        "p99_ms": 25.188,
-        "max_ms": 25.188,
+        "mean_ms": 15.081,
+        "min_ms": 12.475,
+        "p50_ms": 13.537,
+        "p95_ms": 19.368,
+        "p99_ms": 19.368,
+        "max_ms": 19.368,
         "mean_response_bytes": 707,
         "objective_p95_ms": 10000,
         "meets_objective": true,
@@ -289,12 +289,12 @@
         "endpoint": "brief-pdf",
         "route": "POST /api/v1/brief",
         "samples": 6,
-        "mean_ms": 15.627,
-        "min_ms": 12.498,
-        "p50_ms": 14.913,
-        "p95_ms": 19.379,
-        "p99_ms": 19.379,
-        "max_ms": 19.379,
+        "mean_ms": 14.97,
+        "min_ms": 12.457,
+        "p50_ms": 13.788,
+        "p95_ms": 18.518,
+        "p99_ms": 18.518,
+        "max_ms": 18.518,
         "mean_response_bytes": 1725,
         "objective_p95_ms": 10000,
         "meets_objective": true,
@@ -307,7 +307,7 @@
   },
   "data_freshness": {
     "live_window_end": "2026-11-02",
-    "lag_hours": 9.2,
+    "lag_hours": 12.2,
     "objective_hours": 48,
     "meets_objective": true
   },
@@ -316,254 +316,242 @@
       "view": "start-watch",
       "url": "http://127.0.0.1:4182/",
       "rendered": true,
-      "lcp_before_input_ms": 1328,
+      "lcp_before_input_ms": 1404,
       "fcp": 40,
-      "lcp_before_input": 1328,
-      "lcp_final": 1328,
-      "cls": 0.0004,
-      "tbt_ms": 6625,
-      "longest_task_ms": 1661,
-      "inp_processing_max_ms": 3,
+      "lcp_before_input": 1404,
+      "lcp_final": 1404,
+      "cls": 0.0003,
+      "tbt_ms": 5824,
+      "longest_task_ms": 1621,
+      "inp_processing_max_ms": 1,
       "interaction_events_observed": 57,
-      "domContentLoaded_ms": 31,
-      "load_ms": 31,
-      "server_timing_ttfb_ms": 3,
+      "domContentLoaded_ms": 30,
+      "load_ms": 30,
+      "server_timing_ttfb_ms": 4,
       "resource_count": 27,
-      "page_bytes_encoded": 16326936,
+      "page_bytes_encoded": 16328328,
       "scripts": [
         {
-          "name": "index-Bq35eSxa.js",
-          "encoded_bytes": 224387,
-          "transfer_bytes": 224687,
+          "name": "index-C0L2JF0V.js",
+          "encoded_bytes": 225753,
+          "transfer_bytes": 226053,
           "after_load_ms": 7
         },
         {
-          "name": "Watch-CT6IDAbV.js",
-          "encoded_bytes": 56455,
-          "transfer_bytes": 56755,
-          "after_load_ms": 787
-        },
-        {
-          "name": "satellites-Bi0R0zSF.js",
-          "encoded_bytes": 3046,
-          "transfer_bytes": 3346,
-          "after_load_ms": 787
-        },
-        {
-          "name": "satellite-BcJYAlbX.js",
-          "encoded_bytes": 21394,
-          "transfer_bytes": 21694,
-          "after_load_ms": 787
+          "name": "Watch-D55cZEZo.js",
+          "encoded_bytes": 56476,
+          "transfer_bytes": 56776,
+          "after_load_ms": 706
         },
         {
           "name": "three-BFnsfFhA.js",
           "encoded_bytes": 486320,
           "transfer_bytes": 486620,
-          "after_load_ms": 787
+          "after_load_ms": 706
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "encoded_bytes": 3046,
+          "transfer_bytes": 3346,
+          "after_load_ms": 706
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "encoded_bytes": 21394,
+          "transfer_bytes": 21694,
+          "after_load_ms": 707
         },
         {
           "name": "types-bXTRDlE3.js",
           "encoded_bytes": 113,
           "transfer_bytes": 413,
-          "after_load_ms": 787
+          "after_load_ms": 707
         },
         {
           "name": "basemap-DVtWKUlw.js",
           "encoded_bytes": 370,
           "transfer_bytes": 670,
-          "after_load_ms": 787
+          "after_load_ms": 707
         },
         {
-          "name": "Atlas-DmSAFQvP.js",
+          "name": "Atlas-DdUw4mSk.js",
           "encoded_bytes": 22130,
           "transfer_bytes": 22430,
-          "after_load_ms": 7631
+          "after_load_ms": 6959
         },
         {
-          "name": "charts-CcsAJ8GE.js",
-          "encoded_bytes": 34387,
-          "transfer_bytes": 34687,
-          "after_load_ms": 7631
-        },
-        {
-          "name": "export-6ZosyhFO.js",
+          "name": "export-CrX9pQEz.js",
           "encoded_bytes": 21619,
           "transfer_bytes": 21919,
-          "after_load_ms": 7631
+          "after_load_ms": 6959
         },
         {
-          "name": "Diagnosis-3NON_IgU.js",
+          "name": "charts-tUb_26uJ.js",
+          "encoded_bytes": 34387,
+          "transfer_bytes": 34687,
+          "after_load_ms": 6959
+        },
+        {
+          "name": "Diagnosis-_OmYsg6A.js",
           "encoded_bytes": 11165,
           "transfer_bytes": 11465,
-          "after_load_ms": 8482
+          "after_load_ms": 7652
         },
         {
-          "name": "Outlook-Bz2E3LJ_.js",
-          "encoded_bytes": 20270,
-          "transfer_bytes": 20570,
-          "after_load_ms": 9343
+          "name": "Outlook-mMtZSD1Y.js",
+          "encoded_bytes": 20275,
+          "transfer_bytes": 20575,
+          "after_load_ms": 8568
         }
       ],
-      "entry_script": "index-Bq35eSxa.js",
+      "entry_script": "index-C0L2JF0V.js",
       "first_input_at_ms": null,
-      "observed_window_ms": 11143,
+      "observed_window_ms": 10370,
       "worst_events": [],
       "long_tasks": [
         {
-          "at": 1372,
-          "dur": 1661
+          "at": 1445,
+          "dur": 1621
         },
         {
-          "at": 246,
-          "dur": 562
+          "at": 238,
+          "dur": 494
         },
         {
-          "at": 7872,
-          "dur": 450
+          "at": 772,
+          "dur": 364
         },
         {
-          "at": 3105,
-          "dur": 314
+          "at": 7090,
+          "dur": 358
         },
         {
-          "at": 5502,
-          "dur": 308
+          "at": 3168,
+          "dur": 303
         },
         {
-          "at": 5813,
-          "dur": 304
+          "at": 3749,
+          "dur": 271
         },
         {
-          "at": 5171,
-          "dur": 298
+          "at": 5568,
+          "dur": 266
         },
         {
-          "at": 7031,
-          "dur": 294
+          "at": 6417,
+          "dur": 264
         }
       ],
       "long_tasks_all": [
         {
-          "at": 191,
-          "dur": 54
+          "at": 238,
+          "dur": 494
         },
         {
-          "at": 246,
-          "dur": 562
+          "at": 772,
+          "dur": 364
         },
         {
-          "at": 839,
-          "dur": 248
+          "at": 1136,
+          "dur": 180
         },
         {
-          "at": 1087,
-          "dur": 167
+          "at": 1326,
+          "dur": 110
         },
         {
-          "at": 1264,
-          "dur": 99
+          "at": 1445,
+          "dur": 1621
         },
         {
-          "at": 1372,
-          "dur": 1661
+          "at": 3066,
+          "dur": 93
         },
         {
-          "at": 3033,
-          "dur": 66
+          "at": 3168,
+          "dur": 303
         },
         {
-          "at": 3105,
-          "dur": 314
+          "at": 3494,
+          "dur": 246
         },
         {
-          "at": 3446,
+          "at": 3749,
           "dur": 271
         },
         {
-          "at": 3722,
-          "dur": 271
+          "at": 4037,
+          "dur": 240
         },
         {
-          "at": 3998,
-          "dur": 269
+          "at": 4281,
+          "dur": 244
         },
         {
-          "at": 4271,
-          "dur": 291
-        },
-        {
-          "at": 4591,
-          "dur": 268
-        },
-        {
-          "at": 4877,
-          "dur": 264
-        },
-        {
-          "at": 5171,
-          "dur": 298
-        },
-        {
-          "at": 5502,
-          "dur": 308
-        },
-        {
-          "at": 5813,
-          "dur": 304
-        },
-        {
-          "at": 6143,
-          "dur": 284
-        },
-        {
-          "at": 6463,
-          "dur": 274
-        },
-        {
-          "at": 6740,
-          "dur": 275
-        },
-        {
-          "at": 7031,
-          "dur": 294
-        },
-        {
-          "at": 7343,
-          "dur": 286
-        },
-        {
-          "at": 7645,
+          "at": 4553,
           "dur": 227
         },
         {
-          "at": 7872,
-          "dur": 450
+          "at": 4783,
+          "dur": 240
         },
         {
-          "at": 8489,
-          "dur": 58
+          "at": 5027,
+          "dur": 250
         },
         {
-          "at": 8548,
-          "dur": 62
+          "at": 5303,
+          "dur": 241
+        },
+        {
+          "at": 5568,
+          "dur": 266
+        },
+        {
+          "at": 5888,
+          "dur": 257
+        },
+        {
+          "at": 6153,
+          "dur": 262
+        },
+        {
+          "at": 6417,
+          "dur": 264
+        },
+        {
+          "at": 6693,
+          "dur": 264
+        },
+        {
+          "at": 6964,
+          "dur": 126
+        },
+        {
+          "at": 7090,
+          "dur": 358
+        },
+        {
+          "at": 7506,
+          "dur": 53
         }
       ],
       "tbt_attribution": {
-        "first_click_armed_at_ms": 4563,
-        "observed_window_ms": 11143,
-        "tbt_per_observed_second_ms": 594.5,
-        "long_tasks_before_first_click": 12,
-        "long_task_ms_before_first_click": 4273,
+        "first_click_armed_at_ms": 4026,
+        "observed_window_ms": 10370,
+        "tbt_per_observed_second_ms": 561.6,
+        "long_tasks_before_first_click": 9,
+        "long_task_ms_before_first_click": 3682,
         "long_tasks_after_first_click": 14,
-        "long_task_ms_after_first_click": 3652,
+        "long_task_ms_after_first_click": 3292,
         "note": "Chrome does not fire first-input for DevTools-dispatched input, so the split uses the probe's own dispatch clock (armed_at_ms), not first_input_at_ms."
       },
       "interactions": [
         {
           "target": "BUTTON active",
-          "armed_at_ms": 4563,
+          "armed_at_ms": 4026,
           "proc_max_before_ms": 0,
-          "proc_max_after_ms": 2,
+          "proc_max_after_ms": 1,
           "set_new_max": true,
           "event_count_delta": 16,
           "view_swap_ms": null,
@@ -571,32 +559,32 @@
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 7333,
-          "proc_max_before_ms": 2,
-          "proc_max_after_ms": 2,
+          "armed_at_ms": 6688,
+          "proc_max_before_ms": 1,
+          "proc_max_after_ms": 1,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 539,
+          "view_swap_ms": 402,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 8351,
-          "proc_max_before_ms": 2,
-          "proc_max_after_ms": 3,
-          "set_new_max": true,
+          "armed_at_ms": 7606,
+          "proc_max_before_ms": 1,
+          "proc_max_after_ms": 1,
+          "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 198,
+          "view_swap_ms": 74,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 9317,
-          "proc_max_before_ms": 3,
-          "proc_max_after_ms": 3,
+          "armed_at_ms": 8535,
+          "proc_max_before_ms": 1,
+          "proc_max_after_ms": 1,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 46,
+          "view_swap_ms": 48,
           "worst_event_logged": null
         }
       ]
@@ -605,212 +593,200 @@
       "view": "atlas",
       "url": "http://127.0.0.1:4182/#/atlas?r=pantanal&m=hotspots&mode=harmonized",
       "rendered": true,
-      "lcp_before_input_ms": 1164,
-      "fcp": 40,
-      "lcp_before_input": 1164,
-      "lcp_final": 1164,
+      "lcp_before_input_ms": 1072,
+      "fcp": 36,
+      "lcp_before_input": 1072,
+      "lcp_final": 1072,
       "cls": 0.0003,
-      "tbt_ms": 3927,
-      "longest_task_ms": 2089,
-      "inp_processing_max_ms": 3,
+      "tbt_ms": 3098,
+      "longest_task_ms": 1598,
+      "inp_processing_max_ms": 2,
       "interaction_events_observed": 57,
-      "domContentLoaded_ms": 28,
-      "load_ms": 28,
-      "server_timing_ttfb_ms": 3,
+      "domContentLoaded_ms": 26,
+      "load_ms": 26,
+      "server_timing_ttfb_ms": 2,
       "resource_count": 29,
-      "page_bytes_encoded": 19604135,
+      "page_bytes_encoded": 19605527,
       "scripts": [
         {
-          "name": "index-Bq35eSxa.js",
-          "encoded_bytes": 224387,
+          "name": "index-C0L2JF0V.js",
+          "encoded_bytes": 225753,
           "transfer_bytes": 0,
           "after_load_ms": 7
         },
         {
-          "name": "Atlas-DmSAFQvP.js",
+          "name": "Atlas-DdUw4mSk.js",
           "encoded_bytes": 22130,
           "transfer_bytes": 0,
-          "after_load_ms": 677
+          "after_load_ms": 646
+        },
+        {
+          "name": "export-CrX9pQEz.js",
+          "encoded_bytes": 21619,
+          "transfer_bytes": 0,
+          "after_load_ms": 646
         },
         {
           "name": "types-bXTRDlE3.js",
           "encoded_bytes": 113,
           "transfer_bytes": 0,
-          "after_load_ms": 677
-        },
-        {
-          "name": "export-6ZosyhFO.js",
-          "encoded_bytes": 21619,
-          "transfer_bytes": 0,
-          "after_load_ms": 677
+          "after_load_ms": 646
         },
         {
           "name": "basemap-DVtWKUlw.js",
           "encoded_bytes": 370,
           "transfer_bytes": 0,
-          "after_load_ms": 677
+          "after_load_ms": 646
         },
         {
-          "name": "charts-CcsAJ8GE.js",
+          "name": "charts-tUb_26uJ.js",
           "encoded_bytes": 34387,
           "transfer_bytes": 0,
-          "after_load_ms": 678
+          "after_load_ms": 646
         },
         {
-          "name": "Watch-CT6IDAbV.js",
-          "encoded_bytes": 56455,
+          "name": "Watch-D55cZEZo.js",
+          "encoded_bytes": 56476,
           "transfer_bytes": 0,
-          "after_load_ms": 3220
+          "after_load_ms": 3199
         },
         {
           "name": "three-BFnsfFhA.js",
           "encoded_bytes": 486320,
           "transfer_bytes": 0,
-          "after_load_ms": 3221
+          "after_load_ms": 3200
         },
         {
           "name": "satellites-Bi0R0zSF.js",
           "encoded_bytes": 3046,
           "transfer_bytes": 0,
-          "after_load_ms": 3221
+          "after_load_ms": 3200
         },
         {
           "name": "satellite-BcJYAlbX.js",
           "encoded_bytes": 21394,
           "transfer_bytes": 0,
-          "after_load_ms": 3222
+          "after_load_ms": 3200
         },
         {
-          "name": "Diagnosis-3NON_IgU.js",
+          "name": "Diagnosis-_OmYsg6A.js",
           "encoded_bytes": 11165,
           "transfer_bytes": 0,
-          "after_load_ms": 7440
+          "after_load_ms": 6553
         },
         {
-          "name": "Outlook-Bz2E3LJ_.js",
-          "encoded_bytes": 20270,
+          "name": "Outlook-mMtZSD1Y.js",
+          "encoded_bytes": 20275,
           "transfer_bytes": 0,
-          "after_load_ms": 8345
+          "after_load_ms": 7465
         }
       ],
-      "entry_script": "index-Bq35eSxa.js",
+      "entry_script": "index-C0L2JF0V.js",
       "first_input_at_ms": null,
-      "observed_window_ms": 10161,
+      "observed_window_ms": 9279,
       "worst_events": [],
       "long_tasks": [
         {
-          "at": 3805,
-          "dur": 2089
+          "at": 3635,
+          "dur": 1598
         },
         {
-          "at": 235,
-          "dur": 456
+          "at": 211,
+          "dur": 450
         },
         {
-          "at": 6986,
-          "dur": 337
+          "at": 5311,
+          "dur": 298
         },
         {
-          "at": 5960,
-          "dur": 280
+          "at": 6096,
+          "dur": 290
         },
         {
-          "at": 6246,
-          "dur": 260
+          "at": 5634,
+          "dur": 274
         },
         {
-          "at": 6525,
-          "dur": 257
+          "at": 3408,
+          "dur": 209
         },
         {
-          "at": 3302,
-          "dur": 235
+          "at": 5908,
+          "dur": 188
         },
         {
-          "at": 3545,
-          "dur": 233
+          "at": 3236,
+          "dur": 165
         }
       ],
       "long_tasks_all": [
         {
-          "at": 29,
-          "dur": 53
+          "at": 211,
+          "dur": 450
         },
         {
-          "at": 235,
-          "dur": 456
+          "at": 3236,
+          "dur": 165
         },
         {
-          "at": 1141,
-          "dur": 61
+          "at": 3408,
+          "dur": 209
         },
         {
-          "at": 3302,
-          "dur": 235
+          "at": 3635,
+          "dur": 1598
         },
         {
-          "at": 3545,
-          "dur": 233
+          "at": 5234,
+          "dur": 71
         },
         {
-          "at": 3805,
-          "dur": 2089
+          "at": 5311,
+          "dur": 298
         },
         {
-          "at": 5894,
-          "dur": 56
+          "at": 5634,
+          "dur": 274
         },
         {
-          "at": 5960,
-          "dur": 280
+          "at": 5908,
+          "dur": 188
         },
         {
-          "at": 6246,
-          "dur": 260
+          "at": 6096,
+          "dur": 290
         },
         {
-          "at": 6525,
-          "dur": 257
-        },
-        {
-          "at": 6783,
-          "dur": 202
-        },
-        {
-          "at": 6986,
-          "dur": 337
-        },
-        {
-          "at": 7341,
-          "dur": 58
+          "at": 6412,
+          "dur": 55
         }
       ],
       "tbt_attribution": {
-        "first_click_armed_at_ms": 3204,
-        "observed_window_ms": 10161,
-        "tbt_per_observed_second_ms": 386.5,
-        "long_tasks_before_first_click": 3,
-        "long_task_ms_before_first_click": 570,
-        "long_tasks_after_first_click": 10,
-        "long_task_ms_after_first_click": 4007,
+        "first_click_armed_at_ms": 3179,
+        "observed_window_ms": 9279,
+        "tbt_per_observed_second_ms": 333.9,
+        "long_tasks_before_first_click": 1,
+        "long_task_ms_before_first_click": 450,
+        "long_tasks_after_first_click": 9,
+        "long_task_ms_after_first_click": 3148,
         "note": "Chrome does not fire first-input for DevTools-dispatched input, so the split uses the probe's own dispatch clock (armed_at_ms), not first_input_at_ms."
       },
       "interactions": [
         {
           "target": "BUTTON",
-          "armed_at_ms": 3204,
+          "armed_at_ms": 3179,
           "proc_max_before_ms": 0,
-          "proc_max_after_ms": 3,
+          "proc_max_after_ms": 2,
           "set_new_max": true,
           "event_count_delta": 16,
-          "view_swap_ms": 57,
+          "view_swap_ms": 58,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON active",
-          "armed_at_ms": 6509,
-          "proc_max_before_ms": 3,
-          "proc_max_after_ms": 3,
+          "armed_at_ms": 5620,
+          "proc_max_before_ms": 2,
+          "proc_max_after_ms": 2,
           "set_new_max": false,
           "event_count_delta": 13,
           "view_swap_ms": 476,
@@ -818,22 +794,22 @@
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 7419,
-          "proc_max_before_ms": 3,
-          "proc_max_after_ms": 3,
+          "armed_at_ms": 6542,
+          "proc_max_before_ms": 2,
+          "proc_max_after_ms": 2,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 56,
+          "view_swap_ms": 48,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 8336,
-          "proc_max_before_ms": 3,
-          "proc_max_after_ms": 3,
+          "armed_at_ms": 7455,
+          "proc_max_before_ms": 2,
+          "proc_max_after_ms": 2,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 23,
+          "view_swap_ms": 34,
           "worst_event_logged": null
         }
       ]
@@ -842,241 +818,229 @@
       "view": "method-static",
       "url": "http://127.0.0.1:4182/#/method",
       "rendered": true,
-      "lcp_before_input_ms": 848,
-      "fcp": 36,
-      "lcp_before_input": 848,
-      "lcp_final": 848,
+      "lcp_before_input_ms": 796,
+      "fcp": 32,
+      "lcp_before_input": 796,
+      "lcp_final": 796,
       "cls": 0.0003,
-      "tbt_ms": 3730,
-      "longest_task_ms": 1869,
+      "tbt_ms": 2935,
+      "longest_task_ms": 1557,
       "inp_processing_max_ms": 1,
       "interaction_events_observed": 57,
-      "domContentLoaded_ms": 28,
-      "load_ms": 28,
+      "domContentLoaded_ms": 25,
+      "load_ms": 25,
       "server_timing_ttfb_ms": 2,
       "resource_count": 28,
-      "page_bytes_encoded": 16351082,
+      "page_bytes_encoded": 16352484,
       "scripts": [
         {
-          "name": "index-Bq35eSxa.js",
-          "encoded_bytes": 224387,
+          "name": "index-C0L2JF0V.js",
+          "encoded_bytes": 225753,
           "transfer_bytes": 0,
-          "after_load_ms": 7
+          "after_load_ms": 6
         },
         {
-          "name": "Method-BwLhVc3B.js",
-          "encoded_bytes": 24146,
-          "transfer_bytes": 24446,
-          "after_load_ms": 650
+          "name": "Method-y4BJeIYw.js",
+          "encoded_bytes": 24156,
+          "transfer_bytes": 24456,
+          "after_load_ms": 620
         },
         {
           "name": "satellites-Bi0R0zSF.js",
           "encoded_bytes": 3046,
           "transfer_bytes": 0,
-          "after_load_ms": 651
+          "after_load_ms": 620
         },
         {
-          "name": "Watch-CT6IDAbV.js",
-          "encoded_bytes": 56455,
+          "name": "Watch-D55cZEZo.js",
+          "encoded_bytes": 56476,
           "transfer_bytes": 0,
-          "after_load_ms": 3216
+          "after_load_ms": 3184
         },
         {
           "name": "three-BFnsfFhA.js",
           "encoded_bytes": 486320,
           "transfer_bytes": 0,
-          "after_load_ms": 3216
+          "after_load_ms": 3184
         },
         {
           "name": "satellite-BcJYAlbX.js",
           "encoded_bytes": 21394,
           "transfer_bytes": 0,
-          "after_load_ms": 3216
+          "after_load_ms": 3184
         },
         {
           "name": "types-bXTRDlE3.js",
           "encoded_bytes": 113,
           "transfer_bytes": 0,
-          "after_load_ms": 3216
+          "after_load_ms": 3184
         },
         {
           "name": "basemap-DVtWKUlw.js",
           "encoded_bytes": 370,
           "transfer_bytes": 0,
-          "after_load_ms": 3217
+          "after_load_ms": 3184
         },
         {
-          "name": "Atlas-DmSAFQvP.js",
+          "name": "Atlas-DdUw4mSk.js",
           "encoded_bytes": 22130,
           "transfer_bytes": 0,
-          "after_load_ms": 6559
+          "after_load_ms": 5749
         },
         {
-          "name": "export-6ZosyhFO.js",
+          "name": "export-CrX9pQEz.js",
           "encoded_bytes": 21619,
           "transfer_bytes": 0,
-          "after_load_ms": 6559
+          "after_load_ms": 5749
         },
         {
-          "name": "charts-CcsAJ8GE.js",
+          "name": "charts-tUb_26uJ.js",
           "encoded_bytes": 34387,
           "transfer_bytes": 0,
-          "after_load_ms": 6559
+          "after_load_ms": 5750
         },
         {
-          "name": "Diagnosis-3NON_IgU.js",
+          "name": "Diagnosis-_OmYsg6A.js",
           "encoded_bytes": 11165,
           "transfer_bytes": 0,
-          "after_load_ms": 7291
+          "after_load_ms": 6450
         },
         {
-          "name": "Outlook-Bz2E3LJ_.js",
-          "encoded_bytes": 20270,
+          "name": "Outlook-mMtZSD1Y.js",
+          "encoded_bytes": 20275,
           "transfer_bytes": 0,
-          "after_load_ms": 8235
+          "after_load_ms": 7349
         }
       ],
-      "entry_script": "index-Bq35eSxa.js",
+      "entry_script": "index-C0L2JF0V.js",
       "first_input_at_ms": null,
-      "observed_window_ms": 10106,
+      "observed_window_ms": 9164,
       "worst_events": [],
       "long_tasks": [
         {
-          "at": 4031,
-          "dur": 1869
+          "at": 3587,
+          "dur": 1557
         },
         {
-          "at": 227,
-          "dur": 438
+          "at": 215,
+          "dur": 424
         },
         {
-          "at": 6763,
-          "dur": 411
+          "at": 5885,
+          "dur": 315
         },
         {
-          "at": 5920,
-          "dur": 357
+          "at": 5223,
+          "dur": 264
         },
         {
-          "at": 6279,
-          "dur": 273
+          "at": 5510,
+          "dur": 237
         },
         {
-          "at": 3506,
-          "dur": 238
+          "at": 3388,
+          "dur": 181
         },
         {
-          "at": 6563,
-          "dur": 200
+          "at": 3210,
+          "dur": 178
         },
         {
-          "at": 3322,
-          "dur": 183
+          "at": 5755,
+          "dur": 129
         }
       ],
       "long_tasks_all": [
         {
-          "at": 175,
-          "dur": 52
+          "at": 215,
+          "dur": 424
         },
         {
-          "at": 227,
-          "dur": 438
+          "at": 681,
+          "dur": 75
         },
         {
-          "at": 3322,
-          "dur": 183
+          "at": 3210,
+          "dur": 178
         },
         {
-          "at": 3506,
-          "dur": 238
+          "at": 3388,
+          "dur": 181
         },
         {
-          "at": 3758,
-          "dur": 137
+          "at": 3587,
+          "dur": 1557
         },
         {
-          "at": 3911,
-          "dur": 119
+          "at": 5144,
+          "dur": 75
         },
         {
-          "at": 4031,
-          "dur": 1869
+          "at": 5223,
+          "dur": 264
         },
         {
-          "at": 5920,
-          "dur": 357
+          "at": 5510,
+          "dur": 237
         },
         {
-          "at": 6279,
-          "dur": 273
+          "at": 5755,
+          "dur": 129
         },
         {
-          "at": 6563,
-          "dur": 200
-        },
-        {
-          "at": 6763,
-          "dur": 411
-        },
-        {
-          "at": 7224,
-          "dur": 51
-        },
-        {
-          "at": 8241,
-          "dur": 52
+          "at": 5885,
+          "dur": 315
         }
       ],
       "tbt_attribution": {
-        "first_click_armed_at_ms": 3203,
-        "observed_window_ms": 10106,
-        "tbt_per_observed_second_ms": 369.1,
+        "first_click_armed_at_ms": 3165,
+        "observed_window_ms": 9164,
+        "tbt_per_observed_second_ms": 320.3,
         "long_tasks_before_first_click": 2,
-        "long_task_ms_before_first_click": 490,
-        "long_tasks_after_first_click": 11,
-        "long_task_ms_after_first_click": 3890,
+        "long_task_ms_before_first_click": 499,
+        "long_tasks_after_first_click": 8,
+        "long_task_ms_after_first_click": 2936,
         "note": "Chrome does not fire first-input for DevTools-dispatched input, so the split uses the probe's own dispatch clock (armed_at_ms), not first_input_at_ms."
       },
       "interactions": [
         {
           "target": "BUTTON",
-          "armed_at_ms": 3203,
+          "armed_at_ms": 3165,
           "proc_max_before_ms": 0,
           "proc_max_after_ms": 1,
           "set_new_max": true,
           "event_count_delta": 16,
-          "view_swap_ms": 63,
+          "view_swap_ms": 45,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 5915,
+          "armed_at_ms": 5493,
           "proc_max_before_ms": 1,
           "proc_max_after_ms": 1,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 849,
+          "view_swap_ms": 392,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 7224,
+          "armed_at_ms": 6418,
           "proc_max_before_ms": 1,
           "proc_max_after_ms": 1,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 100,
+          "view_swap_ms": 58,
           "worst_event_logged": null
         },
         {
           "target": "BUTTON",
-          "armed_at_ms": 8211,
+          "armed_at_ms": 7341,
           "proc_max_before_ms": 1,
           "proc_max_after_ms": 1,
           "set_new_max": false,
           "event_count_delta": 13,
-          "view_swap_ms": 82,
+          "view_swap_ms": 22,
           "worst_event_logged": null
         }
       ]
@@ -1085,58 +1049,58 @@
   "js_budget": [
     {
       "view": "start-watch",
-      "entry_script": "index-Bq35eSxa.js",
-      "entry_raw_bytes_from_probe": 224387,
-      "entry_gzip_bytes": 76330,
-      "first_interaction_cut_ms": 4563,
+      "entry_script": "index-C0L2JF0V.js",
+      "entry_raw_bytes_from_probe": 225753,
+      "entry_gzip_bytes": 76897,
+      "first_interaction_cut_ms": 4026,
       "initial_payload_scripts": [
-        "index-Bq35eSxa.js",
-        "Watch-CT6IDAbV.js",
+        "index-C0L2JF0V.js",
+        "Watch-D55cZEZo.js",
+        "three-BFnsfFhA.js",
         "satellites-Bi0R0zSF.js",
         "satellite-BcJYAlbX.js",
-        "three-BFnsfFhA.js",
         "types-bXTRDlE3.js",
         "basemap-DVtWKUlw.js"
       ],
-      "initial_payload_gzip_bytes": 229293,
-      "initial_payload_gzip_kb": 223.92,
-      "initial_payload_gzip_kb_decimal": 229.29,
+      "initial_payload_gzip_bytes": 229871,
+      "initial_payload_gzip_kb": 224.48,
+      "initial_payload_gzip_kb_decimal": 229.87,
       "within_payload_budget_kib": true,
       "within_payload_budget_decimal_kb": true,
       "session_total_scripts": [
-        "index-Bq35eSxa.js",
-        "Watch-CT6IDAbV.js",
+        "index-C0L2JF0V.js",
+        "Watch-D55cZEZo.js",
+        "three-BFnsfFhA.js",
         "satellites-Bi0R0zSF.js",
         "satellite-BcJYAlbX.js",
-        "three-BFnsfFhA.js",
         "types-bXTRDlE3.js",
         "basemap-DVtWKUlw.js",
-        "Atlas-DmSAFQvP.js",
-        "charts-CcsAJ8GE.js",
-        "export-6ZosyhFO.js",
-        "Diagnosis-3NON_IgU.js",
-        "Outlook-Bz2E3LJ_.js"
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
+        "charts-tUb_26uJ.js",
+        "Diagnosis-_OmYsg6A.js",
+        "Outlook-mMtZSD1Y.js"
       ],
-      "session_total_gzip_bytes": 268010,
-      "session_total_gzip_kb": 261.73,
-      "session_total_gzip_kb_decimal": 268.01,
+      "session_total_gzip_bytes": 268598,
+      "session_total_gzip_kb": 262.3,
+      "session_total_gzip_kb_decimal": 268.6,
       "scripts_requested_as_initial": [
-        "index-Bq35eSxa.js",
-        "Watch-CT6IDAbV.js",
+        "index-C0L2JF0V.js",
+        "Watch-D55cZEZo.js",
+        "three-BFnsfFhA.js",
         "satellites-Bi0R0zSF.js",
         "satellite-BcJYAlbX.js",
-        "three-BFnsfFhA.js",
         "types-bXTRDlE3.js",
         "basemap-DVtWKUlw.js",
-        "Atlas-DmSAFQvP.js",
-        "charts-CcsAJ8GE.js",
-        "export-6ZosyhFO.js",
-        "Diagnosis-3NON_IgU.js",
-        "Outlook-Bz2E3LJ_.js"
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
+        "charts-tUb_26uJ.js",
+        "Diagnosis-_OmYsg6A.js",
+        "Outlook-mMtZSD1Y.js"
       ],
-      "total_initial_gzip_bytes": 268010,
-      "total_initial_gzip_kb": 261.73,
-      "total_initial_gzip_kb_decimal": 268.01,
+      "total_initial_gzip_bytes": 268598,
+      "total_initial_gzip_kb": 262.3,
+      "total_initial_gzip_kb_decimal": 268.6,
       "within_budget_kib": true,
       "within_budget_decimal_kb": true,
       "initial_js_budget_kb": 250,
@@ -1144,144 +1108,144 @@
       "budget_basis": "initial payload = chunks requested before the first dispatched interaction",
       "scripts": [
         {
-          "name": "index-Bq35eSxa.js",
-          "raw_bytes": 224387,
-          "gzip_bytes": 76330,
+          "name": "index-C0L2JF0V.js",
+          "raw_bytes": 225753,
+          "gzip_bytes": 76897,
           "requested_at_ms": 7,
           "in_initial_payload": true
         },
         {
-          "name": "Watch-CT6IDAbV.js",
-          "raw_bytes": 56455,
-          "gzip_bytes": 17715,
-          "requested_at_ms": 787,
-          "in_initial_payload": true
-        },
-        {
-          "name": "satellites-Bi0R0zSF.js",
-          "raw_bytes": 3046,
-          "gzip_bytes": 1427,
-          "requested_at_ms": 787,
-          "in_initial_payload": true
-        },
-        {
-          "name": "satellite-BcJYAlbX.js",
-          "raw_bytes": 21394,
-          "gzip_bytes": 10574,
-          "requested_at_ms": 787,
+          "name": "Watch-D55cZEZo.js",
+          "raw_bytes": 56476,
+          "gzip_bytes": 17726,
+          "requested_at_ms": 706,
           "in_initial_payload": true
         },
         {
           "name": "three-BFnsfFhA.js",
           "raw_bytes": 486320,
           "gzip_bytes": 122808,
-          "requested_at_ms": 787,
+          "requested_at_ms": 706,
+          "in_initial_payload": true
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "raw_bytes": 3046,
+          "gzip_bytes": 1427,
+          "requested_at_ms": 706,
+          "in_initial_payload": true
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "raw_bytes": 21394,
+          "gzip_bytes": 10574,
+          "requested_at_ms": 707,
           "in_initial_payload": true
         },
         {
           "name": "types-bXTRDlE3.js",
           "raw_bytes": 113,
           "gzip_bytes": 113,
-          "requested_at_ms": 787,
+          "requested_at_ms": 707,
           "in_initial_payload": true
         },
         {
           "name": "basemap-DVtWKUlw.js",
           "raw_bytes": 370,
           "gzip_bytes": 326,
-          "requested_at_ms": 787,
+          "requested_at_ms": 707,
           "in_initial_payload": true
         },
         {
-          "name": "Atlas-DmSAFQvP.js",
+          "name": "Atlas-DdUw4mSk.js",
           "raw_bytes": 22130,
-          "gzip_bytes": 7452,
-          "requested_at_ms": 7631,
+          "gzip_bytes": 7454,
+          "requested_at_ms": 6959,
           "in_initial_payload": false
         },
         {
-          "name": "charts-CcsAJ8GE.js",
-          "raw_bytes": 34387,
-          "gzip_bytes": 11362,
-          "requested_at_ms": 7631,
-          "in_initial_payload": false
-        },
-        {
-          "name": "export-6ZosyhFO.js",
+          "name": "export-CrX9pQEz.js",
           "raw_bytes": 21619,
-          "gzip_bytes": 8370,
-          "requested_at_ms": 7631,
+          "gzip_bytes": 8371,
+          "requested_at_ms": 6959,
           "in_initial_payload": false
         },
         {
-          "name": "Diagnosis-3NON_IgU.js",
+          "name": "charts-tUb_26uJ.js",
+          "raw_bytes": 34387,
+          "gzip_bytes": 11363,
+          "requested_at_ms": 6959,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Diagnosis-_OmYsg6A.js",
           "raw_bytes": 11165,
-          "gzip_bytes": 3956,
-          "requested_at_ms": 8482,
+          "gzip_bytes": 3958,
+          "requested_at_ms": 7652,
           "in_initial_payload": false
         },
         {
-          "name": "Outlook-Bz2E3LJ_.js",
-          "raw_bytes": 20270,
-          "gzip_bytes": 7577,
-          "requested_at_ms": 9343,
+          "name": "Outlook-mMtZSD1Y.js",
+          "raw_bytes": 20275,
+          "gzip_bytes": 7581,
+          "requested_at_ms": 8568,
           "in_initial_payload": false
         }
       ]
     },
     {
       "view": "atlas",
-      "entry_script": "index-Bq35eSxa.js",
-      "entry_raw_bytes_from_probe": 224387,
-      "entry_gzip_bytes": 76330,
-      "first_interaction_cut_ms": 3204,
+      "entry_script": "index-C0L2JF0V.js",
+      "entry_raw_bytes_from_probe": 225753,
+      "entry_gzip_bytes": 76897,
+      "first_interaction_cut_ms": 3179,
       "initial_payload_scripts": [
-        "index-Bq35eSxa.js",
-        "Atlas-DmSAFQvP.js",
+        "index-C0L2JF0V.js",
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
         "types-bXTRDlE3.js",
-        "export-6ZosyhFO.js",
         "basemap-DVtWKUlw.js",
-        "charts-CcsAJ8GE.js"
+        "charts-tUb_26uJ.js"
       ],
-      "initial_payload_gzip_bytes": 103953,
-      "initial_payload_gzip_kb": 101.52,
-      "initial_payload_gzip_kb_decimal": 103.95,
+      "initial_payload_gzip_bytes": 104524,
+      "initial_payload_gzip_kb": 102.07,
+      "initial_payload_gzip_kb_decimal": 104.52,
       "within_payload_budget_kib": true,
       "within_payload_budget_decimal_kb": true,
       "session_total_scripts": [
-        "index-Bq35eSxa.js",
-        "Atlas-DmSAFQvP.js",
+        "index-C0L2JF0V.js",
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
         "types-bXTRDlE3.js",
-        "export-6ZosyhFO.js",
         "basemap-DVtWKUlw.js",
-        "charts-CcsAJ8GE.js",
-        "Watch-CT6IDAbV.js",
+        "charts-tUb_26uJ.js",
+        "Watch-D55cZEZo.js",
         "three-BFnsfFhA.js",
         "satellites-Bi0R0zSF.js",
         "satellite-BcJYAlbX.js",
-        "Diagnosis-3NON_IgU.js",
-        "Outlook-Bz2E3LJ_.js"
+        "Diagnosis-_OmYsg6A.js",
+        "Outlook-mMtZSD1Y.js"
       ],
-      "session_total_gzip_bytes": 268010,
-      "session_total_gzip_kb": 261.73,
-      "session_total_gzip_kb_decimal": 268.01,
+      "session_total_gzip_bytes": 268598,
+      "session_total_gzip_kb": 262.3,
+      "session_total_gzip_kb_decimal": 268.6,
       "scripts_requested_as_initial": [
-        "index-Bq35eSxa.js",
-        "Atlas-DmSAFQvP.js",
+        "index-C0L2JF0V.js",
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
         "types-bXTRDlE3.js",
-        "export-6ZosyhFO.js",
         "basemap-DVtWKUlw.js",
-        "charts-CcsAJ8GE.js",
-        "Watch-CT6IDAbV.js",
+        "charts-tUb_26uJ.js",
+        "Watch-D55cZEZo.js",
         "three-BFnsfFhA.js",
         "satellites-Bi0R0zSF.js",
         "satellite-BcJYAlbX.js",
-        "Diagnosis-3NON_IgU.js",
-        "Outlook-Bz2E3LJ_.js"
+        "Diagnosis-_OmYsg6A.js",
+        "Outlook-mMtZSD1Y.js"
       ],
-      "total_initial_gzip_bytes": 268010,
-      "total_initial_gzip_kb": 261.73,
-      "total_initial_gzip_kb_decimal": 268.01,
+      "total_initial_gzip_bytes": 268598,
+      "total_initial_gzip_kb": 262.3,
+      "total_initial_gzip_kb_decimal": 268.6,
       "within_budget_kib": true,
       "within_budget_decimal_kb": true,
       "initial_js_budget_kb": 250,
@@ -1289,143 +1253,143 @@
       "budget_basis": "initial payload = chunks requested before the first dispatched interaction",
       "scripts": [
         {
-          "name": "index-Bq35eSxa.js",
-          "raw_bytes": 224387,
-          "gzip_bytes": 76330,
+          "name": "index-C0L2JF0V.js",
+          "raw_bytes": 225753,
+          "gzip_bytes": 76897,
           "requested_at_ms": 7,
           "in_initial_payload": true
         },
         {
-          "name": "Atlas-DmSAFQvP.js",
+          "name": "Atlas-DdUw4mSk.js",
           "raw_bytes": 22130,
-          "gzip_bytes": 7452,
-          "requested_at_ms": 677,
+          "gzip_bytes": 7454,
+          "requested_at_ms": 646,
+          "in_initial_payload": true
+        },
+        {
+          "name": "export-CrX9pQEz.js",
+          "raw_bytes": 21619,
+          "gzip_bytes": 8371,
+          "requested_at_ms": 646,
           "in_initial_payload": true
         },
         {
           "name": "types-bXTRDlE3.js",
           "raw_bytes": 113,
           "gzip_bytes": 113,
-          "requested_at_ms": 677,
-          "in_initial_payload": true
-        },
-        {
-          "name": "export-6ZosyhFO.js",
-          "raw_bytes": 21619,
-          "gzip_bytes": 8370,
-          "requested_at_ms": 677,
+          "requested_at_ms": 646,
           "in_initial_payload": true
         },
         {
           "name": "basemap-DVtWKUlw.js",
           "raw_bytes": 370,
           "gzip_bytes": 326,
-          "requested_at_ms": 677,
+          "requested_at_ms": 646,
           "in_initial_payload": true
         },
         {
-          "name": "charts-CcsAJ8GE.js",
+          "name": "charts-tUb_26uJ.js",
           "raw_bytes": 34387,
-          "gzip_bytes": 11362,
-          "requested_at_ms": 678,
+          "gzip_bytes": 11363,
+          "requested_at_ms": 646,
           "in_initial_payload": true
         },
         {
-          "name": "Watch-CT6IDAbV.js",
-          "raw_bytes": 56455,
-          "gzip_bytes": 17715,
-          "requested_at_ms": 3220,
+          "name": "Watch-D55cZEZo.js",
+          "raw_bytes": 56476,
+          "gzip_bytes": 17726,
+          "requested_at_ms": 3199,
           "in_initial_payload": false
         },
         {
           "name": "three-BFnsfFhA.js",
           "raw_bytes": 486320,
           "gzip_bytes": 122808,
-          "requested_at_ms": 3221,
+          "requested_at_ms": 3200,
           "in_initial_payload": false
         },
         {
           "name": "satellites-Bi0R0zSF.js",
           "raw_bytes": 3046,
           "gzip_bytes": 1427,
-          "requested_at_ms": 3221,
+          "requested_at_ms": 3200,
           "in_initial_payload": false
         },
         {
           "name": "satellite-BcJYAlbX.js",
           "raw_bytes": 21394,
           "gzip_bytes": 10574,
-          "requested_at_ms": 3222,
+          "requested_at_ms": 3200,
           "in_initial_payload": false
         },
         {
-          "name": "Diagnosis-3NON_IgU.js",
+          "name": "Diagnosis-_OmYsg6A.js",
           "raw_bytes": 11165,
-          "gzip_bytes": 3956,
-          "requested_at_ms": 7440,
+          "gzip_bytes": 3958,
+          "requested_at_ms": 6553,
           "in_initial_payload": false
         },
         {
-          "name": "Outlook-Bz2E3LJ_.js",
-          "raw_bytes": 20270,
-          "gzip_bytes": 7577,
-          "requested_at_ms": 8345,
+          "name": "Outlook-mMtZSD1Y.js",
+          "raw_bytes": 20275,
+          "gzip_bytes": 7581,
+          "requested_at_ms": 7465,
           "in_initial_payload": false
         }
       ]
     },
     {
       "view": "method-static",
-      "entry_script": "index-Bq35eSxa.js",
-      "entry_raw_bytes_from_probe": 224387,
-      "entry_gzip_bytes": 76330,
-      "first_interaction_cut_ms": 3203,
+      "entry_script": "index-C0L2JF0V.js",
+      "entry_raw_bytes_from_probe": 225753,
+      "entry_gzip_bytes": 76897,
+      "first_interaction_cut_ms": 3165,
       "initial_payload_scripts": [
-        "index-Bq35eSxa.js",
-        "Method-BwLhVc3B.js",
+        "index-C0L2JF0V.js",
+        "Method-y4BJeIYw.js",
         "satellites-Bi0R0zSF.js"
       ],
-      "initial_payload_gzip_bytes": 86144,
-      "initial_payload_gzip_kb": 84.13,
-      "initial_payload_gzip_kb_decimal": 86.14,
+      "initial_payload_gzip_bytes": 86718,
+      "initial_payload_gzip_kb": 84.69,
+      "initial_payload_gzip_kb_decimal": 86.72,
       "within_payload_budget_kib": true,
       "within_payload_budget_decimal_kb": true,
       "session_total_scripts": [
-        "index-Bq35eSxa.js",
-        "Method-BwLhVc3B.js",
+        "index-C0L2JF0V.js",
+        "Method-y4BJeIYw.js",
         "satellites-Bi0R0zSF.js",
-        "Watch-CT6IDAbV.js",
+        "Watch-D55cZEZo.js",
         "three-BFnsfFhA.js",
         "satellite-BcJYAlbX.js",
         "types-bXTRDlE3.js",
         "basemap-DVtWKUlw.js",
-        "Atlas-DmSAFQvP.js",
-        "export-6ZosyhFO.js",
-        "charts-CcsAJ8GE.js",
-        "Diagnosis-3NON_IgU.js",
-        "Outlook-Bz2E3LJ_.js"
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
+        "charts-tUb_26uJ.js",
+        "Diagnosis-_OmYsg6A.js",
+        "Outlook-mMtZSD1Y.js"
       ],
-      "session_total_gzip_bytes": 276397,
-      "session_total_gzip_kb": 269.92,
-      "session_total_gzip_kb_decimal": 276.4,
+      "session_total_gzip_bytes": 276992,
+      "session_total_gzip_kb": 270.5,
+      "session_total_gzip_kb_decimal": 276.99,
       "scripts_requested_as_initial": [
-        "index-Bq35eSxa.js",
-        "Method-BwLhVc3B.js",
+        "index-C0L2JF0V.js",
+        "Method-y4BJeIYw.js",
         "satellites-Bi0R0zSF.js",
-        "Watch-CT6IDAbV.js",
+        "Watch-D55cZEZo.js",
         "three-BFnsfFhA.js",
         "satellite-BcJYAlbX.js",
         "types-bXTRDlE3.js",
         "basemap-DVtWKUlw.js",
-        "Atlas-DmSAFQvP.js",
-        "export-6ZosyhFO.js",
-        "charts-CcsAJ8GE.js",
-        "Diagnosis-3NON_IgU.js",
-        "Outlook-Bz2E3LJ_.js"
+        "Atlas-DdUw4mSk.js",
+        "export-CrX9pQEz.js",
+        "charts-tUb_26uJ.js",
+        "Diagnosis-_OmYsg6A.js",
+        "Outlook-mMtZSD1Y.js"
       ],
-      "total_initial_gzip_bytes": 276397,
-      "total_initial_gzip_kb": 269.92,
-      "total_initial_gzip_kb_decimal": 276.4,
+      "total_initial_gzip_bytes": 276992,
+      "total_initial_gzip_kb": 270.5,
+      "total_initial_gzip_kb_decimal": 276.99,
       "within_budget_kib": true,
       "within_budget_decimal_kb": true,
       "initial_js_budget_kb": 250,
@@ -1433,94 +1397,94 @@
       "budget_basis": "initial payload = chunks requested before the first dispatched interaction",
       "scripts": [
         {
-          "name": "index-Bq35eSxa.js",
-          "raw_bytes": 224387,
-          "gzip_bytes": 76330,
-          "requested_at_ms": 7,
+          "name": "index-C0L2JF0V.js",
+          "raw_bytes": 225753,
+          "gzip_bytes": 76897,
+          "requested_at_ms": 6,
           "in_initial_payload": true
         },
         {
-          "name": "Method-BwLhVc3B.js",
-          "raw_bytes": 24146,
-          "gzip_bytes": 8387,
-          "requested_at_ms": 650,
+          "name": "Method-y4BJeIYw.js",
+          "raw_bytes": 24156,
+          "gzip_bytes": 8394,
+          "requested_at_ms": 620,
           "in_initial_payload": true
         },
         {
           "name": "satellites-Bi0R0zSF.js",
           "raw_bytes": 3046,
           "gzip_bytes": 1427,
-          "requested_at_ms": 651,
+          "requested_at_ms": 620,
           "in_initial_payload": true
         },
         {
-          "name": "Watch-CT6IDAbV.js",
-          "raw_bytes": 56455,
-          "gzip_bytes": 17715,
-          "requested_at_ms": 3216,
+          "name": "Watch-D55cZEZo.js",
+          "raw_bytes": 56476,
+          "gzip_bytes": 17726,
+          "requested_at_ms": 3184,
           "in_initial_payload": false
         },
         {
           "name": "three-BFnsfFhA.js",
           "raw_bytes": 486320,
           "gzip_bytes": 122808,
-          "requested_at_ms": 3216,
+          "requested_at_ms": 3184,
           "in_initial_payload": false
         },
         {
           "name": "satellite-BcJYAlbX.js",
           "raw_bytes": 21394,
           "gzip_bytes": 10574,
-          "requested_at_ms": 3216,
+          "requested_at_ms": 3184,
           "in_initial_payload": false
         },
         {
           "name": "types-bXTRDlE3.js",
           "raw_bytes": 113,
           "gzip_bytes": 113,
-          "requested_at_ms": 3216,
+          "requested_at_ms": 3184,
           "in_initial_payload": false
         },
         {
           "name": "basemap-DVtWKUlw.js",
           "raw_bytes": 370,
           "gzip_bytes": 326,
-          "requested_at_ms": 3217,
+          "requested_at_ms": 3184,
           "in_initial_payload": false
         },
         {
-          "name": "Atlas-DmSAFQvP.js",
+          "name": "Atlas-DdUw4mSk.js",
           "raw_bytes": 22130,
-          "gzip_bytes": 7452,
-          "requested_at_ms": 6559,
+          "gzip_bytes": 7454,
+          "requested_at_ms": 5749,
           "in_initial_payload": false
         },
         {
-          "name": "export-6ZosyhFO.js",
+          "name": "export-CrX9pQEz.js",
           "raw_bytes": 21619,
-          "gzip_bytes": 8370,
-          "requested_at_ms": 6559,
+          "gzip_bytes": 8371,
+          "requested_at_ms": 5749,
           "in_initial_payload": false
         },
         {
-          "name": "charts-CcsAJ8GE.js",
+          "name": "charts-tUb_26uJ.js",
           "raw_bytes": 34387,
-          "gzip_bytes": 11362,
-          "requested_at_ms": 6559,
+          "gzip_bytes": 11363,
+          "requested_at_ms": 5750,
           "in_initial_payload": false
         },
         {
-          "name": "Diagnosis-3NON_IgU.js",
+          "name": "Diagnosis-_OmYsg6A.js",
           "raw_bytes": 11165,
-          "gzip_bytes": 3956,
-          "requested_at_ms": 7291,
+          "gzip_bytes": 3958,
+          "requested_at_ms": 6450,
           "in_initial_payload": false
         },
         {
-          "name": "Outlook-Bz2E3LJ_.js",
-          "raw_bytes": 20270,
-          "gzip_bytes": 7577,
-          "requested_at_ms": 8235,
+          "name": "Outlook-mMtZSD1Y.js",
+          "raw_bytes": 20275,
+          "gzip_bytes": 7581,
+          "requested_at_ms": 7349,
           "in_initial_payload": false
         }
       ]
@@ -1529,9 +1493,9 @@
   "verdict": {
     "breaches": [],
     "near_miss": [
-      "start-watch downloads 261.73 kB (KiB; 268.01 kB decimal) of JS across the whole probed session, after the 223.92 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js",
-      "atlas downloads 261.73 kB (KiB; 268.01 kB decimal) of JS across the whole probed session, after the 101.52 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js",
-      "method-static downloads 269.92 kB (KiB; 276.4 kB decimal) of JS across the whole probed session, after the 84.13 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js"
+      "start-watch downloads 262.3 kB (KiB; 268.6 kB decimal) of JS across the whole probed session, after the 224.48 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js",
+      "atlas downloads 262.3 kB (KiB; 268.6 kB decimal) of JS across the whole probed session, after the 102.07 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js",
+      "method-static downloads 270.5 kB (KiB; 276.99 kB decimal) of JS across the whole probed session, after the 84.69 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js"
     ],
     "objectives_met": true
   },

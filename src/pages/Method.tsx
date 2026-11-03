@@ -241,7 +241,7 @@ export function Method() {
           <span>Record: {store.records[0]?.date} → {store.today}</span>
           <span>{nf(store.records.length)} daily rows</span>
           <span>{nf(years.length)} complete years</span>
-          <span>Live detections: {nf(store.live?.meta.counts.kept ?? 0)}</span>
+          <span>Live detections worldwide: {nf(store.live?.meta.counts.kept ?? 0)}</span>
           <span>Method version 0.1.0</span>
         </div>
       </Panel>

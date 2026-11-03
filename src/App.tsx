@@ -142,7 +142,7 @@ function Footer() {
           <button type="button" onClick={() => store.setView('method')}>Method</button>
         </div>
         <div className="footer-meta">
-          <span>Live detections: {nf(store.live?.meta.counts.kept ?? 0)}</span>
+          <span>Live detections worldwide: {nf(store.live?.meta.counts.kept ?? 0)}</span>
           <span>Data through {store.today}</span>
           <span>Method v0.1.0</span>
         </div>

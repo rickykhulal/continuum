@@ -303,7 +303,7 @@ export function SettingsPanel() {
           <div className="session-facts">
             <div><span>Method</span><b>v0.1.0</b></div>
             <div><span>Data through</span><b>{store.today}</b></div>
-            <div><span>Live detections</span><b>{nf(store.live?.meta.counts.kept ?? 0)}</b></div>
+            <div><span>Live detections worldwide</span><b>{nf(store.live?.meta.counts.kept ?? 0)}</b></div>
             <div><span>Record rows</span><b>{nf(store.records.length)}</b></div>
           </div>
           <button

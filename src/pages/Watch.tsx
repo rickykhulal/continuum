@@ -121,7 +121,7 @@ export function Watch() {
             <button className="link-btn hero-tour" onClick={() => store.setTourOpen(true)}>Judge tour</button>
           </div>
           <div className="hero-meta">
-            <span><i className="live-dot" /> {live ? `${nf(live.meta.counts.kept)} real detections` : 'loading live data'}</span>
+            <span><i className="live-dot" /> {live ? `${nf(live.meta.counts.kept)} real detections worldwide` : 'loading live data'}</span>
             <span className="sep" />
             <span>{live ? `${daysBetween(live.meta.windowStart, live.meta.windowEnd) + 1}-day rolling window` : '—'}</span>
             <span className="sep" />

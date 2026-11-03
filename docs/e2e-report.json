@@ -6,7 +6,7 @@
     {
       "name": "Watch renders hero + live window",
       "pass": true,
-      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"11:59:58UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"12:12:02UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
     },
     {
       "name": "Five spacecraft listed",
@@ -26,7 +26,7 @@
     {
       "name": "Simulation clock advances (rAF live)",
       "pass": true,
-      "detail": "{\"clock1\":\"12:00:16UTC · 3 November 2026\",\"clock2\":\"12:00:52UTC · 3 November 2026\"}"
+      "detail": "{\"clock1\":\"12:12:20UTC · 3 November 2026\",\"clock2\":\"12:12:56UTC · 3 November 2026\"}"
     },
     {
       "name": "Speed selector switches to 600x",
@@ -36,7 +36,7 @@
     {
       "name": "Time offset slider seeks the globe back a day",
       "pass": true,
-      "detail": "{\"before\":\"12:00:52UTC · 3 November 2026\",\"after\":\"11:59:46UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"11:59:47UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
+      "detail": "{\"before\":\"12:14:56UTC · 3 November 2026\",\"after\":\"12:11:51UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"12:11:52UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
     },
     {
       "name": "Region chip switches AOI to Pantanal",
@@ -471,7 +471,7 @@
     {
       "name": "Selecting a country makes it the analysed area",
       "pass": true,
-      "detail": "{\"region\":\"Antarctica — country wide\",\"hash\":\"#/watch?r=country-antarctica&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=antarctica\",\"live\":\"71,882 real detections8-day rolling windowreal TLEs · SGP4\",\"toast\":\"Antarctica: country-wide, no detection inside its border in this window.\"}"
+      "detail": "{\"region\":\"Antarctica — country wide\",\"hash\":\"#/watch?r=country-antarctica&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=antarctica\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"toast\":\"Antarctica: country-wide, no detection inside its border in this window.\"}"
     },
     {
       "name": "The country label states measured detections, not a model",

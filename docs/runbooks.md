@@ -37,8 +37,8 @@ npm run rehearse  # backup/restore drill; spawns its own API on :4198
 Last recorded results on this machine (2026-11-03, world layer over HTTP): validate 23/23, tests 70/70,
 secret-scan clean, smoke 49/49, build exit 0, e2e 104/104 with zero console errors (the 4 new checks
 type every territory Natural Earth 50m has no polygon for, select one, and click open water),
-`npm audit --omit=dev --audit-level=high` 0 vulnerabilities, perf 0 breaches over 240 API requests and
-three rendered views, rehearsal 12/12 on all 9 bundle files (`npm run rehearse` re-run 2026-11-03 after
+`npm audit --omit=dev --audit-level=high` 0 vulnerabilities, perf 0 breaches over 216 API requests and
+three rendered views (re-run 12:14Z on the shipped chunk), rehearsal 12/12 on all 9 bundle files (`npm run rehearse` re-run 2026-11-03 after
 the drill's file list stopped following the manifest — see §6.1).
 Machine-readable reports:
 `docs/validation-report.json`, `docs/api-smoke-report.json`, `docs/e2e-report.json`,

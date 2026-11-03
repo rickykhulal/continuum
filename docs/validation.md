@@ -991,6 +991,18 @@ and `POST /api/v1/area/summary` for a country.
   coordinates and still become a 150 km AOI, and the pole click still resolves to Antarctica rather than
   water. Remaining gap: none known for *reachability*; a territory AOI is still an exploratory area, not a
   border-aggregated country record.
+- The same selection pass showed the hero line was ambiguous rather than wrong: `{kept} real detections` sat
+  under a header naming the selected area while `live.meta.counts.kept` is the harmonized **global** total for
+  the window (71,882 kept of 966,066 quality rows, unchanged by selection — verified by selecting California,
+  Nauru and a Svalbard AOI and reading the same figure each time). All four places that print it now say
+  `real detections worldwide` / `Live detections worldwide`; per-area numbers were already derived at render
+  time from the selected record and are unchanged.
+- `npm run perf` re-run on this tree at 12:14Z (the chunk hashes move with the copy change): 216 requests
+  across 18 endpoints, 0 server errors, 0 objective breaches. `country-summary` p95 15.9 ms, the gazetteer's
+  worst case `country-calendar` (Russia, 9,498 rows) p50 29.3 / p95 37.0 ms, GeoJSON export still the slowest
+  data path at 94.2 ms p95 against a 10 s objective, `/ready` 54.5 ms p95 because it re-hashes the bundle.
+  Per-view initial JS 84.69 / 102.07 / 224.48 KiB gzipped, all inside the §9.2 budget; full table in
+  `docs/api.md`.
 
 **Not claimed.** The Render dashboard Blueprint import (no account was driven from here), container
 builds (no engine in this environment), and anything that needs a host: availability, cold start on the
