@@ -161,6 +161,7 @@ clean directory, `npm ci`, then the full chain):
 | `POST /api/v1/country/summary` (`country-kenya…` id from `/meta`) | live-window totals with per-sensor split (`by_sensor` modis 12 / viirs 78 / noaa20 81 / noaa21 74 = 233) |
 | `POST /api/v1/country/calendar` (an unburnt country) | 9,498 days, total 0 — the full window is answered for a country with no detections |
 | `GET /meta` | 241 countries, 178 with at least one detection in the window, 96.26 % of rows attributed |
+| Every id in that index, requested over HTTP (same bundle, this machine, 2026-11-03) | **241/241** 200s with `counts.days = 9498`, 178 non-zero and 63 measured zeros, and each country's live-window VIIRS lanes equal to its point-in-polygon count in `data/country_fires.json` — p50 80 ms, p95 125 ms. The default `API_RATE_LIMITS` starts answering 429 after roughly a hundred calls, which is the class limit working as documented; the pass needed a throwaway instance with the limits raised |
 
 The first clone of the published tree **failed** this: `GET /ready` answered 503 with
 `integrity.bad = ["tle/satellites.txt: checksum mismatch", "tle/satellites.txt: size mismatch"]`.
@@ -176,11 +177,11 @@ was written and is five files short of the one that ships now. The list comes fr
 `bundle_manifest.json` (`+ bundle_manifest.json` itself, which does not hash itself), so a file added to
 the bundle cannot be left out of the drill. If a bundle file is added and the drill starts failing
 `/ready → 503 … missing` on the relocated copy, that is the check doing its job.
-**Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` at `ab3e0c0` completed with
-conclusion **success** — install, `tsc -b`, `npm test`, build, validate, secret-scan, `npm run smoke`,
-`npm run rehearse`, the headless-Chrome sweep and the perf probe, on Linux, from a checkout with no
-`data_raw/`. The three earlier runs on that branch failed at the rehearsal step and are left in the
-history rather than deleted.
+**Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` completed with conclusion
+**success** at `ab3e0c0` and again at `ffbd990` — install, `tsc -b`, `npm test`, build, validate,
+secret-scan, `npm run smoke`, `npm run rehearse`, the headless-Chrome sweep and the perf probe, on Linux,
+from a checkout with no `data_raw/`. The three earlier runs on that branch failed at the rehearsal step
+and are left in the history rather than deleted.
 
 The repository is currently **private**. That does not block a Render deploy — the Blueprint import uses
 the GitHub App/OAuth connection, and a private repo works as long as Render's installation is granted
