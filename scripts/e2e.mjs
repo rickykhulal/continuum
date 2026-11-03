@@ -1027,8 +1027,31 @@ try {
   await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: oceanCentre.x, y: oceanCentre.y, button: 'left', clickCount: 1 }, S);
   await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: oceanCentre.x, y: oceanCentre.y, button: 'left', clickCount: 1 }, S);
   await sleep(1500);
-  const oceanClick = await ev(`return { toast: document.querySelector('.toast')?.textContent?.trim() || '', region: document.querySelector('.region-name')?.textContent?.trim() };`);
-  check('Water outside the probe radius says open ocean and still becomes an area', /Open ocean/.test(oceanClick.toast || '') && /179/.test(oceanClick.toast || ''), { centre: oceanCentre, ...oceanClick });
+  const oceanClick = await ev(`return { toast: document.querySelector('.toast')?.textContent?.trim() || '', region: document.querySelector('.region-name')?.textContent?.trim(), hash: location.hash };`);
+  check('Water outside the probe radius says open ocean and still becomes an area', /Open ocean/.test(oceanClick.toast || '') && /179/.test(oceanClick.toast || '') && /aoi-/.test(oceanClick.hash || ''), { centre: oceanCentre, ...oceanClick });
+
+  // The same centre click, but on a globe looking at a country's own centroid. The point is inside that
+  // polygon, so the whole border is the area the user meant; a 150 km circle around the centroid was not.
+  await ev(`
+    const input = document.querySelector('.world-search-input');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    input.focus();
+    setter.call(input, 'Australia');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 700));
+    document.querySelector('.world-results button')?.click();
+    await new Promise(r => setTimeout(r, 2600));
+    return true;`);
+  const landCentre = await ev(`const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };`);
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: landCentre.x, y: landCentre.y, button: 'left', clickCount: 1 }, S);
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: landCentre.x, y: landCentre.y, button: 'left', clickCount: 1 }, S);
+  await sleep(1600);
+  const landClick = await ev(`return { toast: document.querySelector('.toast')?.textContent?.trim() || '', region: document.querySelector('.region-name')?.textContent?.trim(), hash: location.hash };`);
+  check('A click inside a country border selects that whole border, not a circle around the point',
+    /country-wide/.test(landClick.toast || '') && /country-australia/.test(landClick.hash || '') && !/aoi-/.test(landClick.hash || '') && /Australia/.test(landClick.region || ''),
+    { centre: landCentre, ...landClick });
+  check('That click states the detections measured inside the border it just selected',
+    /(detections measured inside its border|no detection inside its border)/.test(landClick.toast || ''), landClick.toast);
 
   // A country id is not in the pilot list, so the in-page hashchange path used to drop it and the URL
   // writer snapped a pasted link back to the default area. Reloading with the link worked; pasting it

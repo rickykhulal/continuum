@@ -27,7 +27,7 @@ const TOUR: { view: ViewId; title: string; body: string; award: string }[] = [
   {
     view: 'atlas',
     title: 'Anywhere on Earth',
-    body: 'Search a place, enter coordinates, or click the globe. Pilot regions carry curated long records; custom AOIs are labelled exploratory. Share links preserve the area, metric and range.',
+    body: 'Search a place, enter coordinates, or click the globe: inside a country border the click selects that country, on water it drops a 150 km AOI. Pilot regions carry curated long records; custom AOIs are labelled exploratory. Share links preserve the area, metric and range.',
     award: 'Global Connection',
   },
   {

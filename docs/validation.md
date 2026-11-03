@@ -1017,6 +1017,21 @@ and `POST /api/v1/area/summary` for a country.
   Fiji → `#/atlas?r=country-fiji…` with 9,506 calendar cells, the description printing the measured
   `(971 detections)`, no `NaN`/`undefined` anywhere in `<main>`, and no surviving "7-day window" string.
   The quiet border renders as a real record, not an empty area.
+- **A click on a country now selects that country, not a circle around the cursor.** The globe's land pick
+  used to call `selectCustom(lat, lon, 150, …)` for every point, so clicking the middle of Australia gave a
+  150 km AOI *labelled* Australia — which is what "only a few places are actually selectable" looked like
+  from the outside: the whole-border record was reachable from the search box but never from the map. The
+  pick now branches on the hit test ([src/components/Globe.tsx:796](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/components/Globe.tsx#L796)):
+  a point inside a published border calls `selectCountry`, a point in water or within one probe ring of a
+  border keeps the point-centred AOI, and the coordinate + radius fields in the Atlas remain the way to
+  frame a deliberate small area. Measured in the sweep, clicking the centre of a globe that is looking at
+  each place: `Australia selected country-wide — 64,226 detections measured inside its border in this
+  window` with `r=country-australia` in the URL; `Antarctica selected country-wide — no detection inside
+  its border in this window` (an observed zero, not an empty area); `Open ocean at -8.52°, 179.14° selected
+  as a 150 km AOI` with `r=aoi-s8p52-e179p14`. `npm run e2e` is **107/107** on that tree — the two added
+  checks require the land click to end on a `country-` region and the water click to end on an `aoi-`
+  region, so the two branches cannot silently collapse back into one another — with `npm test` 70/70,
+  `npm run validate` 23/23, `npm run smoke` 49/49 and secret-scan clean.
 - `npm run perf` re-run on this tree at 12:14Z (the chunk hashes move with the copy change): 216 requests
   across 18 endpoints, 0 server errors, 0 objective breaches. `country-summary` p95 15.9 ms, the gazetteer's
   worst case `country-calendar` (Russia, 9,498 rows) p50 29.3 / p95 37.0 ms, GeoJSON export still the slowest

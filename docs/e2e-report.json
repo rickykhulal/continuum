@@ -1,12 +1,12 @@
 {
-  "pass": 105,
-  "total": 105,
+  "pass": 107,
+  "total": 107,
   "failed": [],
   "results": [
     {
       "name": "Watch renders hero + live window",
       "pass": true,
-      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"12:49:29UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"13:45:06UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
     },
     {
       "name": "Five spacecraft listed",
@@ -26,7 +26,7 @@
     {
       "name": "Simulation clock advances (rAF live)",
       "pass": true,
-      "detail": "{\"clock1\":\"12:49:47UTC · 3 November 2026\",\"clock2\":\"12:50:23UTC · 3 November 2026\"}"
+      "detail": "{\"clock1\":\"13:45:24UTC · 3 November 2026\",\"clock2\":\"13:46:18UTC · 3 November 2026\"}"
     },
     {
       "name": "Speed selector switches to 600x",
@@ -36,7 +36,7 @@
     {
       "name": "Time offset slider seeks the globe back a day",
       "pass": true,
-      "detail": "{\"before\":\"12:50:41UTC · 3 November 2026\",\"after\":\"12:49:17UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"12:49:18UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
+      "detail": "{\"before\":\"13:48:00UTC · 3 November 2026\",\"after\":\"13:44:57UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"13:44:58UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
     },
     {
       "name": "Region chip switches AOI to Pantanal",
@@ -156,7 +156,7 @@
     {
       "name": "Share view produces a deep link",
       "pass": true,
-      "detail": "View link copied — http://127.0.0.1:8787/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
+      "detail": "View link copied — http://localhost:8787/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
     },
     {
       "name": "Draw-area editor validates and resolves a rectangle (FR-01)",
@@ -481,7 +481,7 @@
     {
       "name": "A click on the pole names the continent, not open ocean",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Antarctica selected: a 150 km AOI, measured against Antarctica's own window.\",\"region\":\"Antarctica · 150 km\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Antarctica selected country-wide — no detection inside its border in this window.\",\"region\":\"Antarctica — country wide\"}"
     },
     {
       "name": "A #country deep link restores that country as the area",
@@ -521,7 +521,17 @@
     {
       "name": "Water outside the probe radius says open ocean and still becomes an area",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.16° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.14° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.1°\",\"hash\":\"#/watch?r=aoi-s8p52-e179p14&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-8.5200&lon=179.1400&rad=150&n=-8.5%C2%B0%2C+179.1%C2%B0\"}"
+    },
+    {
+      "name": "A click inside a country border selects that whole border, not a circle around the point",
+      "pass": true,
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Australia selected country-wide — 64,226 detections measured inside its border in this window.\",\"region\":\"Australia — country wide\",\"hash\":\"#/watch?r=country-australia&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=australia\"}"
+    },
+    {
+      "name": "That click states the detections measured inside the border it just selected",
+      "pass": true,
+      "detail": "Australia selected country-wide — 64,226 detections measured inside its border in this window."
     },
     {
       "name": "A border named in a link pasted into an open tab stays the analysed area",

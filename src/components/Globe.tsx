@@ -5,7 +5,7 @@ import { REGIONS } from '../lib/data';
 import { loadSatellites, type OrbitSatellite } from '../lib/satellites';
 import { propagateAt, groundTrack, swathPolygon, swathCovers } from '../lib/sgp4';
 import { subsolarPoint, latLonToVec3, vec3ToLatLon, normalizeLon, decodeLand, fittedMapBounds, type Topology } from '../lib/geo';
-import { whereAt } from '../lib/countries';
+import { whereAt, countryWindow, windowMeta_ } from '../lib/countries';
 import { SENSOR_COLORS, type Region } from '../lib/types';
 import { gibsBasemapUrl } from '../lib/basemap';
 import { useStore } from '../lib/store';
@@ -799,13 +799,27 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
           const la = Number(lat.toFixed(2));
           const lo = Number(normalizeLon(lon).toFixed(2));
           apiRef.current?.focusLatLon(lat, lon, 1.9);
-          // Name the ground under the cursor before the AOI lands, so a click anywhere on the
-          // planet reports a country rather than an anonymous coordinate.
           void whereAt(la, lo).then((w) => {
+            if (w.country && w.nearKm === null) {
+              // The point is inside a published border, so select that border's own record instead of a
+              // 150 km circle around wherever the cursor happened to land.
+              const cw = countryWindow(w.country.id);
+              storeRef.current.selectCountry(w.country.id);
+              onToast(
+                cw
+                  ? `${w.label} selected country-wide — ${cw.total.toLocaleString()} detections measured inside its border in this window.`
+                  : windowMeta_()
+                    ? `${w.label} selected country-wide — no detection inside its border in this window.`
+                    : `${w.label} selected country-wide.`,
+              );
+              return;
+            }
+            // Water, or land less than one probe ring from a border: keep the point-centred AOI, because
+            // the whole country would not be the area under the cursor.
             storeRef.current.selectCustom(la, lo, 150, w.country ? w.label : undefined, w.country?.id);
             onToast(
               w.country
-                ? `${w.label} selected${w.nearKm ? ` — the point is ~${w.nearKm} km off its border` : ''}: a 150 km AOI, measured against ${w.country.name}'s own window.`
+                ? `${w.label} selected — the point is ~${w.nearKm} km off its border: a 150 km AOI, measured against ${w.country.name}'s own window.`
                 : `Open ocean at ${la}°, ${lo}° selected as a 150 km AOI — no country border contains it.`,
             );
           });
