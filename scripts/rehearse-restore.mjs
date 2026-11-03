@@ -24,7 +24,15 @@ const PORT = Number(process.env.REHEARSAL_PORT || 4198);
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const STAMP = new Date().toISOString();
 const SCRATCH = path.join(os.tmpdir(), `continuum-rehearsal-${STAMP.replace(/[:.]/g, '-')}`);
-const BUNDLE_FILES = ['live_fires.json', 'snapshot.json', 'land-110m.json', 'bundle_manifest.json'];
+// Every file the manifest claims for the bundle, not a hand-written shortlist. The drill relocates the
+// whole bundle with DATA_BUNDLE_PATH, and validate/`/ready` refuse a relocated bundle that is missing
+// any manifest entry — a fixed list silently stops covering the files added after it was written.
+const BUNDLE_FILES = JSON.parse(fs.readFileSync(path.join(SOURCE, 'bundle_manifest.json'), 'utf8'))
+  .files.filter((f) => f.name.startsWith('data/'))
+  .map((f) => f.name.slice('data/'.length));
+// The manifest is the thing both gates read; the entry list above cannot include it, because a
+// bundle's manifest does not hash itself.
+const SCRATCH_FILES = [...BUNDLE_FILES, 'bundle_manifest.json'];
 
 const steps = [];
 let server = null;
@@ -119,12 +127,12 @@ const sha = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).
 async function main() {
   // 1 ---------------------------------------------------------------- the backup
   fs.mkdirSync(SCRATCH, { recursive: true });
-  for (const f of BUNDLE_FILES) fs.copyFileSync(path.join(SOURCE, f), path.join(SCRATCH, f));
-  const pristine = Object.fromEntries(BUNDLE_FILES.map((f) => [f, sha(path.join(SOURCE, f))]));
+  for (const f of SCRATCH_FILES) fs.copyFileSync(path.join(SOURCE, f), path.join(SCRATCH, f));
+  const pristine = Object.fromEntries(SCRATCH_FILES.map((f) => [f, sha(path.join(SOURCE, f))]));
   record(
     'backup: bundle copied to a scratch directory',
-    BUNDLE_FILES.every((f) => sha(path.join(SCRATCH, f)) === pristine[f]),
-    `${SCRATCH} — ${BUNDLE_FILES.length} files, checksums identical to public/data`,
+    SCRATCH_FILES.every((f) => sha(path.join(SCRATCH, f)) === pristine[f]),
+    `${SCRATCH} — ${SCRATCH_FILES.length} files, checksums identical to public/data`,
   );
 
   // 2 ---------------------------------------------------------------- serve the relocated bundle
@@ -181,13 +189,13 @@ async function main() {
   );
 
   // 5 ---------------------------------------------------------------- restore from the backup
-  for (const f of BUNDLE_FILES) fs.copyFileSync(path.join(SOURCE, f), path.join(SCRATCH, f));
-  const restoredMatches = BUNDLE_FILES.every((f) => sha(path.join(SCRATCH, f)) === pristine[f]);
+  for (const f of SCRATCH_FILES) fs.copyFileSync(path.join(SOURCE, f), path.join(SCRATCH, f));
+  const restoredMatches = SCRATCH_FILES.every((f) => sha(path.join(SCRATCH, f)) === pristine[f]);
   const restored = await getJson('/ready');
   record(
     'restore: /ready → 200 again, same process, no redeploy',
     restoredMatches && restored.status === 200 && restored.body?.status === 'ready' && integrityOf(restored.body).ok === true,
-    `${restored.status}, integrity ok=${integrityOf(restored.body).ok}, ${BUNDLE_FILES.length} files match the backup`,
+    `${restored.status}, integrity ok=${integrityOf(restored.body).ok}, ${SCRATCH_FILES.length} files match the backup`,
   );
   const reProbe = await request('POST', '/api/v1/area/summary', { region_id: 'chilecito', metric: 'hotspots', mode: 'harmonized' });
   record(
@@ -206,8 +214,8 @@ async function main() {
   );
 
   // 7 ---------------------------------------------------------------- the repo bundle is untouched
-  const untouched = BUNDLE_FILES.every((f) => sha(path.join(SOURCE, f)) === pristine[f]);
-  record('public/data never modified', untouched, `${BUNDLE_FILES.length} source files match the backup taken at step 1`);
+  const untouched = SCRATCH_FILES.every((f) => sha(path.join(SOURCE, f)) === pristine[f]);
+  record('public/data never modified', untouched, `${SCRATCH_FILES.length} source files match the backup taken at step 1`);
 
   // 8 ---------------------------------------------------------------- canonical report
   // The gate runs above write docs/validation-report.json against the scratch bundle; the shipped
