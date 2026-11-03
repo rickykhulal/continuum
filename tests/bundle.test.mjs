@@ -14,15 +14,29 @@ const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
 const manifest = JSON.parse(fs.readFileSync(path.join(DATA, 'bundle_manifest.json'), 'utf8'));
 const snapshot = JSON.parse(fs.readFileSync(path.join(DATA, 'snapshot.json'), 'utf8'));
 
+// `data_raw/` is deliberately not published: 94 MB of global FIRMS CSVs plus the download logs that
+// sit beside them. The manifest still records each one's sha256, byte count and row count, so a clone
+// can prove which bytes produced the bundle without carrying the bytes. Everything that ships is
+// opened and verified here; the build inputs are verified only in a working copy that has them, and
+// the count below says which case this was instead of quietly reporting fewer checks.
+const isBuildInput = (name) => name.startsWith('data_raw/');
+const hasInputs = fs.existsSync(path.join(ROOT, 'data_raw'));
+const shippedOnly = (list) => list.filter((e) => !isBuildInput(e.name));
+
 test('the manifest hashes every served file and the hashes verify', () => {
   assert.ok(manifest.files.length >= 3, `${manifest.files.length} entries`);
+  let opened = 0;
   for (const e of manifest.files) {
     const abs = [path.join(ROOT, 'public', e.name), path.join(ROOT, e.name)].find((p) => fs.existsSync(p));
+    if (!abs && !hasInputs && isBuildInput(e.name)) continue;
     assert.ok(abs, `${e.name} is listed but missing`);
     const buf = fs.readFileSync(abs);
     assert.equal(sha256(buf), e.sha256, `${e.name} checksum`);
     assert.equal(buf.length, e.bytes, `${e.name} size`);
+    opened++;
   }
+  const expected = hasInputs ? manifest.files.length : shippedOnly(manifest.files).length;
+  assert.equal(opened, expected, `${opened} entries opened, ${expected} expected${hasInputs ? ' (raw inputs present)' : ` — ${manifest.files.length - shippedOnly(manifest.files).length} raw inputs are not in this clone`}`);
 });
 
 test('raw CSV inputs are recorded with row counts', () => {
@@ -38,9 +52,19 @@ test('the bundle version is content-derived and stable across rebuilds', () => {
   const before = manifest.bundle_version;
   const target = path.join(DATA, 'bundle_manifest.json');
   const original = fs.readFileSync(target);
+  const keyOf = (e) => `${e.name}|${e.sha256}|${e.bytes}|${e.rows ?? ''}`;
+  const shipped = (list) => list.filter((e) => !isBuildInput(e.name));
   try {
     execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'bundle.mjs')], { cwd: ROOT, stdio: 'pipe' });
     const again = JSON.parse(fs.readFileSync(target, 'utf8'));
+    if (!hasInputs) {
+      // A published clone has no raw CSVs to re-record, so bundle.mjs emits 4 fewer rows and the
+      // content-derived version legitimately moves. Requiring equality there would fail a clone for
+      // carrying fewer bytes, which is not a reproducibility defect. What must be identical is every
+      // entry the clone actually serves, by name, hash, byte count and recorded row count.
+      assert.deepEqual(again.files.map(keyOf).sort(), shipped(manifest.files).map(keyOf).sort(), 'a clone rebuild must reproduce every shipped entry exactly');
+      return;
+    }
     assert.equal(again.bundle_version, before, 're-running bundle.mjs on unchanged inputs must not change the version');
     assert.notEqual(again.created_at, undefined, 'created_at is still recorded');
   } finally {
