@@ -1,0 +1,1551 @@
+{
+  "generated_at": "2026-11-03T09:11:45.016Z",
+  "kind": "local single-origin probe",
+  "environment": {
+    "origin": "http://127.0.0.1:4182",
+    "topology": "node server/api.mjs serving dist/ and /api/v1 on one loopback port",
+    "node": "v24.19.0",
+    "platform": "win32 10.0.19045 x64",
+    "cpus": 8,
+    "cpu_model": "Intel(R) Core(TM) i5-10300H CPU @ 2.50GHz",
+    "chrome_debug_port": 9225,
+    "viewport": "1440x900, headless=new, no network throttling",
+    "rate_limits_raised_for_probe": true,
+    "api_rate_limits_used": "classA/B/C:100000/min (the limiter itself is asserted by npm run smoke)",
+    "samples_default": 15,
+    "samples_slow_endpoints": 6
+  },
+  "prd_objectives": {
+    "availability_monthly": 99,
+    "summary_status_p95_ms": 2000,
+    "calendar_p95_ms": 3000,
+    "exports_p95_ms": 10000,
+    "server_error_rate_pct": 1,
+    "data_freshness_lag_hours": 48,
+    "lcp_p75_ms": 2500,
+    "inp_p75_ms": 200,
+    "cls_p75": 0.1,
+    "initial_js_gzip_kb": 250,
+    "source": "docs/full prd.pdf §2 objective table (p4) and §9.2 budgets (p17)"
+  },
+  "api_latency": {
+    "rows": [
+      {
+        "endpoint": "health",
+        "route": "GET /api/v1/health",
+        "samples": 15,
+        "mean_ms": 12.408,
+        "min_ms": 0.957,
+        "p50_ms": 15.141,
+        "p95_ms": 16.323,
+        "p99_ms": 16.323,
+        "max_ms": 16.323,
+        "mean_response_bytes": 170,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": null
+      },
+      {
+        "endpoint": "meta",
+        "route": "GET /api/v1/meta",
+        "samples": 15,
+        "mean_ms": 12.645,
+        "min_ms": 0.959,
+        "p50_ms": 15.721,
+        "p95_ms": 16.476,
+        "p99_ms": 16.476,
+        "max_ms": 16.476,
+        "mean_response_bytes": 47025,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": null
+      },
+      {
+        "endpoint": "ready",
+        "route": "GET /api/v1/ready",
+        "samples": 15,
+        "mean_ms": 45.807,
+        "min_ms": 32.295,
+        "p50_ms": 45.567,
+        "p95_ms": 62.947,
+        "p99_ms": 62.947,
+        "max_ms": 62.947,
+        "mean_response_bytes": 346,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": "re-hashes every bundled file per call"
+      },
+      {
+        "endpoint": "summary",
+        "route": "POST /api/v1/area/summary",
+        "samples": 15,
+        "mean_ms": 15.623,
+        "min_ms": 14.741,
+        "p50_ms": 15.691,
+        "p95_ms": 16.297,
+        "p99_ms": 16.297,
+        "max_ms": 16.297,
+        "mean_response_bytes": 537,
+        "objective_p95_ms": 2000,
+        "meets_objective": true,
+        "note": null
+      },
+      {
+        "endpoint": "status",
+        "route": "POST /api/v1/area/status",
+        "samples": 15,
+        "mean_ms": 12.407,
+        "min_ms": 2.904,
+        "p50_ms": 13.417,
+        "p95_ms": 17.448,
+        "p99_ms": 17.448,
+        "max_ms": 17.448,
+        "mean_response_bytes": 900,
+        "objective_p95_ms": 2000,
+        "meets_objective": true,
+        "note": null
+      },
+      {
+        "endpoint": "day",
+        "route": "POST /api/v1/area/day",
+        "samples": 15,
+        "mean_ms": 14.365,
+        "min_ms": 4.816,
+        "p50_ms": 15.639,
+        "p95_ms": 16.633,
+        "p99_ms": 16.633,
+        "max_ms": 16.633,
+        "mean_response_bytes": 1869,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": "no objective named for this route in PRD §2"
+      },
+      {
+        "endpoint": "bias",
+        "route": "POST /api/v1/area/bias",
+        "samples": 15,
+        "mean_ms": 15.684,
+        "min_ms": 9.237,
+        "p50_ms": 15.771,
+        "p95_ms": 20.327,
+        "p99_ms": 20.327,
+        "max_ms": 20.327,
+        "mean_response_bytes": 3219,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": "no objective named for this route in PRD §2"
+      },
+      {
+        "endpoint": "calendar",
+        "route": "POST /api/v1/area/calendar",
+        "samples": 15,
+        "mean_ms": 12.57,
+        "min_ms": 2.092,
+        "p50_ms": 15.309,
+        "p95_ms": 16.853,
+        "p99_ms": 16.853,
+        "max_ms": 16.853,
+        "mean_response_bytes": 50963,
+        "objective_p95_ms": 3000,
+        "meets_objective": true,
+        "note": null
+      },
+      {
+        "endpoint": "month-compare",
+        "route": "POST /api/v1/area/month-compare",
+        "samples": 15,
+        "mean_ms": 12.535,
+        "min_ms": 0.892,
+        "p50_ms": 15.174,
+        "p95_ms": 16.553,
+        "p99_ms": 16.553,
+        "max_ms": 16.553,
+        "mean_response_bytes": 1946,
+        "objective_p95_ms": 3000,
+        "meets_objective": true,
+        "note": null
+      },
+      {
+        "endpoint": "drawn-polygon-summary",
+        "route": "POST /api/v1/area/summary",
+        "samples": 15,
+        "mean_ms": 15.761,
+        "min_ms": 13.902,
+        "p50_ms": 15.823,
+        "p95_ms": 17.06,
+        "p99_ms": 17.06,
+        "max_ms": 17.06,
+        "mean_response_bytes": 559,
+        "objective_p95_ms": 2000,
+        "meets_objective": true,
+        "note": "the summary route, resolving a drawn AOI"
+      },
+      {
+        "endpoint": "country-summary",
+        "route": "POST /api/v1/area/summary",
+        "samples": 15,
+        "mean_ms": 15.951,
+        "min_ms": 15.604,
+        "p50_ms": 15.972,
+        "p95_ms": 16.521,
+        "p99_ms": 16.521,
+        "max_ms": 16.521,
+        "mean_response_bytes": 545,
+        "objective_p95_ms": 2000,
+        "meets_objective": true,
+        "note": "the world layer: a border answered from its own measured window"
+      },
+      {
+        "endpoint": "country-calendar",
+        "route": "POST /api/v1/area/calendar",
+        "samples": 15,
+        "mean_ms": 36.447,
+        "min_ms": 25.386,
+        "p50_ms": 34.237,
+        "p95_ms": 63.122,
+        "p99_ms": 63.122,
+        "max_ms": 63.122,
+        "mean_response_bytes": 1761274,
+        "objective_p95_ms": 3000,
+        "meets_objective": true,
+        "note": "worst case in the gazetteer: the largest border, the full 2000→today series"
+      },
+      {
+        "endpoint": "twin",
+        "route": "POST /api/v1/area/twin",
+        "samples": 6,
+        "mean_ms": 16.189,
+        "min_ms": 14.768,
+        "p50_ms": 16.029,
+        "p95_ms": 17.541,
+        "p99_ms": 17.541,
+        "max_ms": 17.541,
+        "mean_response_bytes": 802,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": "no objective named for this route in PRD §2"
+      },
+      {
+        "endpoint": "sandbox",
+        "route": "POST /api/v1/sandbox/run",
+        "samples": 6,
+        "mean_ms": 15.6,
+        "min_ms": 13.81,
+        "p50_ms": 15.351,
+        "p95_ms": 16.773,
+        "p99_ms": 16.773,
+        "max_ms": 16.773,
+        "mean_response_bytes": 12195,
+        "objective_p95_ms": null,
+        "meets_objective": null,
+        "note": "no objective named for this route in PRD §2"
+      },
+      {
+        "endpoint": "export-csv",
+        "route": "POST /api/v1/export/csv",
+        "samples": 6,
+        "mean_ms": 15.551,
+        "min_ms": 14.954,
+        "p50_ms": 15.322,
+        "p95_ms": 16.157,
+        "p99_ms": 16.157,
+        "max_ms": 16.157,
+        "mean_response_bytes": 27680,
+        "objective_p95_ms": 10000,
+        "meets_objective": true,
+        "note": null
+      },
+      {
+        "endpoint": "export-geojson",
+        "route": "POST /api/v1/export/geojson",
+        "samples": 6,
+        "mean_ms": 85.866,
+        "min_ms": 71.211,
+        "p50_ms": 75.11,
+        "p95_ms": 126.401,
+        "p99_ms": 126.401,
+        "max_ms": 126.401,
+        "mean_response_bytes": 4215,
+        "objective_p95_ms": 10000,
+        "meets_objective": true,
+        "note": "grouped under \"exports\" by inference; PRD names CSV and PDF"
+      },
+      {
+        "endpoint": "brief-text",
+        "route": "POST /api/v1/brief",
+        "samples": 6,
+        "mean_ms": 14.629,
+        "min_ms": 7.854,
+        "p50_ms": 13.146,
+        "p95_ms": 25.188,
+        "p99_ms": 25.188,
+        "max_ms": 25.188,
+        "mean_response_bytes": 707,
+        "objective_p95_ms": 10000,
+        "meets_objective": true,
+        "note": "grouped under \"exports\" by inference; PRD names CSV and PDF"
+      },
+      {
+        "endpoint": "brief-pdf",
+        "route": "POST /api/v1/brief",
+        "samples": 6,
+        "mean_ms": 15.627,
+        "min_ms": 12.498,
+        "p50_ms": 14.913,
+        "p95_ms": 19.379,
+        "p99_ms": 19.379,
+        "max_ms": 19.379,
+        "mean_response_bytes": 1725,
+        "objective_p95_ms": 10000,
+        "meets_objective": true,
+        "note": null
+      }
+    ],
+    "requests": 216,
+    "serverErrors": 0,
+    "errorRatePct": 0
+  },
+  "data_freshness": {
+    "live_window_end": "2026-11-02",
+    "lag_hours": 9.2,
+    "objective_hours": 48,
+    "meets_objective": true
+  },
+  "web_vitals": [
+    {
+      "view": "start-watch",
+      "url": "http://127.0.0.1:4182/",
+      "rendered": true,
+      "lcp_before_input_ms": 1328,
+      "fcp": 40,
+      "lcp_before_input": 1328,
+      "lcp_final": 1328,
+      "cls": 0.0004,
+      "tbt_ms": 6625,
+      "longest_task_ms": 1661,
+      "inp_processing_max_ms": 3,
+      "interaction_events_observed": 57,
+      "domContentLoaded_ms": 31,
+      "load_ms": 31,
+      "server_timing_ttfb_ms": 3,
+      "resource_count": 27,
+      "page_bytes_encoded": 16326936,
+      "scripts": [
+        {
+          "name": "index-Bq35eSxa.js",
+          "encoded_bytes": 224387,
+          "transfer_bytes": 224687,
+          "after_load_ms": 7
+        },
+        {
+          "name": "Watch-CT6IDAbV.js",
+          "encoded_bytes": 56455,
+          "transfer_bytes": 56755,
+          "after_load_ms": 787
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "encoded_bytes": 3046,
+          "transfer_bytes": 3346,
+          "after_load_ms": 787
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "encoded_bytes": 21394,
+          "transfer_bytes": 21694,
+          "after_load_ms": 787
+        },
+        {
+          "name": "three-BFnsfFhA.js",
+          "encoded_bytes": 486320,
+          "transfer_bytes": 486620,
+          "after_load_ms": 787
+        },
+        {
+          "name": "types-bXTRDlE3.js",
+          "encoded_bytes": 113,
+          "transfer_bytes": 413,
+          "after_load_ms": 787
+        },
+        {
+          "name": "basemap-DVtWKUlw.js",
+          "encoded_bytes": 370,
+          "transfer_bytes": 670,
+          "after_load_ms": 787
+        },
+        {
+          "name": "Atlas-DmSAFQvP.js",
+          "encoded_bytes": 22130,
+          "transfer_bytes": 22430,
+          "after_load_ms": 7631
+        },
+        {
+          "name": "charts-CcsAJ8GE.js",
+          "encoded_bytes": 34387,
+          "transfer_bytes": 34687,
+          "after_load_ms": 7631
+        },
+        {
+          "name": "export-6ZosyhFO.js",
+          "encoded_bytes": 21619,
+          "transfer_bytes": 21919,
+          "after_load_ms": 7631
+        },
+        {
+          "name": "Diagnosis-3NON_IgU.js",
+          "encoded_bytes": 11165,
+          "transfer_bytes": 11465,
+          "after_load_ms": 8482
+        },
+        {
+          "name": "Outlook-Bz2E3LJ_.js",
+          "encoded_bytes": 20270,
+          "transfer_bytes": 20570,
+          "after_load_ms": 9343
+        }
+      ],
+      "entry_script": "index-Bq35eSxa.js",
+      "first_input_at_ms": null,
+      "observed_window_ms": 11143,
+      "worst_events": [],
+      "long_tasks": [
+        {
+          "at": 1372,
+          "dur": 1661
+        },
+        {
+          "at": 246,
+          "dur": 562
+        },
+        {
+          "at": 7872,
+          "dur": 450
+        },
+        {
+          "at": 3105,
+          "dur": 314
+        },
+        {
+          "at": 5502,
+          "dur": 308
+        },
+        {
+          "at": 5813,
+          "dur": 304
+        },
+        {
+          "at": 5171,
+          "dur": 298
+        },
+        {
+          "at": 7031,
+          "dur": 294
+        }
+      ],
+      "long_tasks_all": [
+        {
+          "at": 191,
+          "dur": 54
+        },
+        {
+          "at": 246,
+          "dur": 562
+        },
+        {
+          "at": 839,
+          "dur": 248
+        },
+        {
+          "at": 1087,
+          "dur": 167
+        },
+        {
+          "at": 1264,
+          "dur": 99
+        },
+        {
+          "at": 1372,
+          "dur": 1661
+        },
+        {
+          "at": 3033,
+          "dur": 66
+        },
+        {
+          "at": 3105,
+          "dur": 314
+        },
+        {
+          "at": 3446,
+          "dur": 271
+        },
+        {
+          "at": 3722,
+          "dur": 271
+        },
+        {
+          "at": 3998,
+          "dur": 269
+        },
+        {
+          "at": 4271,
+          "dur": 291
+        },
+        {
+          "at": 4591,
+          "dur": 268
+        },
+        {
+          "at": 4877,
+          "dur": 264
+        },
+        {
+          "at": 5171,
+          "dur": 298
+        },
+        {
+          "at": 5502,
+          "dur": 308
+        },
+        {
+          "at": 5813,
+          "dur": 304
+        },
+        {
+          "at": 6143,
+          "dur": 284
+        },
+        {
+          "at": 6463,
+          "dur": 274
+        },
+        {
+          "at": 6740,
+          "dur": 275
+        },
+        {
+          "at": 7031,
+          "dur": 294
+        },
+        {
+          "at": 7343,
+          "dur": 286
+        },
+        {
+          "at": 7645,
+          "dur": 227
+        },
+        {
+          "at": 7872,
+          "dur": 450
+        },
+        {
+          "at": 8489,
+          "dur": 58
+        },
+        {
+          "at": 8548,
+          "dur": 62
+        }
+      ],
+      "tbt_attribution": {
+        "first_click_armed_at_ms": 4563,
+        "observed_window_ms": 11143,
+        "tbt_per_observed_second_ms": 594.5,
+        "long_tasks_before_first_click": 12,
+        "long_task_ms_before_first_click": 4273,
+        "long_tasks_after_first_click": 14,
+        "long_task_ms_after_first_click": 3652,
+        "note": "Chrome does not fire first-input for DevTools-dispatched input, so the split uses the probe's own dispatch clock (armed_at_ms), not first_input_at_ms."
+      },
+      "interactions": [
+        {
+          "target": "BUTTON active",
+          "armed_at_ms": 4563,
+          "proc_max_before_ms": 0,
+          "proc_max_after_ms": 2,
+          "set_new_max": true,
+          "event_count_delta": 16,
+          "view_swap_ms": null,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 7333,
+          "proc_max_before_ms": 2,
+          "proc_max_after_ms": 2,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 539,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 8351,
+          "proc_max_before_ms": 2,
+          "proc_max_after_ms": 3,
+          "set_new_max": true,
+          "event_count_delta": 13,
+          "view_swap_ms": 198,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 9317,
+          "proc_max_before_ms": 3,
+          "proc_max_after_ms": 3,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 46,
+          "worst_event_logged": null
+        }
+      ]
+    },
+    {
+      "view": "atlas",
+      "url": "http://127.0.0.1:4182/#/atlas?r=pantanal&m=hotspots&mode=harmonized",
+      "rendered": true,
+      "lcp_before_input_ms": 1164,
+      "fcp": 40,
+      "lcp_before_input": 1164,
+      "lcp_final": 1164,
+      "cls": 0.0003,
+      "tbt_ms": 3927,
+      "longest_task_ms": 2089,
+      "inp_processing_max_ms": 3,
+      "interaction_events_observed": 57,
+      "domContentLoaded_ms": 28,
+      "load_ms": 28,
+      "server_timing_ttfb_ms": 3,
+      "resource_count": 29,
+      "page_bytes_encoded": 19604135,
+      "scripts": [
+        {
+          "name": "index-Bq35eSxa.js",
+          "encoded_bytes": 224387,
+          "transfer_bytes": 0,
+          "after_load_ms": 7
+        },
+        {
+          "name": "Atlas-DmSAFQvP.js",
+          "encoded_bytes": 22130,
+          "transfer_bytes": 0,
+          "after_load_ms": 677
+        },
+        {
+          "name": "types-bXTRDlE3.js",
+          "encoded_bytes": 113,
+          "transfer_bytes": 0,
+          "after_load_ms": 677
+        },
+        {
+          "name": "export-6ZosyhFO.js",
+          "encoded_bytes": 21619,
+          "transfer_bytes": 0,
+          "after_load_ms": 677
+        },
+        {
+          "name": "basemap-DVtWKUlw.js",
+          "encoded_bytes": 370,
+          "transfer_bytes": 0,
+          "after_load_ms": 677
+        },
+        {
+          "name": "charts-CcsAJ8GE.js",
+          "encoded_bytes": 34387,
+          "transfer_bytes": 0,
+          "after_load_ms": 678
+        },
+        {
+          "name": "Watch-CT6IDAbV.js",
+          "encoded_bytes": 56455,
+          "transfer_bytes": 0,
+          "after_load_ms": 3220
+        },
+        {
+          "name": "three-BFnsfFhA.js",
+          "encoded_bytes": 486320,
+          "transfer_bytes": 0,
+          "after_load_ms": 3221
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "encoded_bytes": 3046,
+          "transfer_bytes": 0,
+          "after_load_ms": 3221
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "encoded_bytes": 21394,
+          "transfer_bytes": 0,
+          "after_load_ms": 3222
+        },
+        {
+          "name": "Diagnosis-3NON_IgU.js",
+          "encoded_bytes": 11165,
+          "transfer_bytes": 0,
+          "after_load_ms": 7440
+        },
+        {
+          "name": "Outlook-Bz2E3LJ_.js",
+          "encoded_bytes": 20270,
+          "transfer_bytes": 0,
+          "after_load_ms": 8345
+        }
+      ],
+      "entry_script": "index-Bq35eSxa.js",
+      "first_input_at_ms": null,
+      "observed_window_ms": 10161,
+      "worst_events": [],
+      "long_tasks": [
+        {
+          "at": 3805,
+          "dur": 2089
+        },
+        {
+          "at": 235,
+          "dur": 456
+        },
+        {
+          "at": 6986,
+          "dur": 337
+        },
+        {
+          "at": 5960,
+          "dur": 280
+        },
+        {
+          "at": 6246,
+          "dur": 260
+        },
+        {
+          "at": 6525,
+          "dur": 257
+        },
+        {
+          "at": 3302,
+          "dur": 235
+        },
+        {
+          "at": 3545,
+          "dur": 233
+        }
+      ],
+      "long_tasks_all": [
+        {
+          "at": 29,
+          "dur": 53
+        },
+        {
+          "at": 235,
+          "dur": 456
+        },
+        {
+          "at": 1141,
+          "dur": 61
+        },
+        {
+          "at": 3302,
+          "dur": 235
+        },
+        {
+          "at": 3545,
+          "dur": 233
+        },
+        {
+          "at": 3805,
+          "dur": 2089
+        },
+        {
+          "at": 5894,
+          "dur": 56
+        },
+        {
+          "at": 5960,
+          "dur": 280
+        },
+        {
+          "at": 6246,
+          "dur": 260
+        },
+        {
+          "at": 6525,
+          "dur": 257
+        },
+        {
+          "at": 6783,
+          "dur": 202
+        },
+        {
+          "at": 6986,
+          "dur": 337
+        },
+        {
+          "at": 7341,
+          "dur": 58
+        }
+      ],
+      "tbt_attribution": {
+        "first_click_armed_at_ms": 3204,
+        "observed_window_ms": 10161,
+        "tbt_per_observed_second_ms": 386.5,
+        "long_tasks_before_first_click": 3,
+        "long_task_ms_before_first_click": 570,
+        "long_tasks_after_first_click": 10,
+        "long_task_ms_after_first_click": 4007,
+        "note": "Chrome does not fire first-input for DevTools-dispatched input, so the split uses the probe's own dispatch clock (armed_at_ms), not first_input_at_ms."
+      },
+      "interactions": [
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 3204,
+          "proc_max_before_ms": 0,
+          "proc_max_after_ms": 3,
+          "set_new_max": true,
+          "event_count_delta": 16,
+          "view_swap_ms": 57,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON active",
+          "armed_at_ms": 6509,
+          "proc_max_before_ms": 3,
+          "proc_max_after_ms": 3,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 476,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 7419,
+          "proc_max_before_ms": 3,
+          "proc_max_after_ms": 3,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 56,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 8336,
+          "proc_max_before_ms": 3,
+          "proc_max_after_ms": 3,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 23,
+          "worst_event_logged": null
+        }
+      ]
+    },
+    {
+      "view": "method-static",
+      "url": "http://127.0.0.1:4182/#/method",
+      "rendered": true,
+      "lcp_before_input_ms": 848,
+      "fcp": 36,
+      "lcp_before_input": 848,
+      "lcp_final": 848,
+      "cls": 0.0003,
+      "tbt_ms": 3730,
+      "longest_task_ms": 1869,
+      "inp_processing_max_ms": 1,
+      "interaction_events_observed": 57,
+      "domContentLoaded_ms": 28,
+      "load_ms": 28,
+      "server_timing_ttfb_ms": 2,
+      "resource_count": 28,
+      "page_bytes_encoded": 16351082,
+      "scripts": [
+        {
+          "name": "index-Bq35eSxa.js",
+          "encoded_bytes": 224387,
+          "transfer_bytes": 0,
+          "after_load_ms": 7
+        },
+        {
+          "name": "Method-BwLhVc3B.js",
+          "encoded_bytes": 24146,
+          "transfer_bytes": 24446,
+          "after_load_ms": 650
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "encoded_bytes": 3046,
+          "transfer_bytes": 0,
+          "after_load_ms": 651
+        },
+        {
+          "name": "Watch-CT6IDAbV.js",
+          "encoded_bytes": 56455,
+          "transfer_bytes": 0,
+          "after_load_ms": 3216
+        },
+        {
+          "name": "three-BFnsfFhA.js",
+          "encoded_bytes": 486320,
+          "transfer_bytes": 0,
+          "after_load_ms": 3216
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "encoded_bytes": 21394,
+          "transfer_bytes": 0,
+          "after_load_ms": 3216
+        },
+        {
+          "name": "types-bXTRDlE3.js",
+          "encoded_bytes": 113,
+          "transfer_bytes": 0,
+          "after_load_ms": 3216
+        },
+        {
+          "name": "basemap-DVtWKUlw.js",
+          "encoded_bytes": 370,
+          "transfer_bytes": 0,
+          "after_load_ms": 3217
+        },
+        {
+          "name": "Atlas-DmSAFQvP.js",
+          "encoded_bytes": 22130,
+          "transfer_bytes": 0,
+          "after_load_ms": 6559
+        },
+        {
+          "name": "export-6ZosyhFO.js",
+          "encoded_bytes": 21619,
+          "transfer_bytes": 0,
+          "after_load_ms": 6559
+        },
+        {
+          "name": "charts-CcsAJ8GE.js",
+          "encoded_bytes": 34387,
+          "transfer_bytes": 0,
+          "after_load_ms": 6559
+        },
+        {
+          "name": "Diagnosis-3NON_IgU.js",
+          "encoded_bytes": 11165,
+          "transfer_bytes": 0,
+          "after_load_ms": 7291
+        },
+        {
+          "name": "Outlook-Bz2E3LJ_.js",
+          "encoded_bytes": 20270,
+          "transfer_bytes": 0,
+          "after_load_ms": 8235
+        }
+      ],
+      "entry_script": "index-Bq35eSxa.js",
+      "first_input_at_ms": null,
+      "observed_window_ms": 10106,
+      "worst_events": [],
+      "long_tasks": [
+        {
+          "at": 4031,
+          "dur": 1869
+        },
+        {
+          "at": 227,
+          "dur": 438
+        },
+        {
+          "at": 6763,
+          "dur": 411
+        },
+        {
+          "at": 5920,
+          "dur": 357
+        },
+        {
+          "at": 6279,
+          "dur": 273
+        },
+        {
+          "at": 3506,
+          "dur": 238
+        },
+        {
+          "at": 6563,
+          "dur": 200
+        },
+        {
+          "at": 3322,
+          "dur": 183
+        }
+      ],
+      "long_tasks_all": [
+        {
+          "at": 175,
+          "dur": 52
+        },
+        {
+          "at": 227,
+          "dur": 438
+        },
+        {
+          "at": 3322,
+          "dur": 183
+        },
+        {
+          "at": 3506,
+          "dur": 238
+        },
+        {
+          "at": 3758,
+          "dur": 137
+        },
+        {
+          "at": 3911,
+          "dur": 119
+        },
+        {
+          "at": 4031,
+          "dur": 1869
+        },
+        {
+          "at": 5920,
+          "dur": 357
+        },
+        {
+          "at": 6279,
+          "dur": 273
+        },
+        {
+          "at": 6563,
+          "dur": 200
+        },
+        {
+          "at": 6763,
+          "dur": 411
+        },
+        {
+          "at": 7224,
+          "dur": 51
+        },
+        {
+          "at": 8241,
+          "dur": 52
+        }
+      ],
+      "tbt_attribution": {
+        "first_click_armed_at_ms": 3203,
+        "observed_window_ms": 10106,
+        "tbt_per_observed_second_ms": 369.1,
+        "long_tasks_before_first_click": 2,
+        "long_task_ms_before_first_click": 490,
+        "long_tasks_after_first_click": 11,
+        "long_task_ms_after_first_click": 3890,
+        "note": "Chrome does not fire first-input for DevTools-dispatched input, so the split uses the probe's own dispatch clock (armed_at_ms), not first_input_at_ms."
+      },
+      "interactions": [
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 3203,
+          "proc_max_before_ms": 0,
+          "proc_max_after_ms": 1,
+          "set_new_max": true,
+          "event_count_delta": 16,
+          "view_swap_ms": 63,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 5915,
+          "proc_max_before_ms": 1,
+          "proc_max_after_ms": 1,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 849,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 7224,
+          "proc_max_before_ms": 1,
+          "proc_max_after_ms": 1,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 100,
+          "worst_event_logged": null
+        },
+        {
+          "target": "BUTTON",
+          "armed_at_ms": 8211,
+          "proc_max_before_ms": 1,
+          "proc_max_after_ms": 1,
+          "set_new_max": false,
+          "event_count_delta": 13,
+          "view_swap_ms": 82,
+          "worst_event_logged": null
+        }
+      ]
+    }
+  ],
+  "js_budget": [
+    {
+      "view": "start-watch",
+      "entry_script": "index-Bq35eSxa.js",
+      "entry_raw_bytes_from_probe": 224387,
+      "entry_gzip_bytes": 76330,
+      "first_interaction_cut_ms": 4563,
+      "initial_payload_scripts": [
+        "index-Bq35eSxa.js",
+        "Watch-CT6IDAbV.js",
+        "satellites-Bi0R0zSF.js",
+        "satellite-BcJYAlbX.js",
+        "three-BFnsfFhA.js",
+        "types-bXTRDlE3.js",
+        "basemap-DVtWKUlw.js"
+      ],
+      "initial_payload_gzip_bytes": 229293,
+      "initial_payload_gzip_kb": 223.92,
+      "initial_payload_gzip_kb_decimal": 229.29,
+      "within_payload_budget_kib": true,
+      "within_payload_budget_decimal_kb": true,
+      "session_total_scripts": [
+        "index-Bq35eSxa.js",
+        "Watch-CT6IDAbV.js",
+        "satellites-Bi0R0zSF.js",
+        "satellite-BcJYAlbX.js",
+        "three-BFnsfFhA.js",
+        "types-bXTRDlE3.js",
+        "basemap-DVtWKUlw.js",
+        "Atlas-DmSAFQvP.js",
+        "charts-CcsAJ8GE.js",
+        "export-6ZosyhFO.js",
+        "Diagnosis-3NON_IgU.js",
+        "Outlook-Bz2E3LJ_.js"
+      ],
+      "session_total_gzip_bytes": 268010,
+      "session_total_gzip_kb": 261.73,
+      "session_total_gzip_kb_decimal": 268.01,
+      "scripts_requested_as_initial": [
+        "index-Bq35eSxa.js",
+        "Watch-CT6IDAbV.js",
+        "satellites-Bi0R0zSF.js",
+        "satellite-BcJYAlbX.js",
+        "three-BFnsfFhA.js",
+        "types-bXTRDlE3.js",
+        "basemap-DVtWKUlw.js",
+        "Atlas-DmSAFQvP.js",
+        "charts-CcsAJ8GE.js",
+        "export-6ZosyhFO.js",
+        "Diagnosis-3NON_IgU.js",
+        "Outlook-Bz2E3LJ_.js"
+      ],
+      "total_initial_gzip_bytes": 268010,
+      "total_initial_gzip_kb": 261.73,
+      "total_initial_gzip_kb_decimal": 268.01,
+      "within_budget_kib": true,
+      "within_budget_decimal_kb": true,
+      "initial_js_budget_kb": 250,
+      "within_budget": true,
+      "budget_basis": "initial payload = chunks requested before the first dispatched interaction",
+      "scripts": [
+        {
+          "name": "index-Bq35eSxa.js",
+          "raw_bytes": 224387,
+          "gzip_bytes": 76330,
+          "requested_at_ms": 7,
+          "in_initial_payload": true
+        },
+        {
+          "name": "Watch-CT6IDAbV.js",
+          "raw_bytes": 56455,
+          "gzip_bytes": 17715,
+          "requested_at_ms": 787,
+          "in_initial_payload": true
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "raw_bytes": 3046,
+          "gzip_bytes": 1427,
+          "requested_at_ms": 787,
+          "in_initial_payload": true
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "raw_bytes": 21394,
+          "gzip_bytes": 10574,
+          "requested_at_ms": 787,
+          "in_initial_payload": true
+        },
+        {
+          "name": "three-BFnsfFhA.js",
+          "raw_bytes": 486320,
+          "gzip_bytes": 122808,
+          "requested_at_ms": 787,
+          "in_initial_payload": true
+        },
+        {
+          "name": "types-bXTRDlE3.js",
+          "raw_bytes": 113,
+          "gzip_bytes": 113,
+          "requested_at_ms": 787,
+          "in_initial_payload": true
+        },
+        {
+          "name": "basemap-DVtWKUlw.js",
+          "raw_bytes": 370,
+          "gzip_bytes": 326,
+          "requested_at_ms": 787,
+          "in_initial_payload": true
+        },
+        {
+          "name": "Atlas-DmSAFQvP.js",
+          "raw_bytes": 22130,
+          "gzip_bytes": 7452,
+          "requested_at_ms": 7631,
+          "in_initial_payload": false
+        },
+        {
+          "name": "charts-CcsAJ8GE.js",
+          "raw_bytes": 34387,
+          "gzip_bytes": 11362,
+          "requested_at_ms": 7631,
+          "in_initial_payload": false
+        },
+        {
+          "name": "export-6ZosyhFO.js",
+          "raw_bytes": 21619,
+          "gzip_bytes": 8370,
+          "requested_at_ms": 7631,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Diagnosis-3NON_IgU.js",
+          "raw_bytes": 11165,
+          "gzip_bytes": 3956,
+          "requested_at_ms": 8482,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Outlook-Bz2E3LJ_.js",
+          "raw_bytes": 20270,
+          "gzip_bytes": 7577,
+          "requested_at_ms": 9343,
+          "in_initial_payload": false
+        }
+      ]
+    },
+    {
+      "view": "atlas",
+      "entry_script": "index-Bq35eSxa.js",
+      "entry_raw_bytes_from_probe": 224387,
+      "entry_gzip_bytes": 76330,
+      "first_interaction_cut_ms": 3204,
+      "initial_payload_scripts": [
+        "index-Bq35eSxa.js",
+        "Atlas-DmSAFQvP.js",
+        "types-bXTRDlE3.js",
+        "export-6ZosyhFO.js",
+        "basemap-DVtWKUlw.js",
+        "charts-CcsAJ8GE.js"
+      ],
+      "initial_payload_gzip_bytes": 103953,
+      "initial_payload_gzip_kb": 101.52,
+      "initial_payload_gzip_kb_decimal": 103.95,
+      "within_payload_budget_kib": true,
+      "within_payload_budget_decimal_kb": true,
+      "session_total_scripts": [
+        "index-Bq35eSxa.js",
+        "Atlas-DmSAFQvP.js",
+        "types-bXTRDlE3.js",
+        "export-6ZosyhFO.js",
+        "basemap-DVtWKUlw.js",
+        "charts-CcsAJ8GE.js",
+        "Watch-CT6IDAbV.js",
+        "three-BFnsfFhA.js",
+        "satellites-Bi0R0zSF.js",
+        "satellite-BcJYAlbX.js",
+        "Diagnosis-3NON_IgU.js",
+        "Outlook-Bz2E3LJ_.js"
+      ],
+      "session_total_gzip_bytes": 268010,
+      "session_total_gzip_kb": 261.73,
+      "session_total_gzip_kb_decimal": 268.01,
+      "scripts_requested_as_initial": [
+        "index-Bq35eSxa.js",
+        "Atlas-DmSAFQvP.js",
+        "types-bXTRDlE3.js",
+        "export-6ZosyhFO.js",
+        "basemap-DVtWKUlw.js",
+        "charts-CcsAJ8GE.js",
+        "Watch-CT6IDAbV.js",
+        "three-BFnsfFhA.js",
+        "satellites-Bi0R0zSF.js",
+        "satellite-BcJYAlbX.js",
+        "Diagnosis-3NON_IgU.js",
+        "Outlook-Bz2E3LJ_.js"
+      ],
+      "total_initial_gzip_bytes": 268010,
+      "total_initial_gzip_kb": 261.73,
+      "total_initial_gzip_kb_decimal": 268.01,
+      "within_budget_kib": true,
+      "within_budget_decimal_kb": true,
+      "initial_js_budget_kb": 250,
+      "within_budget": true,
+      "budget_basis": "initial payload = chunks requested before the first dispatched interaction",
+      "scripts": [
+        {
+          "name": "index-Bq35eSxa.js",
+          "raw_bytes": 224387,
+          "gzip_bytes": 76330,
+          "requested_at_ms": 7,
+          "in_initial_payload": true
+        },
+        {
+          "name": "Atlas-DmSAFQvP.js",
+          "raw_bytes": 22130,
+          "gzip_bytes": 7452,
+          "requested_at_ms": 677,
+          "in_initial_payload": true
+        },
+        {
+          "name": "types-bXTRDlE3.js",
+          "raw_bytes": 113,
+          "gzip_bytes": 113,
+          "requested_at_ms": 677,
+          "in_initial_payload": true
+        },
+        {
+          "name": "export-6ZosyhFO.js",
+          "raw_bytes": 21619,
+          "gzip_bytes": 8370,
+          "requested_at_ms": 677,
+          "in_initial_payload": true
+        },
+        {
+          "name": "basemap-DVtWKUlw.js",
+          "raw_bytes": 370,
+          "gzip_bytes": 326,
+          "requested_at_ms": 677,
+          "in_initial_payload": true
+        },
+        {
+          "name": "charts-CcsAJ8GE.js",
+          "raw_bytes": 34387,
+          "gzip_bytes": 11362,
+          "requested_at_ms": 678,
+          "in_initial_payload": true
+        },
+        {
+          "name": "Watch-CT6IDAbV.js",
+          "raw_bytes": 56455,
+          "gzip_bytes": 17715,
+          "requested_at_ms": 3220,
+          "in_initial_payload": false
+        },
+        {
+          "name": "three-BFnsfFhA.js",
+          "raw_bytes": 486320,
+          "gzip_bytes": 122808,
+          "requested_at_ms": 3221,
+          "in_initial_payload": false
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "raw_bytes": 3046,
+          "gzip_bytes": 1427,
+          "requested_at_ms": 3221,
+          "in_initial_payload": false
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "raw_bytes": 21394,
+          "gzip_bytes": 10574,
+          "requested_at_ms": 3222,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Diagnosis-3NON_IgU.js",
+          "raw_bytes": 11165,
+          "gzip_bytes": 3956,
+          "requested_at_ms": 7440,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Outlook-Bz2E3LJ_.js",
+          "raw_bytes": 20270,
+          "gzip_bytes": 7577,
+          "requested_at_ms": 8345,
+          "in_initial_payload": false
+        }
+      ]
+    },
+    {
+      "view": "method-static",
+      "entry_script": "index-Bq35eSxa.js",
+      "entry_raw_bytes_from_probe": 224387,
+      "entry_gzip_bytes": 76330,
+      "first_interaction_cut_ms": 3203,
+      "initial_payload_scripts": [
+        "index-Bq35eSxa.js",
+        "Method-BwLhVc3B.js",
+        "satellites-Bi0R0zSF.js"
+      ],
+      "initial_payload_gzip_bytes": 86144,
+      "initial_payload_gzip_kb": 84.13,
+      "initial_payload_gzip_kb_decimal": 86.14,
+      "within_payload_budget_kib": true,
+      "within_payload_budget_decimal_kb": true,
+      "session_total_scripts": [
+        "index-Bq35eSxa.js",
+        "Method-BwLhVc3B.js",
+        "satellites-Bi0R0zSF.js",
+        "Watch-CT6IDAbV.js",
+        "three-BFnsfFhA.js",
+        "satellite-BcJYAlbX.js",
+        "types-bXTRDlE3.js",
+        "basemap-DVtWKUlw.js",
+        "Atlas-DmSAFQvP.js",
+        "export-6ZosyhFO.js",
+        "charts-CcsAJ8GE.js",
+        "Diagnosis-3NON_IgU.js",
+        "Outlook-Bz2E3LJ_.js"
+      ],
+      "session_total_gzip_bytes": 276397,
+      "session_total_gzip_kb": 269.92,
+      "session_total_gzip_kb_decimal": 276.4,
+      "scripts_requested_as_initial": [
+        "index-Bq35eSxa.js",
+        "Method-BwLhVc3B.js",
+        "satellites-Bi0R0zSF.js",
+        "Watch-CT6IDAbV.js",
+        "three-BFnsfFhA.js",
+        "satellite-BcJYAlbX.js",
+        "types-bXTRDlE3.js",
+        "basemap-DVtWKUlw.js",
+        "Atlas-DmSAFQvP.js",
+        "export-6ZosyhFO.js",
+        "charts-CcsAJ8GE.js",
+        "Diagnosis-3NON_IgU.js",
+        "Outlook-Bz2E3LJ_.js"
+      ],
+      "total_initial_gzip_bytes": 276397,
+      "total_initial_gzip_kb": 269.92,
+      "total_initial_gzip_kb_decimal": 276.4,
+      "within_budget_kib": true,
+      "within_budget_decimal_kb": true,
+      "initial_js_budget_kb": 250,
+      "within_budget": true,
+      "budget_basis": "initial payload = chunks requested before the first dispatched interaction",
+      "scripts": [
+        {
+          "name": "index-Bq35eSxa.js",
+          "raw_bytes": 224387,
+          "gzip_bytes": 76330,
+          "requested_at_ms": 7,
+          "in_initial_payload": true
+        },
+        {
+          "name": "Method-BwLhVc3B.js",
+          "raw_bytes": 24146,
+          "gzip_bytes": 8387,
+          "requested_at_ms": 650,
+          "in_initial_payload": true
+        },
+        {
+          "name": "satellites-Bi0R0zSF.js",
+          "raw_bytes": 3046,
+          "gzip_bytes": 1427,
+          "requested_at_ms": 651,
+          "in_initial_payload": true
+        },
+        {
+          "name": "Watch-CT6IDAbV.js",
+          "raw_bytes": 56455,
+          "gzip_bytes": 17715,
+          "requested_at_ms": 3216,
+          "in_initial_payload": false
+        },
+        {
+          "name": "three-BFnsfFhA.js",
+          "raw_bytes": 486320,
+          "gzip_bytes": 122808,
+          "requested_at_ms": 3216,
+          "in_initial_payload": false
+        },
+        {
+          "name": "satellite-BcJYAlbX.js",
+          "raw_bytes": 21394,
+          "gzip_bytes": 10574,
+          "requested_at_ms": 3216,
+          "in_initial_payload": false
+        },
+        {
+          "name": "types-bXTRDlE3.js",
+          "raw_bytes": 113,
+          "gzip_bytes": 113,
+          "requested_at_ms": 3216,
+          "in_initial_payload": false
+        },
+        {
+          "name": "basemap-DVtWKUlw.js",
+          "raw_bytes": 370,
+          "gzip_bytes": 326,
+          "requested_at_ms": 3217,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Atlas-DmSAFQvP.js",
+          "raw_bytes": 22130,
+          "gzip_bytes": 7452,
+          "requested_at_ms": 6559,
+          "in_initial_payload": false
+        },
+        {
+          "name": "export-6ZosyhFO.js",
+          "raw_bytes": 21619,
+          "gzip_bytes": 8370,
+          "requested_at_ms": 6559,
+          "in_initial_payload": false
+        },
+        {
+          "name": "charts-CcsAJ8GE.js",
+          "raw_bytes": 34387,
+          "gzip_bytes": 11362,
+          "requested_at_ms": 6559,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Diagnosis-3NON_IgU.js",
+          "raw_bytes": 11165,
+          "gzip_bytes": 3956,
+          "requested_at_ms": 7291,
+          "in_initial_payload": false
+        },
+        {
+          "name": "Outlook-Bz2E3LJ_.js",
+          "raw_bytes": 20270,
+          "gzip_bytes": 7577,
+          "requested_at_ms": 8235,
+          "in_initial_payload": false
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "breaches": [],
+    "near_miss": [
+      "start-watch downloads 261.73 kB (KiB; 268.01 kB decimal) of JS across the whole probed session, after the 223.92 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js",
+      "atlas downloads 261.73 kB (KiB; 268.01 kB decimal) of JS across the whole probed session, after the 101.52 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js",
+      "method-static downloads 269.92 kB (KiB; 276.4 kB decimal) of JS across the whole probed session, after the 84.13 kB initial payload, because the nav clicks in the sweep pull in the lazily loaded Watch route and three.js"
+    ],
+    "objectives_met": true
+  },
+  "caveats": [
+    "One client, sequential requests, loopback, no concurrency: these are service-time numbers on this machine, not capacity or p95 under load. A load test needs k6 or Locust against a deployed target (docs/production-readiness.md §6).",
+    "The PRD states the 2 s objective for cached summary/status responses. This API has no response cache, so every sample is an uncached server-side computation — the numbers are stricter than the objective assumes.",
+    "Server timing excludes TLS and any CDN edge; the client and the server share one CPU.",
+    "INP is reported as its processing component only (processingEnd - processingStart), because presentation delay needs the web-vitals library or Lighthouse, and neither can be installed offline here. Treat it as a lower bound on true INP. The value is a maximum over observed events, which is stricter than the PRD's p75, and the observer runs with durationThreshold 0 so it also catches browser-synthesised pointer pairs and the Tab keypress; web_vitals[].interactions attributes one row per dispatched click.",
+    "Each web-vital comes from one navigation per view, not a p75 over real users; field data requires a collector that does not exist yet.",
+    "Bytes from Resource Timing are raw, because this origin does not compress. The §9.2 initial-JS budget is judged on gzip measured directly from the emitted dist files, summed over the chunks requested before the probe's first dispatched interaction — the payload the landing view actually waits for. Since ADR-21 the Watch route and three.js are fetched lazily, so the same session downloads more than that when a nav click opens Watch; both figures are in js_budget[] (initial_payload_* and session_total_*) and the larger one is called out as a near-miss whenever it exceeds the budget. The unit is ambiguous in the PRD and material here: Vite 5 prints these gzip numbers divided by 1000 (it labels the 105,042-byte entry chunk \"105.04 kB\"), so the strict reading of \"250 kB\" is 250,000 bytes, while a 1024-based reading is 250 KiB and more lenient. Both are reported for every view and neither is presented alone. Page weight is reported raw — a compressing edge would send less than the probe shows.",
+    "Availability of 99% monthly is not measurable by a probe of a single local process.",
+    "Rate limits were raised for this run so the limiter did not answer 429 inside the timing samples.",
+    "Nav view switches are deferred one macrotask out of the click handler (src/lib/store.tsx setView). That keeps the handler short, which is what INP measures, but the new page still has to render: interactions[].view_swap_ms is the wall time from click to the committed view — read together with INP, because a short INP with a long swap is a trade-off, not a free win. PRD §2 sets no objective for swap time, so it is reported, not judged. useTransition was measured first and rejected: it sliced the mount across animation frames and the swap went to 1.6-2.8 s with TBT doubling.",
+    "TBT here is dominated by recurring ~250 ms frame tasks on canvas views, from software WebGL under --disable-gpu (SwiftShader). The method-static control separates that from app work: on the static page, long tasks before the first click are boot only, and the ~250-600 ms tasks appear after its clicks navigate to a canvas view. Real device TBT will differ. Attribution uses the probe's dispatch clock because Chrome does not fire first-input for CDP-injected input, and the long-task list is capped at 300 entries per view."
+  ],
+  "probe_errors": []
+}

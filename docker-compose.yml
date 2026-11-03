@@ -1,0 +1,67 @@
+name: continuum
+
+# Continuum — authored, not executed. No Docker engine exists on the machine that wrote this file,
+# and running one was outside the approved scope (docs/decisions.md ADR-10). The first
+# `docker compose up` on a host with an engine is the acceptance test.
+#
+# Deliberately minimal: one origin, no database, no queue, no secrets. The API is read-only over a
+# versioned file bundle, so nothing here needs a credential. Do NOT wire the ingest keys from
+# .env.example into this file — the container never reads them and `docker compose config` would
+# echo them into logs.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: continuum:local
+    container_name: continuum-api
+    restart: unless-stopped
+
+    ports:
+      # Host port is configurable; the container always listens on 8787.
+      - "${PORT:-8787}:8787"
+
+    environment:
+      NODE_ENV: production
+      PORT: "8787"
+      # The bundle lives inside the image so a container restart is also a version rollback point.
+      # Bind-mount over it only when publishing a newer bundle without a rebuild.
+      DATA_BUNDLE_PATH: public/data
+      API_MAX_AREA_KM2: "${API_MAX_AREA_KM2:-250000}"
+      API_MAX_UPLOAD_MB: "${API_MAX_UPLOAD_MB:-2}"
+      API_RATE_LIMITS: "${API_RATE_LIMITS:-classA:120/min;classB:60/min;classC:20/min}"
+      API_METHOD_VERSION: "${API_METHOD_VERSION:-continuum-harmonize-v1}"
+      LOG_FORMAT: json
+      # Empty by default ⇒ default-deny CORS. List the browser origins that may call the API.
+      API_CORS_ORIGINS: "${API_CORS_ORIGINS:-}"
+      # Used only for the `servers` field inside /openapi.json.
+      PUBLIC_API_BASE_URL: "${PUBLIC_API_BASE_URL:-}"
+      # Metrics scrape, off by default: without METRICS_TOKEN the API answers 404 for /metrics.
+      # Left commented deliberately — compose interpolates from a local .env as well as the shell,
+      # and `docker compose config` echoes the resolved value. When a host wants a scrape, pass the
+      # token from the operator shell (or a secret manager) and uncomment:
+      #   METRICS_TOKEN: "${METRICS_TOKEN:-}"
+
+    # Optional, when publishing a newer bundle without a rebuild:
+    #   volumes: { ./public/data:/app/public/data:ro }
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/api/v1/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

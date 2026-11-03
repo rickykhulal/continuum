@@ -1,0 +1,32 @@
+Continuum — Third-party notices
+==============================
+
+Code in this repository is MIT licensed (see LICENSE). Data and imagery are separately licensed
+and are NOT covered by MIT.
+
+Data and imagery
+----------------
+- NASA FIRMS fire detections (MODIS C6.1, VIIRS C2 on Suomi-NPP / NOAA-20 / NOAA-21), 7-day
+  global CSVs. NASA open data; the daily values shown for 2000-11-01 onward are a labelled
+  reconstruction calibrated to the live window, not a re-download of the FIRMS archive.
+- NASA POWER (MERRA-2) daily meteorology, fetched per area with no key. NASA open data.
+- CelesTrak general perturbations element sets for Terra, Aqua, Suomi-NPP, NOAA-20 and NOAA-21,
+  bundled statically (epoch 2026-303). CelesTrak data is provided free of charge with attribution.
+- NASA Visible Earth imagery: Blue Marble day mosaic, Black Marble 2012 night lights, cloud
+  composite — public domain / NASA imagery, downscaled to 2048x1024 for this app.
+- Natural Earth 110m coastline/land vector data (public domain) used for the land topology.
+
+Runtime libraries
+-----------------
+- react, react-dom — MIT, Meta and contributors.
+- three — MIT, mrdoob and contributors.
+- satellite.js — MIT, SHASW.org and contributors.
+
+Build tooling (not shipped)
+---------------------------
+- vite, esbuild, typescript — MIT, respective authors.
+
+Method attribution
+------------------
+Sensor-overlap harmonization, phantom-trend diagnosis and the Fire Twin analog method are this
+project's own work; see the Method page and docs/PLAN.md for the equations and the stated limits.

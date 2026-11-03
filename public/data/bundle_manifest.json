@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "bundle_version": "continuum-2026-11-02-954f24dbc630",
+  "method_version": "continuum-harmonize-v1",
+  "created_at": "2026-11-03T08:44:02.316Z",
+  "window": {
+    "start": "2026-10-26",
+    "end": "2026-11-02"
+  },
+  "data_through": "2026-11-02",
+  "provisional_from": "2026-11-03",
+  "generated_at": "2026-11-02T15:18:25.202Z",
+  "counts": {
+    "totalQuality": 966066,
+    "kept": 71882,
+    "region": 50072,
+    "globalSampled": 21810
+  },
+  "sensors": [
+    "MODIS",
+    "VIIRS-SNPP",
+    "NOAA-20",
+    "NOAA-21"
+  ],
+  "sensor_meta": {
+    "MODIS": {
+      "first": "2026-10-26",
+      "last": "2026-11-02",
+      "count": 60574
+    },
+    "VIIRS-SNPP": {
+      "first": "2026-10-26",
+      "last": "2026-11-02",
+      "count": 299758
+    },
+    "NOAA-20": {
+      "first": "2026-10-26",
+      "last": "2026-11-02",
+      "count": 307564
+    },
+    "NOAA-21": {
+      "first": "2026-10-26",
+      "last": "2026-11-02",
+      "count": 298170
+    }
+  },
+  "sources": [
+    {
+      "name": "NASA FIRMS MODIS C6.1 (7-day rolling)",
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_7d.csv"
+    },
+    {
+      "name": "NASA FIRMS VIIRS S-NPP C2 (7-day rolling)",
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_7d.csv"
+    },
+    {
+      "name": "NASA FIRMS NOAA-20 VIIRS C2 (7-day rolling)",
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_7d.csv"
+    },
+    {
+      "name": "NASA FIRMS NOAA-21 VIIRS C2 (7-day rolling)",
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-21-viirs-c2/csv/J2_VIIRS_C2_Global_7d.csv"
+    }
+  ],
+  "reconstruction": {
+    "record_start": "2000-11-01",
+    "kind": "deterministic reconstruction calibrated to the live window",
+    "not": "a re-download of the historical FIRMS archive"
+  },
+  "files": [
+    {
+      "name": "data/live_fires.json",
+      "sha256": "8b56ce0dcca4952b350488f16e8edba4ec5fd6a33b113756adf93e1b2e49f32f",
+      "bytes": 2724470
+    },
+    {
+      "name": "data/climate_daily.json",
+      "sha256": "48c960da5c58dafc36ec36de4127a6b8f785df7fcb63a397ec74ee02837ee0d2",
+      "bytes": 444149
+    },
+    {
+      "name": "data/archive_daily.json",
+      "sha256": "8e7ef41f334c88cb15d5104685b732bb13dd0bec7beba76e0195976f54b7138d",
+      "bytes": 465842
+    },
+    {
+      "name": "data/countries.json",
+      "sha256": "913051f895b0631c1c082806c431e8818c05ce0d2db053fe863d870be4b511cc",
+      "bytes": 41172
+    },
+    {
+      "name": "data/country_fires.json",
+      "sha256": "dbe67c22730af071b8806cd5a6d81f9c684d31c284c5efbe0c4c6322471dca79",
+      "bytes": 55255
+    },
+    {
+      "name": "data/countries-50m.json",
+      "sha256": "04342cdc1e3016bcd7db1630de95684d67b79fe3c8c460321e87aef469502394",
+      "bytes": 756420
+    },
+    {
+      "name": "data/snapshot.json",
+      "sha256": "2b67dcf1803a5d9e1843fb7a85a32f36ab3d6f9ea42497383c23e82bcb6602bd",
+      "bytes": 16281
+    },
+    {
+      "name": "data/land-110m.json",
+      "sha256": "ead5f68119c49a9250902e7da303bcb209341bbb8fefe7369a439b48b704658a",
+      "bytes": 55207
+    },
+    {
+      "name": "data_raw/J1_VIIRS_C2_Global_7d.csv",
+      "sha256": "81bac806f38ebd6e1cf152d0e933a90abd4c3ac0ac8e44222b6ed2f4640df5d9",
+      "bytes": 29352228,
+      "rows": 352550
+    },
+    {
+      "name": "data_raw/J2_VIIRS_C2_Global_7d.csv",
+      "sha256": "4b1a6f6b20634be99db4a7cda291881d912a5f8690fb713d234a4a9f70e1669a",
+      "bytes": 29069812,
+      "rows": 349551
+    },
+    {
+      "name": "data_raw/MODIS_C6_1_Global_7d.csv",
+      "sha256": "a2108f01601043aca01be7655c1722e3b4da35de2379f483fadbd5c9217a2a09",
+      "bytes": 4913746,
+      "rows": 63761
+    },
+    {
+      "name": "data_raw/SUOMI_VIIRS_C2_Global_7d.csv",
+      "sha256": "37631e748258993380c3c94087af19b9c786dd4a12178891a1fab978a538c8e6",
+      "bytes": 28104679,
+      "rows": 346212
+    },
+    {
+      "name": "tle/satellites.txt",
+      "sha256": "144e96bf4ca467f5d383ac0776be35be70e364125e465eeeb3b18a119d7b0e56",
+      "bytes": 845
+    },
+    {
+      "name": "textures/earth_clouds.jpg",
+      "sha256": "c13dd69542120e6e237e13067b2c5928cb09ed48b33e1fe829eb6c3116c5f2d9",
+      "bytes": 651180
+    },
+    {
+      "name": "textures/earth_day.jpg",
+      "sha256": "2415f620551ca1119897c9578b9ec8b3c52c3a96fffcc1a46021489af9323bd7",
+      "bytes": 305018
+    },
+    {
+      "name": "textures/earth_day_4k.jpg",
+      "sha256": "3c39ab5a0771a23461a9f852827f0c0c3beb78f557f4a4858a45b9a287135bee",
+      "bytes": 1257782
+    },
+    {
+      "name": "textures/earth_day_8k.jpg",
+      "sha256": "dc26b816037021601eeea972c59e264a37fd41cd4062381fdb4d9dc9a6230348",
+      "bytes": 3118845
+    },
+    {
+      "name": "textures/earth_night.jpg",
+      "sha256": "1b1d8f0e47225b2a0e15b412281ba24ce68f226d770859411ef16ba7ab5ac315",
+      "bytes": 187780
+    },
+    {
+      "name": "textures/earth_night_4k.jpg",
+      "sha256": "2ba1c0312f8137d884aadd3d21f84cd69979c4b8c88e1489f37f5bc0eaec6dc0",
+      "bytes": 641123
+    },
+    {
+      "name": "textures/earth_night_8k.jpg",
+      "sha256": "e7f562e02c35df62dd827c7a1541c5ff9bcab2820b0cd8525a3f08e47c7eadf6",
+      "bytes": 1615537
+    }
+  ]
+}

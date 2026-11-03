@@ -1,0 +1,51 @@
+{
+  "name": "continuum-fire-record-doctor",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "description": "Continuum — a sensor-independent burning activity record and orbital fire observatory.",
+  "scripts": {
+    "dev": "vite",
+    "start": "node server/api.mjs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "data": "node scripts/build-data.mjs",
+    "countries": "node scripts/build-countries.mjs",
+    "live": "node scripts/fetch-live.mjs",
+    "climate": "node scripts/build-climate.mjs",
+    "basemaps": "node scripts/build-basemaps.mjs",
+    "archive": "node scripts/backfill-archive.mjs",
+    "archive:promote": "node scripts/promote-archive.mjs",
+    "bundle": "node scripts/bundle.mjs",
+    "validate": "node scripts/validate.mjs",
+    "api:build": "node scripts/build-api.mjs",
+    "api": "node scripts/build-api.mjs && node server/api.mjs",
+    "serve": "node scripts/build-api.mjs && node server/api.mjs",
+    "test": "node scripts/build-api.mjs && node scripts/test.mjs",
+    "smoke": "node scripts/build-api.mjs && node scripts/smoke.mjs",
+    "secret-scan": "node scripts/secret-scan.mjs",
+    "audit": "npm run validate && npm run test && npm run secret-scan && npm run smoke",
+    "tle": "node scripts/fetch-tle.mjs",
+    "fonts": "node scripts/vendor-fonts.mjs",
+    "rehearse": "node scripts/rehearse-restore.mjs",
+    "e2e": "node scripts/e2e.mjs",
+    "perf": "node scripts/perf-probe.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "satellite.js": "^5.0.0",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.169.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

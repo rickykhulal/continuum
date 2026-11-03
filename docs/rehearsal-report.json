@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "ran_at": "2026-11-01T11:19:32.683Z",
+  "node": "v24.19.0",
+  "platform": "win32 10.0.19045 x64",
+  "bundle_source": "public/data",
+  "scratch_dir": "C:\\Users\\Ricky\\AppData\\Local\\Temp\\continuum-rehearsal-2026-11-01T11-19-32-683Z",
+  "relocated_with": "DATA_BUNDLE_PATH",
+  "steps": [
+    {
+      "name": "backup: bundle copied to a scratch directory",
+      "ok": true,
+      "detail": "C:\\Users\\Ricky\\AppData\\Local\\Temp\\continuum-rehearsal-2026-11-01T11-19-32-683Z — 4 files, checksums identical to public/data"
+    },
+    {
+      "name": "baseline: /ready on the relocated bundle → 200",
+      "ok": true,
+      "detail": "200, bundle continuum-2026-10-31-3d36468a8dc0, integrity ok=true"
+    },
+    {
+      "name": "the relocated bundle answers a real request",
+      "ok": true,
+      "detail": "POST /api/v1/area/summary (chilecito) → 200, 9496 days, total 22137.08"
+    },
+    {
+      "name": "corruption: /ready → 503 and names the file",
+      "ok": true,
+      "detail": "503 — data/snapshot.json: checksum mismatch; data/snapshot.json: size mismatch"
+    },
+    {
+      "name": "corruption: npm run validate fails on the same bundle",
+      "ok": true,
+      "detail": "exit 1 — FAIL  manifest checksums and sizes match files — data/snapshot.json: checksum mismatch; data/snapshot.json: size mismatch (15584 vs 15583)"
+    },
+    {
+      "name": "in-place swap: /ready returns to 200 once the corrupted file is replaced",
+      "ok": true,
+      "detail": "200 — []"
+    },
+    {
+      "name": "deletion: /ready → 503 with a missing-file reason",
+      "ok": true,
+      "detail": "503 — data/land-110m.json: missing"
+    },
+    {
+      "name": "restore: /ready → 200 again, same process, no redeploy",
+      "ok": true,
+      "detail": "200, integrity ok=true, 4 files match the backup"
+    },
+    {
+      "name": "after restore the API serves the recovered bundle",
+      "ok": true,
+      "detail": "summary response identical to the pre-corruption one (200, 9496 days)"
+    },
+    {
+      "name": "npm run validate passes the recovered bundle",
+      "ok": true,
+      "detail": "exit 0 — validate: 21/21 checks passed"
+    },
+    {
+      "name": "public/data never modified",
+      "ok": true,
+      "detail": "4 source files match the backup taken at step 1"
+    },
+    {
+      "name": "npm run validate on public/data (canonical report restored)",
+      "ok": true,
+      "detail": "exit 0 — validate: 21/21 checks passed"
+    }
+  ],
+  "passed": 12,
+  "failed": 0,
+  "verdict": "REHEARSAL PASS"
+}

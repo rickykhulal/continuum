@@ -1,0 +1,109 @@
+# Static-host header + cache policy for Continuum
+#
+# AUTHORED, NOT EXECUTED — no host, CDN, or container runtime was used to produce this file
+# (docs/decisions.md ADR-10). The header *values* are not invented: they are the ones the verified
+# Node origin already sends, asserted by `npm run smoke`, copied here so a pure-static deployment is
+# never weaker than the tested one. Source of truth: securityHeaders() in server/api.mjs.
+#
+# What "static-only" means for this product
+# -----------------------------------------
+# The app computes everything in the browser from the versioned bundle in /data. Publishing `dist/`
+# without the API therefore loses only the machine-readable contract: /api/v1/*, /openapi.json,
+# /health, /ready, /meta and /method-card are unavailable. No screen breaks — but a consumer that
+# followed docs/api.md gets 404s, so say so in the deploy notes.
+#
+# Runtime origin allow-list for the CSP: 'self' plus https://power.larc.nasa.gov (NASA POWER,
+# keyless, the only network call the app makes). Earth textures, TLE files and the data bundle are
+# all served from the same origin — nothing else needs to be in the policy. The `data:` sources in
+# img-src/font-src are a spare for inlined assets; the CSV/PDF/PNG download buttons use `blob:`
+# anchors, which CSP does not gate, so no `blob:` source is required here.
+
+# ---------------------------------------------------------------- Netlify / CloudFront Pages style
+# File name: _headers  (placed at the root of the published directory, i.e. dist/_headers)
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://power.larc.nasa.gov; connect-src 'self' https://power.larc.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
+  Cross-Origin-Resource-Policy: same-origin
+  # Add only when TLS is actually terminating in front of this host:
+  # Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+/index.html
+  # The HTML shell is the version pointer. If it caches, a rebuilt bundle is invisible.
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: max-age=0
+
+/assets/*
+  # Vite emits content-hashed names (index-<hash>.js, three-Dt2Jwshy.js), so they are immutable.
+  Cache-Control: public, max-age=31536000, immutable
+
+/data/*
+  # snapshot.json / live_fires.json / bundle_manifest.json are replaced wholesale by `npm run bundle`.
+  # bundle_version is content-derived, so a stale copy is detectable — but only if it is re-checked.
+  Cache-Control: public, max-age=60, stale-while-revalidate=300
+  Access-Control-Allow-Origin: *
+
+/textures/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/tle/*
+  # Bundled ephemerides. Freshness is a modelled-propagation limit, not a caching one.
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# ---------------------------------------------------------------- nginx
+# Same values, in a server block. `add_header` is only inherited by child locations when a location
+# sets no add_header of its own — the repeat_header-style duplication below is intentional.
+#
+# server {
+#   listen 443 ssl http2;
+#   server_name continuum.example;                 # replace; no real host was chosen here
+#   root /srv/continuum/dist;
+#   index index.html;
+#
+#   add_header X-Content-Type-Options nosniff always;
+#   add_header Referrer-Policy strict-origin-when-cross-origin always;
+#   add_header X-Frame-Options DENY always;
+#   add_header Permissions-Policy "geolocation=(), camera=(), microphone=()" always;
+#   add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://power.larc.nasa.gov; connect-src 'self' https://power.larc.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" always;
+#   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+#
+#   # Hashed, versioned app bundle — never rewritten in place.
+#   location ^~ /assets/ {
+#     add_header Cache-Control "public, max-age=31536000, immutable";
+#     try_files $uri =404;
+#   }
+#
+#   # The record itself: revalidate so a new bundle_version reaches readers within a minute.
+#   location ^~ /data/ {
+#     add_header Cache-Control "public, max-age=60, stale-while-revalidate=300";
+#     add_header Access-Control-Allow-Origin "*";
+#     try_files $uri =404;
+#   }
+#
+#   location = /index.html {
+#     add_header Cache-Control "public, max-age=0, must-revalidate";
+#   }
+#
+#   # SPA uses hash routing, so there is no client-side path to rewrite. Anything missing is a 404,
+#   # not a fall-through to index.html — that keeps a mistyped /data/*.json from returning HTML 200.
+#   location / {
+#     try_files $uri $uri/ =404;
+#   }
+#
+#   # Only if the API container is co-located behind the same host:
+#   # location ^~ /api/v1/ { proxy_pass http://127.0.0.1:8787; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; }
+# }
+
+# ---------------------------------------------------------------- verification
+# After publishing, confirm the edge actually applied them. These were run against the Node origin
+# and passed (docs/api-smoke-report.json); against a static host they are a manual check:
+#
+#   curl -sI https://<host>/               | grep -iE "content-security|x-frame|nosniff|cache-control"
+#   curl -sI https://<host>/assets/        | grep -i "immutable"
+#   curl -sI https://<host>/data/snapshot.json | grep -i "max-age=60"
+#
+# A response that lacks the CSP header means the host config did not apply — treat it as a failed
+# release, not a cosmetic gap.

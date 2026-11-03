@@ -1,0 +1,123 @@
+{
+  "generated_at": "2026-11-03T10:52:13.406Z",
+  "bundle_version": "2026-11-02",
+  "passed": 23,
+  "total": 23,
+  "checks": [
+    {
+      "name": "row reconciliation",
+      "ok": true,
+      "detail": "fires=71882 live.counts.kept=71882 snapshot.counts.kept=71882"
+    },
+    {
+      "name": "reconciliation of region + global sample",
+      "ok": true,
+      "detail": "region=50072 global=21810 kept=71882"
+    },
+    {
+      "name": "sensor counts sum to total",
+      "ok": true,
+      "detail": "sensor sum=966066 totalQuality=966066"
+    },
+    {
+      "name": "acquisition time inside window",
+      "ok": true,
+      "detail": "0 points outside 2026-10-26..2026-11-02"
+    },
+    {
+      "name": "window is ordered and matches the data",
+      "ok": true,
+      "detail": "window=2026-10-26..2026-11-02"
+    },
+    {
+      "name": "timestamps are monotonic in the file",
+      "ok": true,
+      "detail": "sorted by acquisition time"
+    },
+    {
+      "name": "coordinates in range",
+      "ok": true,
+      "detail": "0 invalid lat/lon"
+    },
+    {
+      "name": "region point count matches",
+      "ok": true,
+      "detail": "recounted=50072 declared=50072"
+    },
+    {
+      "name": "FRP non-negative and finite",
+      "ok": true,
+      "detail": "0 bad FRP values"
+    },
+    {
+      "name": "sensor id in 0..3",
+      "ok": true,
+      "detail": "0 unknown sensor ids"
+    },
+    {
+      "name": "confidence code in 0..2",
+      "ok": true,
+      "detail": "0 unknown confidence codes"
+    },
+    {
+      "name": "no exact duplicate detections",
+      "ok": true,
+      "detail": "0 exact duplicate rows; 3 share a rounded footprint (normal scan-line coincidence)"
+    },
+    {
+      "name": "per-sensor freshness ordered and inside window",
+      "ok": true,
+      "detail": "4 sensors"
+    },
+    {
+      "name": "manifest schema_version",
+      "ok": true,
+      "detail": "schema_version=1"
+    },
+    {
+      "name": "manifest has bundle_version and data_through",
+      "ok": true,
+      "detail": "v=continuum-2026-11-02-954f24dbc630 through=2026-11-02"
+    },
+    {
+      "name": "manifest checksums and sizes match files",
+      "ok": true,
+      "detail": "20 files verified"
+    },
+    {
+      "name": "manifest window agrees with the snapshot",
+      "ok": true,
+      "detail": "manifest through=2026-11-02 provisional_from=2026-11-03 snapshot through=2026-11-02"
+    },
+    {
+      "name": "provisional_from names the sensors that lag the window",
+      "ok": true,
+      "detail": "provisional_from=2026-11-03; sensors not current: none"
+    },
+    {
+      "name": "record interval ordering and non-negative counts",
+      "ok": true,
+      "detail": "66486 rows across pilot regions"
+    },
+    {
+      "name": "no duplicate dates in a record",
+      "ok": true,
+      "detail": "one row per day"
+    },
+    {
+      "name": "provisional flag covers the stale tail",
+      "ok": true,
+      "detail": "0 days at or after 2026-11-03 are not flagged provisional"
+    },
+    {
+      "name": "archive observations reach the record unchanged",
+      "ok": true,
+      "detail": "20451 of 21863 archive days carried into the record as observed; 1358 days hold NOAA-20/21 detections but no reference lane (SNPP or MODIS) and stay modelled — first: california 2023-03-01 n=0 n21=16"
+    },
+    {
+      "name": "dist/ serves exactly the verified bundle",
+      "ok": true,
+      "detail": "10 data files identical"
+    }
+  ]
+}

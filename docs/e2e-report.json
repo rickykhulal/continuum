@@ -1,0 +1,507 @@
+{
+  "pass": 100,
+  "total": 100,
+  "failed": [],
+  "results": [
+    {
+      "name": "Watch renders hero + live window",
+      "pass": true,
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"10:53:29UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+    },
+    {
+      "name": "Five spacecraft listed",
+      "pass": true,
+      "detail": "5"
+    },
+    {
+      "name": "Real SGP4 badge present",
+      "pass": true,
+      "detail": "LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4"
+    },
+    {
+      "name": "NOAA-21 selection updates detail",
+      "pass": true,
+      "detail": "NOAA-21NOAA · 2022 – presentJPSS-2. The continuity spacecraft: when Terra and Aqua retire, the VIIRS constellation carries the record forwar"
+    },
+    {
+      "name": "Simulation clock advances (rAF live)",
+      "pass": true,
+      "detail": "{\"clock1\":\"10:53:47UTC · 3 November 2026\",\"clock2\":\"10:54:23UTC · 3 November 2026\"}"
+    },
+    {
+      "name": "Speed selector switches to 600x",
+      "pass": true,
+      "detail": "{\"sim\":\"SIM 600× · REAL SGP4\",\"active\":[{\"t\":\"real\",\"on\":false},{\"t\":\"60×\",\"on\":false},{\"t\":\"600×\",\"on\":true},{\"t\":\"3600×\",\"on\":false}]}"
+    },
+    {
+      "name": "Time offset slider seeks the globe back a day",
+      "pass": true,
+      "detail": "{\"before\":\"10:55:35UTC · 3 November 2026\",\"after\":\"10:53:19UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"10:53:19UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
+    },
+    {
+      "name": "Region chip switches AOI to Pantanal",
+      "pass": true,
+      "detail": "{\"region\":\"Pantanal Wetland Complex\",\"hash\":\"#/watch?r=pantanal&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02\"}"
+    },
+    {
+      "name": "Alert center opens with 7 ranked regions",
+      "pass": true,
+      "detail": "{\"open\":true,\"count\":7,\"msg\":\"CONTINUUM WATCH — AMAZON ARC\\n2026-11-02 · HIGH activity · 96th percentile\\nFirst 2 days of November: 9,302 VIIRS-eq vs median 3,260 (2.9×).\\nLive window: 41,972 detections across 8 active days.\\nSensor calibration 9.94× (90\",\"dispatchButtons\":[\"Copy message\",\"Download\",\"Open Atlas →\",\"○ Watch\"]}"
+    },
+    {
+      "name": "Dispatch preview carries live + calibration content",
+      "pass": true,
+      "detail": "CONTINUUM WATCH — AMAZON ARC\n2026-11-02 · HIGH activity · 96th percentile\nFirst 2 days of November: 9,302 VIIRS-eq vs median 3,260 (2.9×).\nLive window: 41,972 detections across 8 active days.\nSensor calibration 9.94× (90"
+    },
+    {
+      "name": "Dispatch message copies to clipboard",
+      "pass": true,
+      "detail": "{\"toast\":\"Dispatch message copied — ready for a duty officer to review.\",\"clip\":\"CONTINUUM WATCH — AMAZON ARC\\r\\n2026-11-02 · HIGH activity · 96th percentile\\r\\nFirst 2 days o\"}"
+    },
+    {
+      "name": "Dispatch message downloads as .txt",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_watch_amazon_2026-11-02.txt\",\"size\":429,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_watch_amazon_2026-11-02.txt\"}"
+    },
+    {
+      "name": "Calendar renders every day of the record",
+      "pass": true,
+      "detail": "9498"
+    },
+    {
+      "name": "Metric + mode controls expose 3 metrics and 2 modes",
+      "pass": true,
+      "detail": "{\"cells\":9498,\"metricBtns\":[{\"t\":\"Hotspots\",\"on\":\"true\"},{\"t\":\"Fire-days\",\"on\":\"false\"},{\"t\":\"FRP\",\"on\":\"false\"}],\"modeBtns\":[{\"t\":\"Harmonized\",\"on\":\"true\"},{\"t\":\"Raw\",\"on\":\"false\"}],\"month\":\"11\"}"
+    },
+    {
+      "name": "Metric/mode toggles switch to Fire-days + Raw",
+      "pass": true,
+      "detail": "{\"metricOn\":[\"Fire-days\"],\"modeOn\":[\"Raw\"]}"
+    },
+    {
+      "name": "Compare mode renders raw/harmonized split",
+      "pass": true,
+      "detail": "{\"label\":\"Split on\",\"split\":true}"
+    },
+    {
+      "name": "Month selector recomputes the comparison",
+      "pass": true,
+      "detail": "{\"month\":\"8\",\"stats\":\"Current30Median305-yr mean3110-yr mean31Rank44th\"}"
+    },
+    {
+      "name": "Calendar frame reads the record by day, week, month, quarter and year",
+      "pass": true,
+      "detail": "[\"Days\",\"Weeks\",\"Months\",\"3 mo\",\"Years\"]"
+    },
+    {
+      "name": "Calendar frame exposes span, focus year and comparison gap",
+      "pass": true,
+      "detail": "[\"Span\",\"Focus year\",\"Compare\"]"
+    },
+    {
+      "name": "Frame resolution re-reads the same record",
+      "pass": true,
+      "detail": "9498 day cells → 0 year cells → 9498 restored"
+    },
+    {
+      "name": "Calendar frame settings ride in the shareable URL",
+      "pass": true,
+      "detail": "{\"res\":\"year\",\"span\":null,\"fy\":\"2023\",\"gap\":\"10\"}"
+    },
+    {
+      "name": "Pasting the frame link restores the same reading frame",
+      "pass": true,
+      "detail": "{\"pressed\":\"Years\",\"fy\":\"2023\",\"gap\":\"10\"}"
+    },
+    {
+      "name": "Default frame settings drop out of the URL again",
+      "pass": true,
+      "detail": "#/atlas?r=pantanal&m=firedays&mode=raw&from=2000-11-01&to=2026-11-02"
+    },
+    {
+      "name": "Day inspector opens with four sensor rows",
+      "pass": true,
+      "detail": "[\"MODIS41 km pixels · 2000–present\",\"VIIRS11375 m pixels · 2012–present\",\"NOAA-2015375 m pixels · 2018–present\",\"NOAA-2125375 m pixels · 2022–present\"]"
+    },
+    {
+      "name": "Latest day is a live observation",
+      "pass": true,
+      "detail": "LIVE OBSERVATIONhigh trustprovisionallive"
+    },
+    {
+      "name": "Hover readout carries value, 90% interval, per-sensor mix and trust label",
+      "pass": true,
+      "detail": "{\"harmonizedRead\":\"4 September 2026451.0VIIRS-eq· 90% CI 381.8–520.2 VIIRS-eq· MODIS 33 · S-NPP VIIRS 159 · NOAA-20 84 · NOAA-21 208high trustPROVISIONAL\",\"firedaysRead\":\"4 September 20261.0fire-day· MODIS 33 · S-NPP VIIRS 159 · NOAA-20 84 · NOAA-21 208high trustPROVISIONAL\",\"found\":true}"
+    },
+    {
+      "name": "Interval is not shown in units it does not describe",
+      "pass": true,
+      "detail": "{\"harmonizedRead\":\"4 September 2026451.0VIIRS-eq· 90% CI 381.8–520.2 VIIRS-eq· MODIS 33 · S-NPP VIIRS 159 · NOAA-20 84 · NOAA-21 208high trustPROVISIONAL\",\"firedaysRead\":\"4 September 20261.0fire-day· MODIS 33 · S-NPP VIIRS 159 · NOAA-20 84 · NOAA-21 208high trustPROVISIONAL\",\"found\":true}"
+    },
+    {
+      "name": "CSV export downloads the daily record",
+      "pass": true,
+      "detail": "{\"csvClick\":true,\"csvFile\":{\"file\":\"continuum_pantanal_2000-11-01_2026-11-02.csv\",\"size\":873929,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_pantanal_2000-11-01_2026-11-02.csv\"}}"
+    },
+    {
+      "name": "GeoJSON export downloads live hotspots",
+      "pass": true,
+      "detail": "{\"geoClick\":true,\"geoFile\":{\"file\":\"continuum_pantanal_2026-10-26_2026-11-02.geojson\",\"size\":58409,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_pantanal_2026-10-26_2026-11-02.geojson\"}}"
+    },
+    {
+      "name": "PNG calendar export downloads",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_pantanal_calendar_2026-11-02.png\",\"size\":369095,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_pantanal_calendar_2026-11-02.png\"}"
+    },
+    {
+      "name": "Share view produces a deep link",
+      "pass": true,
+      "detail": "View link copied — http://localhost:8787/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
+    },
+    {
+      "name": "Draw-area editor validates and resolves a rectangle (FR-01)",
+      "pass": true,
+      "detail": "2,493 km²97 vertices≈23,119 detections/year-17.46°, -57.98° r=28 kmvalidAnalyze this shape"
+    },
+    {
+      "name": "Draw-area reports a data-volume estimate with its basis (FR-05)",
+      "pass": true,
+      "detail": "Drawn areas are resolved to the equal-area circle the record builder uses, so the numbers match the same code path as the coordinate form. Pointer and keyboard build the identical shape: the pen is the second corner (or the next vertex). No live detections in this area's current window, so the estimate uses the assumed floor of 0.0200 detections/km²/day — it is not a measurement."
+    },
+    {
+      "name": "Drawn shape becomes the analysed AOI",
+      "pass": true,
+      "detail": "{\"toast\":\"Analysed the drawn rectangle: 2,493 km² resolved to a 28 km radius AOI.\",\"aoi\":\"2,493 km² · Tropical\"}"
+    },
+    {
+      "name": "Charts expose table alternatives (FR-33)",
+      "pass": true,
+      "detail": "{\"count\":5,\"rows\":27,\"cells\":[\"20000000000000011\",\"2001000000515243231\"],\"charts\":3,\"covered\":3}"
+    },
+    {
+      "name": "Every plotted chart on the page has a sibling data table (FR-33)",
+      "pass": true,
+      "detail": "{\"count\":5,\"rows\":27,\"cells\":[\"20000000000000011\",\"2001000000515243231\"],\"charts\":3,\"covered\":3}"
+    },
+    {
+      "name": "Sandbox responds to overpass/pixel changes",
+      "pass": true,
+      "detail": "{\"before\":\"Apparent bias-63.0%Residual bias+0.2%7-day recovery error9.8%Simulated days1,037Truth sourcereference record\",\"after\":\"Apparent bias-75.5%Residual bias+0.8%7-day recovery error14.6%Simulated days1,037Truth sourcereference record\"}"
+    },
+    {
+      "name": "Sandbox resample changes the residual",
+      "pass": true,
+      "detail": "Apparent bias-75.8%Residual bias-0.4%7-day recovery error13.2%Simulated days1,037Truth sourcereferen"
+    },
+    {
+      "name": "Outlook lists analog seasons and charts",
+      "pass": true,
+      "detail": "{\"analogs\":3,\"clock\":\"JanFebMarAprMayJunJulAugSepOctNovDecPEAK14 Augoff-season · behind75% of expected activity so farTable of the values shownSeason clockValueTypical start7 AugTypi\",\"charts\":4,\"weatherBadges\":[\"NASA POWER\",\"NASA POWER\"]}"
+    },
+    {
+      "name": "Outlook uses live NASA POWER weather",
+      "pass": true,
+      "detail": "[\"NASA POWER\",\"NASA POWER\"]"
+    },
+    {
+      "name": "Brief shows four sensor rows",
+      "pass": true,
+      "detail": "MODIS2VIIRS S-NPP15NOAA-204NOAA-218Active days7/8Calibration12.88×"
+    },
+    {
+      "name": "Advisory copies with real calibration text",
+      "pass": true,
+      "detail": "{\"toast\":\"Advisory copied to the clipboard.\",\"clip\":\"CONTINUUM — BURNING ACTIVITY ADVISORY\\r\\nGenerated 2026-11-03 · research prototype · NOT an official NASA product\\r\\n\\r\\nAREA: Chilecito & Famatina Valley (Argentina)\\r\\nCENTRE: -29.16°, -67.50° · 19,400 km²\\r\\nRECORD: 2000-11-01 to 2026-11-02 · 9,498 harmonized daily values\\r\\n\\r\\nSTATUS: ELEVATED — 84th percentile for the first 2 days of November.\\r\\nCurrent 2 vs. historical median 1 (2.00×).\\r\\n\\r\\nLIVE WINDOW: 2026-10-26 to 2026-11-02; 27 VIIRS-equivalent detections across 7 active days.\\r\\nSensor calibration: MODIS → VIIRS ratio 12.88× (90% CI 12.49–13.28); the 2012 break in the raw record is 136%, reduced to -45% after harmonization.\\r\\nAnalog seasons: 2016 (75%), 2019 (63%), 2018 (59%). Median next-four-week departure +107%. Leave-one-out hit rate 65%.\\r\\nSeason: typical window 7 Aug–20 Oct, peak 14 Aug; current phase off-season, running behind of climatology (75% of expected to date).\\r\\n\\r\\nWHAT WOULD CHANGE THE CALL:\\r\\n• A shift in the live window outside the 12.5–13.3 calibration interval would widen the uncertainty and lower trust.\\r\\n• Cloud cover or missed overpasses can hide fire; absence of detections is not absence of fire.\\r\\n• This advisory ranks activity against the same area's own history. It does not model ignition, spread or suppression.\\r\\n\\r\\nMETHOD VERSION 0.1.0 · reference record calibrated to the live FIRMS window, not the official NASA archive.\\r\\nCaveat: The latest days are provisional. Supports situational awareness; not a warning, dispatch or evacuation service.\"}"
+    },
+    {
+      "name": "Advisory downloads as .txt",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_advisory_chilecito_2026-11-02.txt\",\"size\":1484,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_advisory_chilecito_2026-11-02.txt\"}"
+    },
+    {
+      "name": "Advisory file carries live sensors + calibration",
+      "pass": true,
+      "detail": "CONTINUUM — BURNING ACTIVITY ADVISORY\nGenerated 2026-11-03 · research prototype · NOT an official NASA product\n\nAREA: Chilecito & Famatina Valley (Argentina)\nCE"
+    },
+    {
+      "name": "FR-27 PDF brief downloads as a valid one-page PDF",
+      "pass": true,
+      "detail": "{\"pdfClick\":true,\"size\":2993,\"pdfHead\":\"%PDF-1.4\\n\"}"
+    },
+    {
+      "name": "Method states bundled TLE epoch honestly",
+      "pass": true,
+      "detail": "CelesTrak TLEsTerra · Aqua · Suomi NPP · NOAA-20 · NOAA-21; epoch 2026-303; SGP4 propagation.Bundled elements shipped with the build — CelesTrak rejects browser traffic (HTTP 403), so the maintainer refreshes them with scripts/fetch-tle.mjs before a release."
+    },
+    {
+      "name": "Method no longer claims runtime CelesTrak refresh",
+      "pass": true,
+      "detail": "false"
+    },
+    {
+      "name": "Method names all four FIRMS sensors",
+      "pass": true,
+      "detail": "NASA FIRMSMODIS C6.1 (Terra, Aqua) · VIIRS C2 (Suomi NPP, NOAA-20, NOAA-21) · qualifying detections, confidence, FRP, UTC acquisition time.Live 7-day rolling public CSVs. History needs a MAP_KEY."
+    },
+    {
+      "name": "Method discloses reconstruction boundary",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "Judge tour advances through every step",
+      "pass": true,
+      "detail": "{\"steps\":[\"Judge tour · 1 / 9\",\"Judge tour · 2 / 9\",\"Judge tour · 3 / 9\",\"Judge tour · 4 / 9\",\"Judge tour · 5 / 9\",\"Judge tour · 6 / 9\",\"Judge tour · 7 / 9\",\"Judge tour · 8 / 9\",\"Judge tour · 9 / 9\",null]}"
+    },
+    {
+      "name": "Share link restores region + view",
+      "pass": true,
+      "detail": "{\"hash\":\"#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02\",\"heading\":\"Pantanal Wetland Complex\"}"
+    },
+    {
+      "name": "Keyboard block starts from a cleared day selection on the shared region",
+      "pass": true,
+      "detail": "{\"title\":\"Live footprint\",\"hash\":\"#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02\"}"
+    },
+    {
+      "name": "Calendar grid is focusable and announces the keyboard contract",
+      "pass": true,
+      "detail": "{\"focused\":true,\"role\":\"application\",\"label\":\"Burning calendar, 2000 to 2026. Arrow keys move the cursor, Enter opens a day.\",\"date\":\"2 November 2026\"}"
+    },
+    {
+      "name": "Calendar cursor cannot walk into future days",
+      "pass": true,
+      "detail": "{\"today\":\"2 November 2026\",\"after\":\"2 November 2026\"}"
+    },
+    {
+      "name": "Arrow keys move the calendar cursor between days",
+      "pass": true,
+      "detail": "{\"today\":\"2 November 2026\",\"back\":\"31 October 2026\",\"forward\":\"1 November 2026\"}"
+    },
+    {
+      "name": "Enter opens the day under the cursor",
+      "pass": true,
+      "detail": "{\"title\":\"1 November 2026\",\"rows\":4}"
+    },
+    {
+      "name": "Space activates a focused toggle",
+      "pass": true,
+      "detail": "{\"kbToggle\":{\"focused\":true,\"label\":\"Raw\"},\"kbToggled\":{\"on\":[\"Raw\"]}}"
+    },
+    {
+      "name": "Enter expands a table alternative from the focused summary",
+      "pass": true,
+      "detail": "{\"kbTable\":{\"focused\":true,\"label\":\"Table of the values shown\",\"wasOpen\":false},\"kbTableAfter\":{\"open\":true,\"rows\":27,\"focus\":\"SUMMARY\"}}"
+    },
+    {
+      "name": "Skip link moves focus to main without resetting the hash-routed view",
+      "pass": true,
+      "detail": "{\"kbSkip\":{\"focused\":true,\"href\":\"#main\",\"target\":true,\"tabIndex\":\"-1\"},\"kbSkipAfter\":{\"hash\":\"#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02\",\"focusedMain\":true,\"metric\":\"Burning calendar\"}}"
+    },
+    {
+      "name": "Area canvas is focusable and states its keyboard contract",
+      "pass": true,
+      "detail": "{\"focused\":true,\"role\":\"application\",\"label\":\"Area editor, rectangle mode, 0 square kilometres. Arrow keys move the pen, Shift plus arrow moves four steps, Enter or Space places, C closes a polygon, Backspace undoes, Escape clears, F fits the view, R resets it.\",\"described\":\"draw-status\",\"status\":\"Keyboard: arrow keys move the pen, Shift plus arrow moves four steps, Enter or Space places, C closes a polygon, Backspace undoes, Escape clears, F fits and R resets the view.\",\"readout\":\"0 km²0 vertices≈0 detections/yearAnalyze this shape\"}"
+    },
+    {
+      "name": "No shape exists before the first keystroke",
+      "pass": true,
+      "detail": "0 km²0 vertices≈0 detections/yearAnalyze this shape"
+    },
+    {
+      "name": "Enter sets the first corner and announces it",
+      "pass": true,
+      "detail": "{\"status\":\"First corner set at -17.60°, -57.30°. Arrow keys drag the opposite corner.\",\"readout\":\"0 km²0 vertices≈0 detections/yearAnalyze this shape\"}"
+    },
+    {
+      "name": "Shift plus arrows drag the opposite corner into a valid area",
+      "pass": true,
+      "detail": "{\"area\":4,\"kdRect\":{\"readout\":\"4,120 km²97 vertices≈38,205 detections/year-18.10°, -56.60° r=36 kmvalidAnalyze this shape\",\"status\":\"First corner set at -17.60°, -57.30°. Arrow keys drag the opposite corner.\",\"disabled\":false}}"
+    },
+    {
+      "name": "Enter activates Analyze on the focused button",
+      "pass": true,
+      "detail": "{\"kdFocusAnalyze\":{\"focused\":true,\"disabled\":false},\"toast\":\"Analysed the drawn rectangle: 4,120 km² resolved to a 36 km radius AOI.\"}"
+    },
+    {
+      "name": "The drawn shape survives the region change it causes",
+      "pass": true,
+      "detail": "{\"kept\":4,\"readout\":\"4,120 km²97 vertices≈38,205 detections/year-18.10°, -56.60° r=36 kmvalidAnalyze this shape\"}"
+    },
+    {
+      "name": "Data-volume estimate is measured on the drawn area and is unchanged by Analyze",
+      "pass": true,
+      "detail": "{\"before\":38205,\"after\":38205}"
+    },
+    {
+      "name": "Polygon mode is announced through the canvas label",
+      "pass": true,
+      "detail": "{\"mode\":\"Area editor, polygon mode, 0 square kilometres. Arrow keys move the pen, Shift plus arrow moves four steps, Enter or Space places, C closes a polygon, Backspace undoes, Escape clears, F fits the view, R resets it.\",\"status\":\"Analysed: 4,120 km² resolved to a 36 km radius AOI.\"}"
+    },
+    {
+      "name": "Enter places polygon vertices at the pen",
+      "pass": true,
+      "detail": "{\"status\":\"4 vertices placed. Press C to close the shape, Backspace to undo, Escape to clear.\",\"dots\":4,\"draft\":true}"
+    },
+    {
+      "name": "Backspace undoes the last vertex",
+      "pass": true,
+      "detail": "{\"status\":\"3 vertices remain.\",\"dots\":3}"
+    },
+    {
+      "name": "C closes the polygon so it becomes analysable",
+      "pass": true,
+      "detail": "{\"area\":1,\"kdClosed\":{\"status\":\"Polygon closed with 4 vertices — area and estimate are ready.\",\"readout\":\"1,541 km²5 vertices≈14,288 detections/year-18.29°, -56.43° r=22 kmvalidAnalyze this shape\",\"disabled\":false}}"
+    },
+    {
+      "name": "Keyboard-drawn polygon resolves to an AOI like a pointer shape",
+      "pass": true,
+      "detail": "{\"toast\":\"Analysed the drawn polygon: 1,541 km² resolved to a 22 km radius AOI.\",\"hash\":\"#/atlas?r=aoi-s18p29-w56p43&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-18.2876&lon=-56.4251&rad=22&n=Drawn+polygon\",\"status\":\"Analysed: 1,541 km² resolved to a 22 km radius AOI.\"}"
+    },
+    {
+      "name": "Every focusable control has an accessible name on all six views",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Every form control is labelled",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "No positive tabindex anywhere",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Heading levels never skip a rank",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Images name themselves or are marked decorative",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Every role=img graphic carries an accessible name",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Landmarks: exactly one main and a nav per view",
+      "pass": true,
+      "detail": "[[\"watch\",{\"main\":1,\"nav\":1}],[\"atlas\",{\"main\":1,\"nav\":1}],[\"diagnosis\",{\"main\":1,\"nav\":1}],[\"outlook\",{\"main\":1,\"nav\":1}],[\"brief\",{\"main\":1,\"nav\":1}],[\"method\",{\"main\":1,\"nav\":1}]]"
+    },
+    {
+      "name": "Document declares a language on all six views",
+      "pass": true,
+      "detail": "[[\"watch\",\"en\"],[\"atlas\",\"en\"],[\"diagnosis\",\"en\"],[\"outlook\",\"en\"],[\"brief\",\"en\"],[\"method\",\"en\"]]"
+    },
+    {
+      "name": "Views that update asynchronously expose a polite live region",
+      "pass": true,
+      "detail": "[[\"watch\",2],[\"atlas\",2],[\"outlook\",1]]"
+    },
+    {
+      "name": "Mobile: the document does not scroll sideways",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "Mobile: every top-nav target is at least 44 px tall",
+      "pass": true,
+      "detail": "[{\"label\":\"◈CONTINUUMFIRE REC\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"Orbital WatchWatch\",\"icon\":false,\"w\":38,\"h\":44},{\"label\":\"AtlasAtlas\",\"icon\":false,\"w\":32,\"h\":44},{\"label\":\"DiagnosisDiagnose\",\"icon\":false,\"w\":51,\"h\":44},{\"label\":\"OutlookOutlook\",\"icon\":false,\"w\":46,\"h\":44},{\"label\":\"BriefBrief\",\"icon\":false,\"w\":31,\"h\":44},{\"label\":\"MethodMethod\",\"icon\":false,\"w\":45,\"h\":44},{\"label\":\"◉Alert center1\",\"icon\":true,\"w\":51,\"h\":44},{\"label\":\"⚙\",\"icon\":true,\"w\":44,\"h\":44}]"
+    },
+    {
+      "name": "Mobile: icon-only nav targets are also 44 px wide",
+      "pass": true,
+      "detail": "[{\"label\":\"◈CONTINUUMFIRE REC\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"◉Alert center1\",\"icon\":true,\"w\":51,\"h\":44},{\"label\":\"⚙\",\"icon\":true,\"w\":44,\"h\":44}]"
+    },
+    {
+      "name": "Mobile: simulation speed chips are tappable",
+      "pass": true,
+      "detail": "[{\"w\":39,\"h\":36},{\"w\":36,\"h\":36},{\"w\":39,\"h\":36},{\"w\":44,\"h\":36}]"
+    },
+    {
+      "name": "Mobile: hero copy is present, not collapsed",
+      "pass": true,
+      "detail": "89.5625"
+    },
+    {
+      "name": "Mobile: Atlas fits the viewport without sideways scroll",
+      "pass": true,
+      "detail": "{\"overflow\":0,\"frame\":true,\"inFrame\":true}"
+    },
+    {
+      "name": "Mobile: the calendar frame controls stay inside their panel",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "No HTTP 4xx/5xx responses",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "No failed network loads",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "No runtime console errors",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "No runtime CelesTrak requests",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "NASA POWER live request succeeds",
+      "pass": true,
+      "detail": "[200,200]"
+    },
+    {
+      "name": "World search reaches a country with no pilot region",
+      "pass": true,
+      "detail": "{\"ok\":true,\"rows\":[\"Antarctica14,311,067 km² · 0 detections this window-82.31°, -3.41°\"]}"
+    },
+    {
+      "name": "Selecting a country makes it the analysed area",
+      "pass": true,
+      "detail": "{\"region\":\"Antarctica — country wide\",\"hash\":\"#/watch?r=country-antarctica&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=antarctica\",\"live\":\"71,882 real detections8-day rolling windowreal TLEs · SGP4\",\"toast\":\"Antarctica: country-wide, no detection inside its border in this window.\"}"
+    },
+    {
+      "name": "The country label states measured detections, not a model",
+      "pass": true,
+      "detail": "Antarctica: country-wide, no detection inside its border in this window."
+    },
+    {
+      "name": "A click on the pole names the continent, not open ocean",
+      "pass": true,
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Antarctica selected: a 150 km AOI, measured against Antarctica's own window.\",\"region\":\"Antarctica · 150 km\"}"
+    },
+    {
+      "name": "A #country deep link restores that country as the area",
+      "pass": true,
+      "detail": "{\"heading\":\"Kenya — country wide\",\"hash\":\"#/atlas?r=country-kenya&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=kenya\",\"live\":\"233\",\"liveSub\":\"VIIRS-equivalent · 7 active days · 26 Oct–2 Nov\"}"
+    },
+    {
+      "name": "A country outside a pilot bbox still reports a measured window",
+      "pass": true,
+      "detail": "{\"heading\":\"Kenya — country wide\",\"hash\":\"#/atlas?r=country-kenya&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=kenya\",\"live\":\"233\",\"liveSub\":\"VIIRS-equivalent · 7 active days · 26 Oct–2 Nov\"}"
+    },
+    {
+      "name": "Kenya's live figure is its measured border count, not the bundle's stride sample",
+      "pass": true,
+      "detail": "{\"expected\":233,\"heading\":\"Kenya — country wide\",\"value\":\"233\",\"sub\":\"VIIRS-equivalent · 7 active days · 26 Oct–2 Nov\"}"
+    },
+    {
+      "name": "A country with no detections prints its measured zero, not a pilot average",
+      "pass": true,
+      "detail": "{\"heading\":\"Antarctica — country wide\",\"value\":\"0\",\"sub\":\"VIIRS-equivalent · 0 active days · 26 Oct–2 Nov\"}"
+    }
+  ]
+}

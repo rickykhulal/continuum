@@ -1,0 +1,91 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck and lint (tsc strict)
+        run: npx tsc -b
+
+      - name: Unit, bundle-integrity and API contract tests
+        run: npm test
+
+      - name: Production build
+        # The bundle in public/data is committed and content-hashed, so CI verifies it rather than
+        # regenerating it: `npm run data`/`npm run bundle` need the 94 MB of raw FIRMS CSVs under
+        # data_raw/, which are deliberately not published (their backfill logs carry download URLs).
+        # Re-running `bundle` here would also drop those four entries and move bundle_version, so the
+        # build that ships would not be the build the docs name. `npm run validate` below checks every
+        # manifest hash against the files that do ship.
+        run: npm run build
+
+      - name: Integrity gate on the committed bundle
+        run: npm run validate
+
+      - name: Secret scan
+        run: npm run secret-scan
+
+      - name: Dependency audit (high and above, production deps)
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
+      - name: Smoke test the read-only API
+        run: npm run smoke
+
+      - name: Backup/restore drill (corrupts a scratch copy, never the repo bundle)
+        run: npm run rehearse
+
+      - name: Upload rehearsal report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rehearsal-report
+          path: docs/rehearsal-report.json
+
+      - name: Browser sweep against the production build
+        env:
+          # Both browser suites take the binary from CHROME_PATH; the default in the scripts is the
+          # Windows install path this repo was developed against. GitHub's ubuntu image ships Chrome here.
+          CHROME_PATH: /usr/bin/google-chrome-stable
+        run: |
+          npm run preview -- --port 4174 &
+          npx --yes wait-on http://localhost:4174
+          npm run e2e
+
+      - name: Upload e2e report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: docs/e2e-report.json
+
+      - name: Performance probe (measurement, not a gate)
+        if: always()
+        env:
+          CHROME_PATH: /usr/bin/google-chrome-stable
+        run: npm run perf
+        continue-on-error: true
+
+      - name: Upload performance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-report
+          path: docs/perf-report.json

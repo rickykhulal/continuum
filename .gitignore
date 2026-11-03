@@ -1,0 +1,37 @@
+# --- build output ---------------------------------------------------------
+node_modules
+dist
+dist-server
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# --- not published: raw inputs, snapshots and scratch ---------------------
+# data_raw holds the four global FIRMS CSVs (94 MB) plus per-request logs. The logs carry the
+# download URLs the backfill used, so this directory must stay out of the repository even though
+# public/data/bundle_manifest.json records the sha256 of every CSV it consumed. Re-download with
+# `npm run live`; `npm run validate` then verifies those hashes instead of skipping them.
+data_raw
+backups
+.qoder-shots
+.shots
+_extract
+.clone-test
+*.log
+.conae.txt
+.rsc.txt
+.pw_test.json
+.DS_Store
+Thumbs.db
+
+# --- requirements briefs: local only --------------------------------------
+# The PRD PDFs and the caption transcript are competition input documents, not build inputs — no
+# script, test or gate reads them. Everything that cites them (docs/*.md plus the machine-readable
+# reports) is published, so the repository explains itself without re-hosting the briefs.
+docs/*.pdf
+docs/subtitles-*.srt
+
+# --- secrets --------------------------------------------------------------
+.env
+.env.*
+!.env.example

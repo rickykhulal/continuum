@@ -1,0 +1,208 @@
+[
+  {
+    "id": "chilecito",
+    "name": "Chilecito & Famatina Valley",
+    "shortName": "Chilecito",
+    "country": "Argentina",
+    "admin": "La Rioja",
+    "center": [
+      -29.16,
+      -67.5
+    ],
+    "bbox": [
+      -68.45,
+      -30.05,
+      -66.75,
+      -28.15
+    ],
+    "areaKm2": 19400,
+    "biome": "Arid Monte & Andean foothills",
+    "language": "es",
+    "timezone": "America/Argentina/La_Rioja",
+    "description": "CONAE's home region. Irrigated valleys and wildland interface where dry-season burns can reach villages within hours.",
+    "aliases": [
+      "chilecito",
+      "famatina",
+      "la rioja",
+      "argentina"
+    ]
+  },
+  {
+    "id": "pantanal",
+    "name": "Pantanal Wetland Complex",
+    "shortName": "Pantanal",
+    "country": "Brazil",
+    "admin": "Mato Grosso & Mato Grosso do Sul",
+    "center": [
+      -17.6,
+      -57.3
+    ],
+    "bbox": [
+      -58.9,
+      -19.6,
+      -55.4,
+      -15.7
+    ],
+    "areaKm2": 179000,
+    "biome": "Tropical wetland & cerrado",
+    "language": "pt",
+    "timezone": "America/Cuiaba",
+    "description": "The world's largest tropical wetland. In 2020, an unprecedented fire season burned roughly a third of the biome.",
+    "aliases": [
+      "pantanal",
+      "cuiaba",
+      "corumba",
+      "brazil",
+      "brasil"
+    ]
+  },
+  {
+    "id": "california",
+    "name": "California Wildland Interface",
+    "shortName": "California",
+    "country": "United States",
+    "admin": "California",
+    "center": [
+      39.5,
+      -121
+    ],
+    "bbox": [
+      -124.6,
+      32.3,
+      -114,
+      42.2
+    ],
+    "areaKm2": 423970,
+    "biome": "Mediterranean chaparral & conifer forest",
+    "language": "en",
+    "timezone": "America/Los_Angeles",
+    "description": "A globally watched wildland-urban interface where the fire season now overlaps the entire calendar year.",
+    "aliases": [
+      "california",
+      "los angeles",
+      "san francisco",
+      "sacramento",
+      "usa",
+      "united states"
+    ]
+  },
+  {
+    "id": "greece",
+    "name": "Greece & Aegean",
+    "shortName": "Greece",
+    "country": "Greece",
+    "admin": "Attica, Evia, Peloponnese",
+    "center": [
+      38.6,
+      23.6
+    ],
+    "bbox": [
+      19.3,
+      34.5,
+      28.6,
+      41.9
+    ],
+    "areaKm2": 131960,
+    "biome": "Mediterranean pine & maquis",
+    "language": "en",
+    "timezone": "Europe/Athens",
+    "description": "A fire-prone Mediterranean archipelago where heatwaves turn the wildland interface into a repeat ignition corridor.",
+    "aliases": [
+      "greece",
+      "athens",
+      "evia",
+      "rhodes",
+      "crete",
+      "thessaloniki"
+    ]
+  },
+  {
+    "id": "amazon",
+    "name": "Eastern Amazon Arc",
+    "shortName": "Amazon arc",
+    "country": "Brazil",
+    "admin": "Pará & Mato Grosso",
+    "center": [
+      -6.5,
+      -54.5
+    ],
+    "bbox": [
+      -62.5,
+      -12.5,
+      -49.5,
+      -1.5
+    ],
+    "areaKm2": 1400000,
+    "biome": "Tropical rainforest frontier",
+    "language": "pt",
+    "timezone": "America/Santarem",
+    "description": "The deforestation frontier where agricultural burns and forest understory fires create one of Earth's largest annual burning signals.",
+    "aliases": [
+      "amazon",
+      "para",
+      "belem",
+      "manaus",
+      "santarem",
+      "brazil"
+    ]
+  },
+  {
+    "id": "nepal",
+    "name": "Nepal Terai & Middle Hills",
+    "shortName": "Nepal",
+    "country": "Nepal",
+    "admin": "Terai & Gandaki",
+    "center": [
+      28.2,
+      84
+    ],
+    "bbox": [
+      80,
+      26.3,
+      88.3,
+      30.5
+    ],
+    "areaKm2": 147180,
+    "biome": "Subtropical forest & terraced agriculture",
+    "language": "en",
+    "timezone": "Asia/Kathmandu",
+    "description": "Spring forest fires and agricultural burns coincide with the pre-monsoon haze season across the Indo-Gangetic plain.",
+    "aliases": [
+      "nepal",
+      "kathmandu",
+      "pokhara",
+      "terai",
+      "himalaya"
+    ]
+  },
+  {
+    "id": "southeast-australia",
+    "name": "Southeast Australia",
+    "shortName": "SE Australia",
+    "country": "Australia",
+    "admin": "New South Wales & Victoria",
+    "center": [
+      -35.5,
+      148.5
+    ],
+    "bbox": [
+      140,
+      -39.5,
+      154,
+      -27.5
+    ],
+    "areaKm2": 900000,
+    "biome": "Eucalyptus forest & grassland",
+    "language": "en",
+    "timezone": "Australia/Sydney",
+    "description": "A summer-peak fire regime of eucalyptus forests, where the 2019–20 Black Summer burned 24 million hectares.",
+    "aliases": [
+      "australia",
+      "sydney",
+      "melbourne",
+      "canberra",
+      "new south wales",
+      "victoria"
+    ]
+  }
+]

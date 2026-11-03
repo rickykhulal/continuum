@@ -1,0 +1,107 @@
+# Continuum — Prometheus scrape + alert rules
+#
+# AUTHORED, NOT EXECUTED — no Prometheus or Alertmanager was installed, run, or connected here
+# (docs/decisions.md ADR-10). What *is* verified is the payload these rules consume: the exposition
+# format, the bounded label set, the token gate, and that the counters move with real traffic —
+# 11 checks inside `npm run smoke`. Tune every threshold against observed traffic before paging.
+#
+# The API only serves /metrics when METRICS_TOKEN is set in its environment. With the variable
+# unset the endpoint answers 404 and this job reports up == 0, which is the intended fail-safe:
+# an unconfigured host is not scrapeable and does not advertise that the path exists.
+#
+# The token is read from a file so it never lands in this config, in `docker compose config`
+# output, or in a shell history line. Point the path at whatever the host uses
+# (systemd credentials, a mounted secret, a Vault agent template).
+
+global:
+  scrape_interval: 30s     # the bundle_ready gauge re-checks checksums at most every 10s, so 30s is comfortable
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: continuum
+    metrics_path: /metrics
+    scheme: http
+    authorization:
+      type: Bearer
+      credentials_file: /run/secrets/continuum_metrics_token
+    static_configs:
+      - targets: ["localhost:8787"]
+        labels:
+          service: continuum-api
+          env: local
+    # No metric_relabel_configs here on purpose. Cardinality is bounded where it can actually be
+    # enforced — in the exporter, which emits only declared route names plus one "static" bucket
+    # (server/api.mjs metricLabel(), proven by the smoke check that floods 40 unknown paths).
+    # A keep-rule on __name__ in scrape_configs would relabel the *target*, drop every metric, and
+    # look like a healthy scrape of an empty instance.
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["localhost:9093"]
+
+groups:
+  - name: continuum-availability
+    rules:
+      - alert: ContinuumScrapeAbsent
+        expr: up{job="continuum"} == 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Continuum API is not being scraped"
+          description: "No successful scrape in 5m. Either the process is down or METRICS_TOKEN is unset on this host (the endpoint then answers 404)."
+
+      - alert: ContinuumBundleNotReady
+        expr: continuum_bundle_ready == 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "Data bundle failed its readiness check"
+          description: "GET /api/v1/ready reports the offending file and reason in integrity.bad. Re-copy that file from the release artefact — never hand-edit the manifest (docs/runbooks.md §4)."
+
+      - alert: ContinuumBundleVersionSkew
+        expr: count(count by (version) (continuum_bundle_version{job="continuum"})) > 1
+        for: 10m
+        labels:
+          severity: warn
+        annotations:
+          summary: "Instances are serving different data bundles"
+          description: "Readers get different numbers depending on which instance answers. Finish the rollout or roll back."
+
+  - name: continuum-quality
+    rules:
+      - alert: ContinuumServerErrorRate
+        expr: sum(rate(continuum_http_requests_total{status="5xx",job="continuum"}[5m])) / clamp_min(sum(rate(continuum_http_requests_total{job="continuum"}[5m])), 1) > 0.02
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "More than 2% of requests are 5xx"
+          description: "Look for INTERNAL in continuum_http_error_codes_total and grep the JSON log by request_id."
+
+      - alert: ContinuumSlowExpensiveRoute
+        expr: |
+          rate(continuum_http_request_duration_ms_sum{job="continuum",route=~"/area/(twin|status|weather)|/sandbox/run"}[5m])
+          / clamp_min(rate(continuum_http_request_duration_ms_count{job="continuum",route=~"/area/(twin|status|weather)|/sandbox/run"}[5m]), 1) > 1500
+        for: 15m
+        labels:
+          severity: warn
+        annotations:
+          summary: "A class-C route is averaging over 1.5 s"
+          description: "These are the deliberately limited routes (20/min). Either the bundle grew, or the process is starved — check continuum_process_resident_memory_bytes."
+
+      - alert: ContinuumRateLimitStorm
+        expr: sum(rate(continuum_http_error_codes_total{code="RATE_LIMITED",job="continuum"}[5m])) > 1
+        for: 10m
+        labels:
+          severity: warn
+        annotations:
+          summary: "Clients are being limited continuously"
+          description: "Confirm the class from continuum_http_rate_class_requests_total, identify the IP in the JSON log (metrics never carry it), and raise API_RATE_LIMITS only for traffic that is legitimate."
+
+# Verify the two syntaxes on a host that has the toolchain, then load them:
+#   promtool check config  prometheus.yml
+#   promtool check rules   deploy/prometheus-scrape.example.yml   # rules section
+#   curl -sg -H "Authorization: Bearer $(cat /run/secrets/continuum_metrics_token)" localhost:8787/metrics | head

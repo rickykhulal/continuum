@@ -1,0 +1,15 @@
+# The repository normalizes to LF in the blobs, so a Linux clone (CI, Render) and a Windows working
+# copy run the same scripts. Without this, core.autocrlf=true on the dev machine and =false on the
+# host disagree, and a CRLF shebang in scripts/*.mjs is an "exec format error" in CI.
+* text=auto eol=lf
+
+# Byte-exact assets: a text filter here would corrupt the globe textures the manifest hashes.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.pdf binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
