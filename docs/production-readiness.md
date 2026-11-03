@@ -30,7 +30,7 @@
 | `public/data/country_fires.json` | the same live window attributed by point-in-polygon: 966,066 quality rows read, 929,967 (96.26 %) inside a border, 178 of 241 countries with at least one detection |
 | `public/data/bundle_manifest.json` | content-derived `bundle_version`, per-file sha256 + byte counts |
 | Published clone of `main` (`https://github.com/rickykhulal/continuum`), same chain | build exit 0 with identical hashed assets, tests 70/70, validate 23/23 (16 shipped files, 4 `data_raw` inputs named as absent), smoke 49/49, e2e 100/100, `GET /ready` 200 `integrity {ok:true, files:20}` — `docs/runbooks.md` §6.1 |
-| GitHub Actions, `ubuntu-latest`, at `ab3e0c0` | **success** — the whole chain (install, `tsc -b`, tests, build, validate, secret-scan, smoke, rehearse, headless-Chrome e2e, perf probe) on Linux from a checkout with no `data_raw/`; the three previous runs failed at `npm run rehearse`, which is how the drill's stale four-file list was found |
+| GitHub Actions, `ubuntu-latest` | **success on five consecutive pushes** — `ab3e0c0`, `ffbd990`, `422c084`, `8da97f8`, `f5b3abc` (latest, 2026-11-03T12:25Z). Each run is the whole chain (install, `tsc -b`, tests, build, validate, secret-scan, smoke, rehearse, headless-Chrome e2e, perf probe) on Linux from a checkout with no `data_raw/`; the three runs before those failed at `npm run rehearse`, which is how the drill's stale four-file list was found. `8da97f8` is the run that carries the 104-check sweep, so the territory-reachability assertions are verified on Linux and not only on this machine |
 
 Repository now also holds: `server/api.mjs` + `scripts/build-api.mjs` (read-only API over the
 browser's own analytics bundle), `.github/workflows/ci.yml`, `Makefile`, `LICENSE`, `NOTICE`,
@@ -135,8 +135,8 @@ Accessibility, and FR-32's "paths tested").
 - `docker build .` → `docker compose up` → run the container sequence in `docs/runbooks.md` §6.2.
   `npm run smoke` cannot target a container — it spawns its own API on `SMOKE_PORT`.
 - Apply `deploy/static-headers.example` at the edge and verify with the `curl -sI` checks in that file.
-- ~~Run the CI workflow once on a remote~~ — done: `ubuntu-latest` at `ab3e0c0` concluded **success** on
-  every gate (§1). What remains host-bound is loading a deployed target and load-testing it.
+- ~~Run the CI workflow once on a remote~~ — done: `ubuntu-latest` has concluded **success** on five
+  consecutive pushes, latest `f5b3abc`, on every gate (§1). What remains host-bound is loading a deployed target and load-testing it.
 - Point a real Prometheus at the token-gated `/metrics` with `deploy/prometheus-scrape.example.yml`,
   run `promtool check config` / `promtool check rules`, and tune the six alert thresholds against a
   week of traffic. The exporter is verified; the collector, alert routing and dashboard are not.
