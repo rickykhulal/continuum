@@ -123,6 +123,17 @@ inactivity, so the first hit takes ~30 s, and the deploy builds from the git tre
 excludes `data_raw/` — the host ships `public/data` exactly as published and `GET /ready` is what
 proves nothing drifted in transit.
 
+**What was run before the tree was published, and what it showed.** The pushed `main` was cloned into a
+clean directory and the chain re-run there: build with identical hashed assets, `npm test` 70/70,
+`npm run validate` 23/23 ("16 files verified, 4 `data_raw` build inputs absent"), `npm run smoke` 49/49,
+`npm run e2e` 100/100, `npm run rehearse` 12/12 and `GET /ready` 200. `.github/workflows/ci.yml` then ran
+the same sequence on `ubuntu-latest` and concluded **success**. Coverage is measured against every id the
+gazetteer publishes, not a sample: 241/241 country records answer over HTTP with the full 9,498-day series
+(178 non-zero, 63 measured zeros), and each country's live-window sensor lanes equal its point-in-polygon
+count in `public/data/country_fires.json`. `docs/runbooks.md` §6.1 has the deploy sequence and the two
+failures the clone caught (line-ending normalisation editing a hashed byte; `req.socket.encryption` never
+existing, so HSTS was never emitted behind a TLS terminator).
+
 ## Refresh the live snapshot
 
 `scripts/build-data.mjs` downloads nothing when the four CSVs are already present, so a rebuild is reproducible and provider-independent:

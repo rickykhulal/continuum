@@ -957,6 +957,32 @@ and `POST /api/v1/area/summary` for a country.
   re-run on 2026-11-03 is **12/12** on `continuum-2026-11-02-954f24dbc630` — `backup … 9 files`, corruption
   and deletion still name their file, restore returns `/ready` 200 in the same process.
 
+**Coverage proved exhaustively, not by sampling (2026-11-03, same day)**
+- Every id the gazetteer publishes was asked for over HTTP, not a subset: **241/241** returned 200 with
+  `counts.days = 9498` (2000-11-01 → 2026-11-02), 178 of them non-zero and **63 printing a measured 0**
+  — the same 178 the builder reports, so "selectable" holds for the quiet borders as well as the busy
+  ones. Spot-checked across every continent and size class: Nauru, San Marino, Liechtenstein, Kiribati,
+  Singapore, Malta, Antarctica all answer; Iceland 17,399, Finland 69,031, Botswana 91.28 M,
+  Timor-Leste 574,842, Vanuatu 120,235 harmonized.
+- Each country's live-window block was then compared to the point-in-polygon measurement rather than to
+  itself: **241/241 exact agreement** between the API's `counts.by_sensor` VIIRS lanes for
+  2026-10-26 → 2026-11-02 and `data/country_fires.json` (`days = 8` for every one). No border inherits
+  another's density and none is filled in.
+- Latency over that sweep: p50 80 ms, p95 125 ms, max 293 ms — with the default `API_RATE_LIMITS`
+  the sweep itself starts receiving 429 after roughly a hundred calls, which is the documented class-B
+  behaviour rather than a fault; the full pass needed a throwaway instance on another port with the
+  limits raised. The app never makes a call per country: the browser computes from the selected area's
+  record, and `/meta` is the only world-layer request it makes.
+- **Known gazetteer gaps (measured against the shipped list):** Natural Earth 50m publishes 241 admin-0
+  units and does not carry Tuvalu, the Holy See, Gibraltar or Wake Island as separate polygons — searched
+  by name through `/meta`'s index, those four are absent while Monaco and Norfolk Island are present and
+  answer normally. A click inside one of the missing borders falls through to `whereAt()`'s outward probe
+  ([src/lib/countries.ts:344](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/lib/countries.ts#L344)),
+  which reports the nearest country with the distance it had to travel, or "Open ocean" — so no point
+  returns an empty area. **Partial:** `npm run e2e` asserts the in-polygon half of that (a click on the
+  pole resolves to Antarctica rather than "open ocean"), but no assertion yet exercises the outward
+  probe itself or names Vatican City or Tuvalu specifically.
+
 **Not claimed.** The Render dashboard Blueprint import (no account was driven from here), container
 builds (no engine in this environment), and anything that needs a host: availability, cold start on the
 free tier, CDN behaviour. `docs/runbooks.md` §6.1 records the deploy sequence and labels the host-bound

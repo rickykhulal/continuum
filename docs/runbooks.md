@@ -176,6 +176,17 @@ was written and is five files short of the one that ships now. The list comes fr
 `bundle_manifest.json` (`+ bundle_manifest.json` itself, which does not hash itself), so a file added to
 the bundle cannot be left out of the drill. If a bundle file is added and the drill starts failing
 `/ready → 503 … missing` on the relocated copy, that is the check doing its job.
+**Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` at `ab3e0c0` completed with
+conclusion **success** — install, `tsc -b`, `npm test`, build, validate, secret-scan, `npm run smoke`,
+`npm run rehearse`, the headless-Chrome sweep and the perf probe, on Linux, from a checkout with no
+`data_raw/`. The three earlier runs on that branch failed at the rehearsal step and are left in the
+history rather than deleted.
+
+The repository is currently **private**. That does not block a Render deploy — the Blueprint import uses
+the GitHub App/OAuth connection, and a private repo works as long as Render's installation is granted
+access to it — but it does mean no anonymous reader can see the code, and a reviewer cannot open the
+repo the way a public one is opened. Switching it back to public is an owner decision, not something this
+runbook performs.
 
 The Render free tier sleeps the service after inactivity; the first request after a sleep pays the cold
 start, which is a host property and not something the perf probe measures. Nothing in this app needs a
