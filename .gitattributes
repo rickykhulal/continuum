@@ -13,3 +13,13 @@
 *.woff binary
 *.woff2 binary
 *.ttf binary
+
+# Everything named by public/data/bundle_manifest.json is hashed byte-for-byte, so the bytes that
+# leave this repository have to be the bytes that arrive. Measured on 2026-11-03: `text=auto`
+# normalised public/tle/satellites.txt from 845 CRLF bytes to 830 LF bytes, a fresh clone's copy no
+# longer matched its manifest entry, and GET /ready answered 503 — "tle/satellites.txt: checksum
+# mismatch" — which is exactly the fail-closed behaviour doing its job. `-text` opts the hashed set
+# out of every conversion, whatever the local core.autocrlf says.
+public/data/** -text
+public/tle/** -text
+public/textures/** -text
