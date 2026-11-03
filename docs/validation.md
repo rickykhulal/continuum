@@ -237,7 +237,7 @@ cover: restoring a host volume from a provider snapshot, or a re-deploy — see
 - The analog goldens in `tests/analog-index.test.mjs` were recaptured at this bundle. With `attachClimate(null)` the 2026-11-01 fixture still reproduces to six decimals, which proves the shift came from the driver and not from the prefix-sum index; a recaptured golden no longer pins a future change on its own.
 
 **Not verified**
-- BW skill against actual fire weather: the shipped live window is 7 days, too short to correlate. Needs the FIRMS archive or a CONAE validation set.
+- BW skill against actual fire weather: the shipped live window is eight days, too short to correlate. Needs the FIRMS archive or a CONAE validation set.
 
 **Blocked** (needs a credential or a host the pack names; nothing was stored or printed)
 - FIRMS archive request and `/api/area/csv`: require a `FIRMS_MAP_KEY`. This remains the only route to real 2000→2026 detection *counts*.
@@ -973,6 +973,12 @@ and `POST /api/v1/area/summary` for a country.
   behaviour rather than a fault; the full pass needed a throwaway instance on another port with the
   limits raised. The app never makes a call per country: the browser computes from the selected area's
   record, and `/meta` is the only world-layer request it makes.
+- **Re-run at the shipped limits, 2026-11-03T13:03Z on `feb2aa0`.** The same 241 ids were asked again of the
+  API on :8787 with default `API_RATE_LIMITS`, paced to one request per 1.05 s (57/min, inside class B):
+  **241/241 HTTP 200, 0 failures, one distinct `counts.days` value — 9498 — and 63 borders reporting a
+  measured 0.** Nothing had to be relaxed to reproduce it; the earlier un-paced pass only needed the raised
+  limits because it issued calls faster than the documented rate class allows.
+
 - **Gazetteer gaps, measured and then closed.** Natural Earth 50m publishes 241 admin-0 units. Tested
   against the shipped `data/countries.json` index, the 14 names below have no polygon — searched as
   substrings of all 241 entries, they return nothing, while Monaco, Norfolk Island and **Vatican City**
@@ -997,6 +1003,20 @@ and `POST /api/v1/area/summary` for a country.
   Nauru and a Svalbard AOI and reading the same figure each time). All four places that print it now say
   `real detections worldwide` / `Live detections worldwide`; per-area numbers were already derived at render
   time from the selected record and are unchanged.
+- One more number of the same kind was removed rather than re-labelled: every border's description said
+  "the live 7-day window", but `CountryWindow` carries `day`/`night` counts and no window length, so that
+  seven was not derivable from the record (and the shipped window is not seven days: all four
+  `data_raw/*_Global_7d.csv` files contain 8 distinct acquisition dates, 2026-10-26 → 2026-11-02, measured
+  by counting dates in each file). It now reads "the live FIRMS window"
+  ([src/lib/countries.ts:431](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/lib/countries.ts#L431));
+  the detection figure beside it is still `w.total` from the same record. `npm run validate` 23/23, `npm run
+  smoke` 49/49 and `npm run e2e` 105/105 were re-run on that tree with zero console errors.
+- Read back out of the served page rather than out of the source: `http://127.0.0.1:8787/` (chunk
+  `index-Cp3BhHdt.js`, same file on disk) was driven from the keyboard for two more Pacific nations —
+  Kiribati → header `Kiribati — country wide`, result row "941 km² · 0 detections this window", and
+  Fiji → `#/atlas?r=country-fiji…` with 9,506 calendar cells, the description printing the measured
+  `(971 detections)`, no `NaN`/`undefined` anywhere in `<main>`, and no surviving "7-day window" string.
+  The quiet border renders as a real record, not an empty area.
 - `npm run perf` re-run on this tree at 12:14Z (the chunk hashes move with the copy change): 216 requests
   across 18 endpoints, 0 server errors, 0 objective breaches. `country-summary` p95 15.9 ms, the gazetteer's
   worst case `country-calendar` (Russia, 9,498 rows) p50 29.3 / p95 37.0 ms, GeoJSON export still the slowest

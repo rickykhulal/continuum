@@ -179,8 +179,9 @@ was written and is five files short of the one that ships now. The list comes fr
 `bundle_manifest.json` (`+ bundle_manifest.json` itself, which does not hash itself), so a file added to
 the bundle cannot be left out of the drill. If a bundle file is added and the drill starts failing
 `/ready → 503 … missing` on the relocated copy, that is the check doing its job.
-**Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` completed with conclusion
-**success** at `ab3e0c0`, `ffbd990`, `422c084`, `8da97f8` and `f5b3abc` (latest, 2026-11-03T12:25Z) —
+**Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` has conclusion **success** on
+every push since `ab3e0c0` — nine consecutive runs, the latest being `feb2aa0` at 2026-11-03T13:07:39Z,
+read from the Actions API with `event=push` —
 install, `tsc -b`, `npm test`, build, validate, secret-scan, `npm run smoke`, `npm run rehearse`, the
 headless-Chrome sweep and the perf probe, on Linux,
 from a checkout with no `data_raw/`. The three earlier runs on that branch failed at the rehearsal step
