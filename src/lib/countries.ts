@@ -428,7 +428,7 @@ export function countryRegion(entry: CountryEntry): Region {
     biome: biomeFor(la),
     language: 'en',
     timezone: `UTC${Math.round(lo / 15) >= 0 ? '+' : ''}${Math.round(lo / 15)}`,
-    description: `Every detection the four FIRMS satellites measured inside the ${entry.name} border during the live 7-day window (${w ? `${w.total.toLocaleString()} detections` : 'no detections so far'}), harmonised across instruments and compared with the same area's seasonal history. The border is Natural Earth 50m; the counts are measured, not modelled.`,
+    description: `Every detection the four FIRMS satellites measured inside the ${entry.name} border during the live FIRMS window (${w ? `${w.total.toLocaleString()} detections` : 'no detections so far'}), harmonised across instruments and compared with the same area's seasonal history. The border is Natural Earth 50m; the counts are measured, not modelled.`,
     aliases: entry.aliases,
   };
 }
