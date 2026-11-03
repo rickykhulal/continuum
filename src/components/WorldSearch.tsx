@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { searchWorld, loadWorldLayer, countryWindow, type WorldHit } from '../lib/countries';
 import { nf } from '../lib/format';
+import { PLACES } from '../data/places';
 
 /**
  * Type-ahead over every country border in the bundle, plus the curated places. The globe accepts a
@@ -26,7 +27,7 @@ export function WorldSearch({ onFocusGlobe }: { onFocusGlobe?: (center: [number,
     return () => document.removeEventListener('mousedown', onDown);
   }, []);
 
-  const results: WorldHit[] = query.trim().length >= 2 ? searchWorld(query, 7) : [];
+  const results: WorldHit[] = query.trim().length >= 2 ? searchWorld(query, 7, PLACES) : [];
 
   const choose = (p: WorldHit) => {
     if (p.kind === 'country') {

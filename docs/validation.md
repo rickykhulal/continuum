@@ -973,15 +973,24 @@ and `POST /api/v1/area/summary` for a country.
   behaviour rather than a fault; the full pass needed a throwaway instance on another port with the
   limits raised. The app never makes a call per country: the browser computes from the selected area's
   record, and `/meta` is the only world-layer request it makes.
-- **Known gazetteer gaps (measured against the shipped list):** Natural Earth 50m publishes 241 admin-0
-  units and does not carry Tuvalu, the Holy See, Gibraltar or Wake Island as separate polygons — searched
-  by name through `/meta`'s index, those four are absent while Monaco and Norfolk Island are present and
-  answer normally. A click inside one of the missing borders falls through to `whereAt()`'s outward probe
-  ([src/lib/countries.ts:344](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/lib/countries.ts#L344)),
-  which reports the nearest country with the distance it had to travel, or "Open ocean" — so no point
-  returns an empty area. **Partial:** `npm run e2e` asserts the in-polygon half of that (a click on the
-  pole resolves to Antarctica rather than "open ocean"), but no assertion yet exercises the outward
-  probe itself or names Vatican City or Tuvalu specifically.
+- **Gazetteer gaps, measured and then closed.** Natural Earth 50m publishes 241 admin-0 units. Tested
+  against the shipped `data/countries.json` index, the 14 names below have no polygon — searched as
+  substrings of all 241 entries, they return nothing, while Monaco, Norfolk Island and **Vatican City**
+  (an earlier draft of this entry wrongly listed the Holy See as absent; the measurement says present,
+  `id: vatican-city`, 1 km², a measured 0 detections) are in the list and answer normally:
+  Tuvalu, Tokelau, Gibraltar, Wake Island, Réunion, Mayotte, Canary Islands, Svalbard, Christmas
+  Island, Cocos (Keeling) Islands, Bonaire, Ceuta, Melilla, Hawaiʻi.
+  They are now curated entries in `PLACES`
+  ([src/data/places.ts:32](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/data/places.ts#L32))
+  and `WorldSearch` passes that list into `searchWorld`, so each one opens as a named custom AOI at its
+  own coordinates — the same thing the app already does for every non-pilot place — instead of being
+  invisible to the keyboard. **Verified 2026-11-03** by `npm run e2e` 104/104,
+  which types all 14 queries and requires a matching result row for each, then selects Tuvalu and asserts
+  the header names it, the hash is an `aoi-*` region and the toast says custom area. The outward probe is
+  no longer unasserted either: a click on open water now has to report "Open ocean" with its own
+  coordinates and still become a 150 km AOI, and the pole click still resolves to Antarctica rather than
+  water. Remaining gap: none known for *reachability*; a territory AOI is still an exploratory area, not a
+  border-aggregated country record.
 
 **Not claimed.** The Render dashboard Blueprint import (no account was driven from here), container
 builds (no engine in this environment), and anything that needs a host: availability, cold start on the

@@ -1,12 +1,12 @@
 {
-  "pass": 100,
-  "total": 100,
+  "pass": 104,
+  "total": 104,
   "failed": [],
   "results": [
     {
       "name": "Watch renders hero + live window",
       "pass": true,
-      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"10:53:29UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"11:59:58UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
     },
     {
       "name": "Five spacecraft listed",
@@ -26,7 +26,7 @@
     {
       "name": "Simulation clock advances (rAF live)",
       "pass": true,
-      "detail": "{\"clock1\":\"10:53:47UTC · 3 November 2026\",\"clock2\":\"10:54:23UTC · 3 November 2026\"}"
+      "detail": "{\"clock1\":\"12:00:16UTC · 3 November 2026\",\"clock2\":\"12:00:52UTC · 3 November 2026\"}"
     },
     {
       "name": "Speed selector switches to 600x",
@@ -36,7 +36,7 @@
     {
       "name": "Time offset slider seeks the globe back a day",
       "pass": true,
-      "detail": "{\"before\":\"10:55:35UTC · 3 November 2026\",\"after\":\"10:53:19UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"10:53:19UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
+      "detail": "{\"before\":\"12:00:52UTC · 3 November 2026\",\"after\":\"11:59:46UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"11:59:47UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
     },
     {
       "name": "Region chip switches AOI to Pantanal",
@@ -156,7 +156,7 @@
     {
       "name": "Share view produces a deep link",
       "pass": true,
-      "detail": "View link copied — http://localhost:8787/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
+      "detail": "View link copied — http://127.0.0.1:8787/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
     },
     {
       "name": "Draw-area editor validates and resolves a rectangle (FR-01)",
@@ -502,6 +502,26 @@
       "name": "A country with no detections prints its measured zero, not a pilot average",
       "pass": true,
       "detail": "{\"heading\":\"Antarctica — country wide\",\"value\":\"0\",\"sub\":\"VIIRS-equivalent · 0 active days · 26 Oct–2 Nov\"}"
+    },
+    {
+      "name": "Every territory with no 50m border is reachable from search by name",
+      "pass": true,
+      "detail": "{\"typed\":{\"Tuvalu\":true,\"Tokelau\":true,\"Gibraltar\":true,\"Wake Island\":true,\"Réunion\":true,\"Mayotte\":true,\"Canary Islands\":true,\"Svalbard\":true,\"Christmas Island\":true,\"Cocos (Keeling)\":true,\"Bonaire\":true,\"Ceuta\":true,\"Melilla\":true,\"Hawaiʻi\":true},\"unreachable\":[]}"
+    },
+    {
+      "name": "A territory with no 50m border is still reachable from search",
+      "pass": true,
+      "detail": "{\"rows\":[\"TuvaluTuvalu-8.52°, 179.20°\"]}"
+    },
+    {
+      "name": "Selecting it opens a named custom AOI, not an empty area",
+      "pass": true,
+      "detail": "{\"rows\":[\"TuvaluTuvalu-8.52°, 179.20°\"],\"region\":\"Tuvalu · 140 km\",\"hash\":\"#/watch?r=aoi-s8p52-e179p20&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-8.5200&lon=179.2000&rad=140&n=Tuvalu\",\"toast\":\"Tuvalu opened as a custom 140 km AOI.\"}"
+    },
+    {
+      "name": "Water outside the probe radius says open ocean and still becomes an area",
+      "pass": true,
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.16° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\"}"
     }
   ]
 }

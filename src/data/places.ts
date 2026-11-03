@@ -29,6 +29,24 @@ export const PLACES: Place[] = [
   { name: 'Congo Basin', country: 'DR Congo', lat: -1.5, lon: 22.0, aliases: ['kinshasa', 'rainforest'] },
   { name: 'South Africa', country: 'South Africa', lat: -27.5, lon: 25.0, aliases: ['freestate', 'cape'] },
   { name: 'Chile Central', country: 'Chile', lat: -34.5, lon: -71.0, aliases: ['santiago', 'valparaiso'] },
+  // Territories Natural Earth 50m does not publish as separate admin-0 units. Without them these
+  // names have no search result at all: a click on the globe still resolves them through the
+  // nearest-land probe, but typing "Tuvalu" or "Réunion" found nothing. Each opens as a named custom
+  // AOI at its own coordinates, which is what the app does for every non-pilot place.
+  { name: 'Tuvalu', country: 'Tuvalu', lat: -8.52, lon: 179.2, aliases: ['funafuti', 'pacific atoll'] },
+  { name: 'Tokelau', country: 'New Zealand', lat: -9.18, lon: -171.85, aliases: ['atafu', 'nusirok', 'faota'] },
+  { name: 'Gibraltar', country: 'United Kingdom', lat: 36.14, lon: -5.35, aliases: ['rock of gibraltar', 'peninsula'] },
+  { name: 'Wake Island', country: 'United States', lat: 19.28, lon: 166.64, aliases: ['wake', 'peacock'] },
+  { name: 'Réunion', country: 'France', lat: -21.12, lon: 55.54, aliases: ['reunion', 'saint-denis', 'saint denis'] },
+  { name: 'Mayotte', country: 'France', lat: -12.84, lon: 45.13, aliases: ['mamoudzou'] },
+  { name: 'Canary Islands', country: 'Spain', lat: 28.3, lon: -15.4, aliases: ['canarias', 'tenerife', 'gran canaria', 'la palma'] },
+  { name: 'Svalbard', country: 'Norway', lat: 78.22, lon: 15.65, aliases: ['longyearbyen', 'spitsbergen'] },
+  { name: 'Christmas Island', country: 'Australia', lat: -10.44, lon: 105.63, aliases: ['flying fish cove'] },
+  { name: 'Cocos (Keeling) Islands', country: 'Australia', lat: -12.16, lon: 96.83, aliases: ['cocos', 'keeling', 'west island'] },
+  { name: 'Bonaire', country: 'Netherlands', lat: 12.16, lon: -68.27, aliases: ['kralendijk', 'bes islands'] },
+  { name: 'Ceuta', country: 'Spain', lat: 35.89, lon: -5.32, aliases: ['seuta'] },
+  { name: 'Melilla', country: 'Spain', lat: 35.29, lon: -2.94, aliases: ['malilla'] },
+  { name: 'Hawaiʻi', country: 'United States', lat: 19.8, lon: -155.5, aliases: ['hawaii', 'big island', 'mauna loa', 'kilauea'] },
 ];
 
 export function searchPlaces(query: string, limit = 6): Place[] {

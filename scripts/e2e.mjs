@@ -978,6 +978,58 @@ try {
   const antarcticaLive = await liveStat('antarctica');
   check('A country with no detections prints its measured zero, not a pilot average', antarcticaLive.value === '0' && /Antarctica/.test(antarcticaLive.heading || ''), antarcticaLive);
 
+  // Territories Natural Earth 50m has no admin-0 polygon for are still reachable by name, and a point
+  // the probe cannot reach is reported as open ocean rather than attributed to a distant country.
+  await send('Page.navigate', { url: `${ORIGIN}/?e2e=${Date.now()}#/watch` }, S);
+  await waitFor('main');
+  await sleep(2400);
+  // Every name is typed, not sampled: one result row per query is the claim being verified, and a
+  // silent gap in this list is exactly the bug the user reported ("only a few places are selectable").
+  // The queries mirror the territory entries in src/data/places.ts.
+  const missingNames = [
+    ['Tuvalu', 'Tuvalu'], ['Tokelau', 'Tokelau'], ['Gibraltar', 'Gibraltar'], ['Wake Island', 'Wake'],
+    ['Réunion', 'reunion'], ['Mayotte', 'Mayotte'], ['Canary Islands', 'canary'], ['Svalbard', 'Svalbard'],
+    ['Christmas Island', 'christmas'], ['Cocos (Keeling)', 'cocos'], ['Bonaire', 'bonaire'], ['Ceuta', 'Ceuta'],
+    ['Melilla', 'melilla'], ['Hawaiʻi', 'hawaii'],
+  ];
+  const typed = await ev(`
+    const input = document.querySelector('.world-search-input');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    const squash = (s) => s.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const out = {};
+    for (const [label, q] of ${JSON.stringify(missingNames)}) {
+      input.focus();
+      setter.call(input, q);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 450));
+      out[label] = [...document.querySelectorAll('.world-results button')]
+        .map(b => squash(b.textContent)).some(t => t.includes(squash(q)));
+    }
+    return out;`);
+  const unreachable = missingNames.map(([l]) => l).filter((l) => !typed[l]);
+  check('Every territory with no 50m border is reachable from search by name', unreachable.length === 0 && Object.keys(typed).length === missingNames.length, { typed, unreachable });
+
+  const missingType = await ev(`
+    const input = document.querySelector('.world-search-input');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    input.focus();
+    setter.call(input, 'Tuvalu');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 600));
+    const rows = [...document.querySelectorAll('.world-results button')].map(b => b.textContent.replace(/\\s+/g,' ').trim().slice(0, 90));
+    document.querySelector('.world-results button')?.click();
+    await new Promise(r => setTimeout(r, 1600));
+    return { rows, region: document.querySelector('.region-name')?.textContent?.trim(), hash: location.hash, toast: document.querySelector('.toast')?.textContent?.trim() };`);
+  check('A territory with no 50m border is still reachable from search', /Tuvalu/i.test((missingType.rows || []).join(' ')), { rows: missingType.rows });
+  check('Selecting it opens a named custom AOI, not an empty area', /Tuvalu/.test(missingType.region || '') && /aoi-/.test(missingType.hash || '') && /custom/i.test(missingType.toast || ''), missingType);
+
+  const oceanCentre = await ev(`const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };`);
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: oceanCentre.x, y: oceanCentre.y, button: 'left', clickCount: 1 }, S);
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: oceanCentre.x, y: oceanCentre.y, button: 'left', clickCount: 1 }, S);
+  await sleep(1500);
+  const oceanClick = await ev(`return { toast: document.querySelector('.toast')?.textContent?.trim() || '', region: document.querySelector('.region-name')?.textContent?.trim() };`);
+  check('Water outside the probe radius says open ocean and still becomes an area', /Open ocean/.test(oceanClick.toast || '') && /179/.test(oceanClick.toast || ''), { centre: oceanCentre, ...oceanClick });
+
   await send('Page.navigate', { url: `${ORIGIN}/?e2e=${Date.now()}#/watch` }, S);
   await waitFor('main');
   await sleep(2000);

@@ -29,13 +29,14 @@ needs the CSVs.
 npm run audit     # validate → test → secret-scan → smoke
 npm run build
 npx vite preview --port 4174 --strictPort &   # serve the built app
-npm run e2e       # 100 checks in headless Chrome
+npm run e2e       # 104 checks in headless Chrome
 npm run perf      # latency + web-vitals probe; spawns its own API on :4182
 npm run rehearse  # backup/restore drill; spawns its own API on :4198
 ```
 
 Last recorded results on this machine (2026-11-03, world layer over HTTP): validate 23/23, tests 70/70,
-secret-scan clean, smoke 49/49, build exit 0, e2e 100/100 with zero console errors,
+secret-scan clean, smoke 49/49, build exit 0, e2e 104/104 with zero console errors (the 4 new checks
+type every territory Natural Earth 50m has no polygon for, select one, and click open water),
 `npm audit --omit=dev --audit-level=high` 0 vulnerabilities, perf 0 breaches over 240 API requests and
 three rendered views, rehearsal 12/12 on all 9 bundle files (`npm run rehearse` re-run 2026-11-03 after
 the drill's file list stopped following the manifest — see §6.1).
@@ -115,7 +116,7 @@ in the download directory, so a regression here fails the gate rather than the u
 4. `npm test` → 70/70.
 5. `npm run secret-scan` → clean.
 6. `npm run smoke` → 49/49.
-7. Serve the build, `npm run e2e` → 100/100 with zero console errors and zero failed loads.
+7. Serve the build, `npm run e2e` → 104/104 with zero console errors and zero failed loads.
 8. `npm run perf` → read `verdict.breaches[]`. Non-blocking by design: it measures loopback against
    targets written for a deployment, so a breach here is a question to answer before release, not proof
    the release is broken. Do treat a *new* breach as blocking until it is explained in
