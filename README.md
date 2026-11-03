@@ -137,7 +137,7 @@ existing, so HSTS was never emitted behind a TLS terminator).
 The one gap that measurement exposed — fourteen places Natural Earth 50m publishes no admin-0 polygon for,
 from Tuvalu to Hawaiʻi, which the globe could resolve by click but the search box could not name — is closed
 on the current tree: they are curated entries that open as named custom areas, and the sweep types all
-fourteen (104/104, `docs/e2e-report.json`).
+fourteen (105/105, `docs/e2e-report.json`).
 
 ## Refresh the live snapshot
 
@@ -191,7 +191,7 @@ drill, each with a committed machine-readable report:
 | `npm test` — geometry, science, API, bundle contract, world layer, analog-index regression | 70 pass / 0 fail |
 | `npm run secret-scan` | clean (source, config and `dist/assets`) |
 | `npm run smoke` — live API behaviours | 49/49, incl. real `429` with `Retry-After`, traversal refusal, headers, PDF brief, three checks that a `country-<id>` request returns that border's measured window, two that HSTS and the OpenAPI base URL survive a TLS terminator, and 11 checks on the token-gated Prometheus `/metrics` scrape |
-| `npm run build` + `npm run e2e` (headless Chrome on the built app) | exit 0 · **104/104**, zero console errors, zero failed loads. Re-run against **`http://localhost:8787`**, the API origin that actually sends the CSP headers, not just the CSP-free preview — that is how the `blob:` and font violations below were found |
+| `npm run build` + `npm run e2e` (headless Chrome on the built app) | exit 0 · **105/105**, zero console errors, zero failed loads. Re-run against **`http://localhost:8787`**, the API origin that actually sends the CSP headers, not just the CSP-free preview — that is how the `blob:` and font violations below were found |
 | `npm run perf` — latency + web vitals on one loopback origin | 0 breaches over 216 API requests (18 endpoints) and 3 rendered views, 0 server errors: worst API p95 94.2 ms (GeoJSON export) against a 10 s objective, LCP ≤ 1 404 ms against 2,500, INP ≤ 2 ms against 200, CLS 0.0003 against 0.1. Per-view initial JS 84.69–224.48 KiB gzipped, inside the 250 kB budget on either unit. Thin margins are listed in the report, not smoothed away |
 | `npm run rehearse` — backup/restore drill on a relocated bundle | 12/12: a one-byte change and a deleted file each drive `/ready` to 503 naming the file, `npm run validate` refuses the same bytes, and restoring returns 200 with byte-identical API responses in the same process |
 | `npm audit --omit=dev --audit-level=high` | 0 vulnerabilities |

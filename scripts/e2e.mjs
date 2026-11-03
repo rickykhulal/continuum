@@ -1030,6 +1030,16 @@ try {
   const oceanClick = await ev(`return { toast: document.querySelector('.toast')?.textContent?.trim() || '', region: document.querySelector('.region-name')?.textContent?.trim() };`);
   check('Water outside the probe radius says open ocean and still becomes an area', /Open ocean/.test(oceanClick.toast || '') && /179/.test(oceanClick.toast || ''), { centre: oceanCentre, ...oceanClick });
 
+  // A country id is not in the pilot list, so the in-page hashchange path used to drop it and the URL
+  // writer snapped a pasted link back to the default area. Reloading with the link worked; pasting it
+  // into the tab someone is already reading did not.
+  const deepLink = await ev(`
+    location.hash = '#/atlas?r=country-japan&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02';
+    await new Promise(r => setTimeout(r, 2800));
+    const t = document.querySelector('main')?.innerText || '';
+    return { hash: location.hash, namesJapan: /Japan/.test(t), cells: document.querySelectorAll('[class*=cell]').length };`);
+  check('A border named in a link pasted into an open tab stays the analysed area', /country-japan/.test(deepLink.hash) && deepLink.namesJapan && deepLink.cells > 9000, deepLink);
+
   await send('Page.navigate', { url: `${ORIGIN}/?e2e=${Date.now()}#/watch` }, S);
   await waitFor('main');
   await sleep(2000);

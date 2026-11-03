@@ -984,7 +984,7 @@ and `POST /api/v1/area/summary` for a country.
   ([src/data/places.ts:32](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/data/places.ts#L32))
   and `WorldSearch` passes that list into `searchWorld`, so each one opens as a named custom AOI at its
   own coordinates — the same thing the app already does for every non-pilot place — instead of being
-  invisible to the keyboard. **Verified 2026-11-03** by `npm run e2e` 104/104,
+  invisible to the keyboard. **Verified 2026-11-03** by `npm run e2e` 105/105,
   which types all 14 queries and requires a matching result row for each, then selects Tuvalu and asserts
   the header names it, the hash is an `aoi-*` region and the toast says custom area. The outward probe is
   no longer unasserted either: a click on open water now has to report "Open ocean" with its own
@@ -1003,6 +1003,17 @@ and `POST /api/v1/area/summary` for a country.
   data path at 94.2 ms p95 against a 10 s objective, `/ready` 54.5 ms p95 because it re-hashes the bundle.
   Per-view initial JS 84.69 / 102.07 / 224.48 KiB gzipped, all inside the §9.2 budget; full table in
   `docs/api.md`.
+- **A pasted border link snapped back to the default area, and the sweep now catches it.** Selecting Japan
+  from search worked, but editing the address bar to `#/atlas?r=country-japan…` in the same tab left the
+  Atlas header on Chilecito and rewrote the URL to `r=chilecito`. Two causes, both in
+  [src/lib/store.tsx](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/lib/store.tsx): `parseHash()` only
+  recognised a border through the `c=` parameter, so a bare `r=country-<id>` failed the pilot-list check and
+  became the fallback region; and the `hashchange` handler applied `selectCountry()` for a fresh load but not
+  for a link pasted into a running tab. `r=country-<id>` is now parsed as the border it names and the hash
+  change path selects it the same way a click does. **Verified** by the new check
+  `A border named in a link pasted into an open tab stays the analysed area` (Japan, 9,506 calendar cells
+  rendered, URL keeps `country-japan`) — `npm run e2e` **105/105**, `npm test` 70/70, `npm run validate`
+  23/23, `npm run smoke` 49/49 on the same tree.
 
 **Not claimed.** The Render dashboard Blueprint import (no account was driven from here), container
 builds (no engine in this environment), and anything that needs a host: availability, cold start on the

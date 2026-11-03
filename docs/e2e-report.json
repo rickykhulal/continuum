@@ -1,12 +1,12 @@
 {
-  "pass": 104,
-  "total": 104,
+  "pass": 105,
+  "total": 105,
   "failed": [],
   "results": [
     {
       "name": "Watch renders hero + live window",
       "pass": true,
-      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"12:12:02UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"12:36:00UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
     },
     {
       "name": "Five spacecraft listed",
@@ -26,7 +26,7 @@
     {
       "name": "Simulation clock advances (rAF live)",
       "pass": true,
-      "detail": "{\"clock1\":\"12:12:20UTC · 3 November 2026\",\"clock2\":\"12:12:56UTC · 3 November 2026\"}"
+      "detail": "{\"clock1\":\"12:36:18UTC · 3 November 2026\",\"clock2\":\"12:36:54UTC · 3 November 2026\"}"
     },
     {
       "name": "Speed selector switches to 600x",
@@ -36,7 +36,7 @@
     {
       "name": "Time offset slider seeks the globe back a day",
       "pass": true,
-      "detail": "{\"before\":\"12:14:56UTC · 3 November 2026\",\"after\":\"12:11:51UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"12:11:52UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
+      "detail": "{\"before\":\"12:39:12UTC · 3 November 2026\",\"after\":\"12:35:31UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"12:35:32UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
     },
     {
       "name": "Region chip switches AOI to Pantanal",
@@ -521,7 +521,12 @@
     {
       "name": "Water outside the probe radius says open ocean and still becomes an area",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.16° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.17° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\"}"
+    },
+    {
+      "name": "A border named in a link pasted into an open tab stays the analysed area",
+      "pass": true,
+      "detail": "{\"hash\":\"#/atlas?r=country-japan&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=japan\",\"namesJapan\":true,\"cells\":9506}"
     }
   ]
 }

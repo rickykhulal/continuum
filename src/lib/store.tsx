@@ -134,8 +134,11 @@ function parseHash(): HashState {
     ? (path as ViewId)
     : fallback.view;
   const params = new URLSearchParams(query ?? '');
-  const countryId = params.get('c');
-  const regionId = countryId ? `country-${countryId}` : params.get('r') ?? fallback.regionId;
+  const rParam = params.get('r');
+  // A border arrives either as c=<id> (what the URL writer emits) or as r=country-<id>, which is what a
+  // hand-pasted or bookmarked link usually carries. Both must mean the same area.
+  const countryId = params.get('c') ?? (rParam?.startsWith('country-') ? rParam.slice('country-'.length) : null);
+  const regionId = countryId ? `country-${countryId}` : rParam ?? fallback.regionId;
   const metric = (['hotspots', 'firedays', 'frp'] as Metric[]).includes(params.get('m') as Metric)
     ? (params.get('m') as Metric)
     : fallback.metric;
@@ -384,6 +387,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const reg = customRegion(h.lat, h.lon, h.rad ?? 140, h.name);
         setCustom(reg);
         setRegionId(reg.id);
+      } else if (h.regionId.startsWith('country-')) {
+        // A border has no entry in REGIONS, so the pilot-only branch below would drop it and the hash
+        // writer would snap the link back to the default area. Same path a click uses: build the
+        // country's region record and select it. Unknown ids leave the current area untouched.
+        selectCountry(h.regionId.slice('country-'.length));
       } else {
         setCustom(null);
         if (REGIONS.some((r) => r.id === h.regionId)) setRegionId(h.regionId);
