@@ -910,3 +910,56 @@ counts, day by day"*):
   legitimately disagree because a ring around the pole also encloses the Weddell and Ross embayments,
   so the raster cross-check excludes it; and a country's per-detection FRP *spread* still comes from
   the pilot regions — only the border's measured mean FRP is shipped.
+
+## 2026-11-03 (published tree) — the repository was cloned and the whole chain re-run inside the clone
+
+**What ran.** `main` pushed to `https://github.com/rickykhulal/continuum` (b66ae0b → e04bf7a → da204c0),
+then `git clone --depth 1` into a clean directory, `npm ci`, and the release chain there:
+`npm run api:build && npm run build` → `npm test` → `npm run validate` → `npm run smoke` →
+`node server/api.mjs` on an isolated port → `E2E_ORIGIN=… npm run e2e` → direct `GET /ready`, `GET /meta`
+and `POST /api/v1/area/summary` for a country.
+
+**Result — verified on the published artifact, not the working copy**
+- Build exit 0, emitting the same content-hashed asset filenames as the working tree — the published
+  source compiles to the artifact that was tested.
+- `npm test` → **70 pass / 0 fail**, `npm run validate` → **23/23** reporting
+  "16 files verified, 4 `data_raw` build inputs absent (run npm run live to verify them)",
+  `npm run smoke` → **49/49**, `npm run e2e` → **100/100** with `failed []`.
+- `GET /ready` → 200 with `integrity {ok: true, bad: [], files: 20}` — the manifest's own row count,
+  including the four inputs a clone does not carry.
+- The world layer answers from a tree with no CSVs: `/meta` 241 borders / 178 with detections /
+  96.26 % attributed, Kenya `counts.by_sensor = {modis 12, viirs 78, noaa20 81, noaa21 74}` → 233,
+  an unburnt country 9,498 calendar days summing to 0, Brazil 102,684 as the busiest border.
+
+**Two failures found and fixed here rather than shipped**
+- **Line endings broke integrity.** The first clone answered `GET /ready` → **503** with
+  `integrity.bad = ["tle/satellites.txt: checksum mismatch", "tle/satellites.txt: size mismatch"]`.
+  `.gitattributes` said `* text=auto`, so checkout rewrote the committed CRLF bytes of the TLE file
+  (845 → 830 bytes) and the served file no longer matched the hash the manifest recorded. `public/data/**`,
+  `public/tle/**` and `public/textures/**` are now declared `-text` and the tree renormalised (`e04bf7a`).
+  `npm test` in a clone covers the same hazard from the other side: the bundle tests recognise absent
+  inputs and still verify every shipped byte (`da204c0`).
+- **HSTS had never been emitted.** `server/api.mjs` read `req.socket.encryption`, which is not a Node
+  socket property, and behind Render's TLS terminator the socket is plain HTTP anyway. `isTls(req)` now
+  consults `req.socket.encrypted` *or* the first `x-forwarded-proto` token and drives both
+  `Strict-Transport-Security` and the `/openapi.json` server URL. Two new smoke checks forge a proxied
+  request so the terminator path is asserted, not assumed — the suite moved 47 → **49**.
+
+- **The drill's file list had gone stale, and CI found it.** All three pushes ran `.github/workflows/ci.yml`
+  on `ubuntu-latest`; steps 1-11 (install, `tsc -b`, `npm test` 70/70, `npm run build`, `npm run validate`,
+  secret-scan, `npm run smoke` 49/49) passed and **`npm run rehearse` failed** — the same failure reproduced
+  in the clean clone: 8/12, with `/ready` answering 503 on the relocated bundle because
+  `data/climate_daily.json`, `archive_daily.json`, `countries.json`, `country_fires.json` and
+  `countries-50m.json` were never copied there. `scripts/rehearse-restore.mjs` carried a four-file bundle
+  list written before the world layer existed, so the last recorded 12/12 (2026-11-01,
+  `continuum-2026-10-31-3d36468a8dc0`) had been certifying a 4-file bundle while the shipped bundle has 9
+  data files. The list is now derived from `bundle_manifest.json` (+ the manifest itself), and the drill
+  re-run on 2026-11-03 is **12/12** on `continuum-2026-11-02-954f24dbc630` — `backup … 9 files`, corruption
+  and deletion still name their file, restore returns `/ready` 200 in the same process.
+
+**Not claimed.** The Render dashboard Blueprint import (no account was driven from here), container
+builds (no engine in this environment), and anything that needs a host: availability, cold start on the
+free tier, CDN behaviour. `docs/runbooks.md` §6.1 records the deploy sequence and labels the host-bound
+parts; `docs/production-readiness.md` §2 keeps Performance, Reliability and Observability open for
+exactly that reason.
+

@@ -35,9 +35,10 @@ npm run rehearse  # backup/restore drill; spawns its own API on :4198
 ```
 
 Last recorded results on this machine (2026-11-03, world layer over HTTP): validate 23/23, tests 70/70,
-secret-scan clean, smoke 47/47, build exit 0, e2e 100/100 with zero console errors,
+secret-scan clean, smoke 49/49, build exit 0, e2e 100/100 with zero console errors,
 `npm audit --omit=dev --audit-level=high` 0 vulnerabilities, perf 0 breaches over 240 API requests and
-three rendered views, rehearsal 12/12.
+three rendered views, rehearsal 12/12 on all 9 bundle files (`npm run rehearse` re-run 2026-11-03 after
+the drill's file list stopped following the manifest — see §6.1).
 Machine-readable reports:
 `docs/validation-report.json`, `docs/api-smoke-report.json`, `docs/e2e-report.json`,
 `docs/perf-report.json`, `docs/rehearsal-report.json`.
@@ -126,7 +127,61 @@ in the download directory, so a regression here fails the gate rather than the u
     bundle loading, `/ready`, or the manifest — the recovery path is the one thing a static bundle
     release cannot prove by inspection.
 
-## 6. Container and static hosting (authored, not run here)
+## 6. Hosting
+
+### 6.1 Render (one service, blueprint-driven)
+
+`render.yaml` is the blueprint: a single Node web service, `npm ci --include=dev && npm run api:build
+&& npm run build` then `npm start` (`node server/api.mjs`), health-checked at `/api/v1/health`, with
+`NODE_VERSION`, `DATA_BUNDLE_PATH`, `LOG_FORMAT` and no secret variables — the app needs neither a key
+nor a database, so nothing here is a credential.
+
+Import it from the Render dashboard: **New → Blueprint → connect the repository → Render detects
+`render.yaml` → Apply**. The build command must keep `--include=dev`: Render sets `NODE_ENV=production`
+for Node services, which makes plain `npm ci` skip `vite` and `typescript`, and the build then fails on
+a missing binary rather than on a missing dependency declaration.
+
+Two behaviours only exist because Render terminates TLS in front of the process. The socket arrives as
+plain HTTP, so `x-forwarded-proto` — not `req.socket.encrypted` — is what tells the API it is serving
+over https. That single check now drives both the `Strict-Transport-Security` header and the
+`servers[0].url` in `/openapi.json`; `npm run smoke` asserts each with a forged forwarded request,
+because neither is observable on a local loopback origin.
+
+Verified on the published tree (2026-11-03, `git clone --depth 1` of `main` at commit `da204c0` into a
+clean directory, `npm ci`, then the full chain):
+
+| Step | Result |
+| --- | --- |
+| `npm run api:build && npm run build` | exit 0, same content-hashed asset filenames as the working tree |
+| `npm test` | 70 pass / 0 fail — the two bundle tests recognise the absent `data_raw/` and still verify every shipped byte |
+| `npm run validate` | 23/23, "16 files verified, 4 data_raw build inputs absent (run npm run live to verify them)" |
+| `npm run smoke` | 49/49 against the clone's own API |
+| `npm run e2e` (`E2E_ORIGIN=http://127.0.0.1:4300`) | 100/100, `failed []` |
+| `GET /ready` | 200 with `integrity {ok: true, bad: [], files: 20}` |
+| `POST /api/v1/country/summary` (`country-kenya…` id from `/meta`) | live-window totals with per-sensor split (`by_sensor` modis 12 / viirs 78 / noaa20 81 / noaa21 74 = 233) |
+| `POST /api/v1/country/calendar` (an unburnt country) | 9,498 days, total 0 — the full window is answered for a country with no detections |
+| `GET /meta` | 241 countries, 178 with at least one detection in the window, 96.26 % of rows attributed |
+
+The first clone of the published tree **failed** this: `GET /ready` answered 503 with
+`integrity.bad = ["tle/satellites.txt: checksum mismatch", "tle/satellites.txt: size mismatch"]`.
+`* text=auto` in `.gitattributes` had rewritten the committed CRLF line endings on checkout (845 bytes
+→ 830), so the served file no longer matched the hash the manifest recorded. `public/data/**`,
+`public/tle/**` and `public/textures/**` are now `-text` and the tree was renormalised (`e04bf7a`).
+If a future deploy reports a checksum mismatch on a file that exists, check line-ending normalisation
+before suspecting the bundle.
+
+CI runs the same tree, and its first three pushes failed at one step the local chain had gone soft on:
+`npm run rehearse` relocated a hand-written four-file bundle, which was the whole bundle when the drill
+was written and is five files short of the one that ships now. The list comes from
+`bundle_manifest.json` (`+ bundle_manifest.json` itself, which does not hash itself), so a file added to
+the bundle cannot be left out of the drill. If a bundle file is added and the drill starts failing
+`/ready → 503 … missing` on the relocated copy, that is the check doing its job.
+
+The Render free tier sleeps the service after inactivity; the first request after a sleep pays the cold
+start, which is a host property and not something the perf probe measures. Nothing in this app needs a
+persistent disk — `public/data` is baked into `dist/` at build time.
+
+### 6.2 Container and static hosting (authored, not run here)
 
 `Dockerfile` and `docker-compose.yml` are in the repository and describe a two-stage build
 (`npm run api:build && npm run build` → `node server/api.mjs`, non-root, read-only rootfs, no

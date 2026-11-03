@@ -676,3 +676,69 @@ constraint: `npm run live` → `npm run countries` before `npm run bundle`, whic
 `docs/runbooks.md` §"Stale data" now states. A country's *history* remains a labelled reconstruction
 — the same blocked-on-`FIRMS_MAP_KEY` limit as ADR-22 — and the API says so in `provisional_from` and
 in the per-day `source` field rather than in prose.
+
+## ADR-24 · Publish the certified bundle, not its inputs — and never let git edit a hashed byte
+
+**Status:** accepted — verified by cloning the published `main` and running the whole gate chain in
+the clone: build exit 0, `npm test` 70/70, `npm run validate` 23/23, `npm run smoke` 49/49,
+`npm run e2e` 100/100, `GET /ready` 200 (`docs/runbooks.md` §6.1).
+
+**Context.** The task moved from "build the app" to "push it to GitHub, ready to host on Render". The
+working directory is not a publishable tree: it holds 94 MB of global FIRMS CSVs plus backfill logs
+under `data_raw/`, ~175 MB of scratch captures, and the requirement PDFs. Two of those facts collide
+with the product's own invariants. `data_raw/` is where a key-protected download lands, and the logs
+beside the CSVs carry the archive URLs; publishing them is the one way this repository could leak a
+credential, and `AGENTS.md` puts the raw inputs outside the repo by design. Meanwhile `bundle_version`
+is derived from the *content of the inputs*, so a tree without `data_raw/` cannot recompute the same
+version — the honest question was what a clone is allowed to claim.
+
+On Render specifically, the service sits behind a TLS terminator: the process receives plain HTTP with
+`x-forwarded-proto: https`. `server/api.mjs` decided "is this https" from `req.socket.encryption`,
+which is not a Node socket property at all (`req.socket.encrypted` is), so the check was false on a
+direct TLS connection *and* behind a proxy: `Strict-Transport-Security` had never been emitted, and
+`/openapi.json` advertised `http://` on an `https://` host.
+
+**Decision.** Three rules. (1) **Ship the bundle, name the missing inputs.** `.gitignore` excludes
+`data_raw/`, `backups/`, the captures and the PDFs; `public/data/**` — the already-certified artifact —
+is committed. `npm run validate` and the two bundle tests then treat an absent `data_raw/` as a *named*
+condition rather than a failure: they verify every byte that is present, count it ("16 files verified"),
+and print which four inputs they could not open plus the command that would fetch them. On this machine
+the same check stays byte-for-byte strict. (2) **A hashed byte is a binary byte.** `.gitattributes`
+declares `* text=auto eol=lf` for source and `-text` for `public/data/**`, `public/tle/**` and
+`public/textures/**`, because those are exactly the paths `bundle_manifest.json` hashes. (3) **The
+scheme comes from the request, not the socket.** `isTls(req)` reads `req.socket.encrypted` *or* the
+first `x-forwarded-proto` token, and one function drives both the `Strict-Transport-Security` header and the
+`servers[0].url` in `/openapi.json`; `PUBLIC_API_BASE_URL` overrides it for a host that hides even the
+forwarded header. Both deploy-visible behaviours are asserted by raw HTTP requests with forged headers
+in `npm run smoke`, so the terminator case is tested rather than assumed.
+
+**Measured.** The first clone of the published tree **failed**: `GET /ready` answered 503 with
+`integrity.bad = ["tle/satellites.txt: checksum mismatch", "tle/satellites.txt: size mismatch"]` — the
+committed file is 845 bytes with CRLF, `text=auto` checked it out at 830 bytes with LF. After the
+`-text` rules and `git add --renormalize public` (`e04bf7a`) the same clone reports
+`integrity {ok: true, bad: [], files: 20}`, and the world layer answers over HTTP from a tree that has
+no CSVs: `GET /meta` 241 countries / 178 with detections / 96.26 % attributed, Kenya `by_sensor`
+{modis 12, viirs 78, noaa20 81, noaa21 74} = 233, an unburnt country 9,498 days summing to 0. CI dropped
+`npm run data` and `npm run bundle` and now validates the committed manifest, because re-running
+`bundle` in a clone would drop the four input rows and mint a different `bundle_version` from the one
+the release was certified against.
+
+**Rejected.**
+*Publishing `data_raw/` so the clone rebuilds everything* — 94 MB of CSVs plus logs that are the
+documented landing site for key-bearing URLs, traded for a claim the bundle already certifies.
+*Committing a second manifest for the published tree* — two versions of the truth; the product's rule
+is one certified bundle and the gates either agree on it or fail loudly.
+*Loosening the bundle tests to pass in both trees* — they now branch on whether the inputs exist and
+each branch is strict; a working-copy drift would still be caught by the unchanged assertion.
+*Hard-coding `https://continuum.onrender.com`* — the host is the deployer's choice, and a fixed base
+would lie to anyone who points the blueprint elsewhere; the default is derived per request.
+
+**Consequences.** Reproducibility has two honest levels: **rebuild** needs `data_raw/`, so it is
+verified here and not from a clone; **verify** works everywhere, and a clone proves it. The bundle is
+the release unit, which makes `bundle` → `build` ordering a publish rule as well as a chain rule —
+`vite build` copies `public/data` into `dist/`, so a bundle run after the build ships stale bytes.
+Anything that adds a hashed path to `public/` must add it to `.gitattributes` in the same commit, or a
+checkout silently breaks `/ready`; `npm run rehearse` is the drill that catches it. What this does not
+buy: the Render dashboard import itself, real availability, and cold-start latency on the free tier —
+all host-bound, and §2 Performance keeps that row open.
+
