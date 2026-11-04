@@ -47,13 +47,42 @@ export function exportCSV(region: Region, records: DailyRecord[], from: string, 
   return { rows: recs.length, filename };
 }
 
-export function exportGeoJSON(region: Region, fires: LiveFire[], from: string, to: string): { rows: number; filename: string } {
+/** The detections whose point geometry is real, clipped to the searched area and window. */
+function hotspotsInWindow(region: Region, fires: LiveFire[], from: string, to: string): LiveFire[] {
   const [w, s, e, n] = region.bbox;
-  const inWindow = fires.filter((f) => {
+  return fires.filter((f) => {
     if (f[0] < s || f[0] > n || f[1] < w || f[1] > e) return false;
     const d = new Date(f[5] * 1000).toISOString().slice(0, 10);
     return d >= from && d <= to;
   });
+}
+
+/** The challenge's "downloadable CSV file of hot spots": one row per detected point, not per day. */
+export function exportHotspotCSV(region: Region, fires: LiveFire[], from: string, to: string): { rows: number; filename: string } {
+  const inWindow = hotspotsInWindow(region, fires, from, to);
+  const lines: string[] = [];
+  lines.push('# Continuum v1.0 — hotspot detections for one search');
+  lines.push(`# area_id,${region.id}`);
+  lines.push(`# area_name,"${region.name.replace(/"/g, "'")}"`);
+  lines.push(`# bbox_west_south_east_north,${region.bbox.join(',')}`);
+  lines.push(`# window_from,${from}`);
+  lines.push(`# window_to,${to}`);
+  lines.push('# source,NASA FIRMS near-real-time public CSV (real satellite detections, unrounded instrument values)');
+  lines.push('# coverage,Geometry exists only for the live FIRMS window. Earlier points are not downloaded by this build; the long record is the daily CSV.');
+  lines.push('');
+  lines.push('time_utc,date,latitude_east,longitude_east,sensor,frp_mw,confidence');
+  for (const f of inWindow) {
+    const iso = new Date(f[5] * 1000).toISOString();
+    lines.push([iso, iso.slice(0, 10), f[0], f[1], SENSOR_SHORT[f[3]], f[2], ['low', 'nominal', 'high'][f[4]].toUpperCase()].join(','));
+  }
+  const filename = `continuum_${region.id}_hotspots_${from}_${to}.csv`;
+  download('\ufeff' + lines.join('\n'), filename, 'text/csv;charset=utf-8');
+  return { rows: inWindow.length, filename };
+}
+
+export function exportGeoJSON(region: Region, fires: LiveFire[], from: string, to: string): { rows: number; filename: string } {
+  const [w, s, e, n] = region.bbox;
+  const inWindow = hotspotsInWindow(region, fires, from, to);
   const features = [
     {
       type: 'Feature' as const,

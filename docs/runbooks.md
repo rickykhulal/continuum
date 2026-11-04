@@ -29,15 +29,16 @@ needs the CSVs.
 npm run audit     # validate → test → secret-scan → smoke
 npm run build
 npx vite preview --port 4174 --strictPort &   # serve the built app
-npm run e2e       # 107 checks in headless Chrome
+npm run e2e       # 112 checks in headless Chrome
 npm run perf      # latency + web-vitals probe; spawns its own API on :4182
 npm run rehearse  # backup/restore drill; spawns its own API on :4198
 ```
 
-Last recorded results on this machine (2026-11-03, world layer over HTTP): validate 23/23, tests 70/70,
-secret-scan clean, smoke 49/49, build exit 0, e2e 107/107 with zero console errors (the newest checks type all fourteen
-territories Natural Earth 50m has no polygon for, select one, click open water, click inside a border and
-paste a border link into an already-open tab),
+Last recorded results on this machine (2026-11-03/04, world layer over HTTP): validate 23/23, tests 74/74,
+secret-scan clean, smoke 49/49, build exit 0, e2e 112/112 with zero console errors (the newest checks type all fourteen
+territories Natural Earth 50m has no polygon for, select one, click open water, click inside a border,
+paste a border link into an already-open tab, type a latitude/longitude pair, and read the downloaded
+hotspot CSV back against the GeoJSON of the same search),
 `npm audit --omit=dev --audit-level=high` 0 vulnerabilities, perf 0 breaches over 216 API requests and
 three rendered views (re-run 12:14Z on the shipped chunk), rehearsal 12/12 on all 9 bundle files (`npm run rehearse` re-run 2026-11-03 after
 the drill's file list stopped following the manifest — see §6.1).
@@ -114,10 +115,10 @@ in the download directory, so a regression here fails the gate rather than the u
    manifest moves.
 2. `npm run build` exits 0 (this also typechecks the whole app).
 3. `npm run validate` → 23/23.
-4. `npm test` → 70/70.
+4. `npm test` → 74/74.
 5. `npm run secret-scan` → clean.
 6. `npm run smoke` → 49/49.
-7. Serve the build, `npm run e2e` → 107/107 with zero console errors and zero failed loads.
+7. Serve the build, `npm run e2e` → 112/112 with zero console errors and zero failed loads.
 8. `npm run perf` → read `verdict.breaches[]`. Non-blocking by design: it measures loopback against
    targets written for a deployment, so a breach here is a question to answer before release, not proof
    the release is broken. Do treat a *new* breach as blocking until it is explained in
@@ -180,7 +181,7 @@ was written and is five files short of the one that ships now. The list comes fr
 the bundle cannot be left out of the drill. If a bundle file is added and the drill starts failing
 `/ready → 503 … missing` on the relocated copy, that is the check doing its job.
 **Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` has conclusion **success** on
-every push since `ab3e0c0` — nine consecutive runs, the latest being `feb2aa0` at 2026-11-03T13:07:39Z,
+every push since `ab3e0c0` — eleven consecutive runs, the latest being `8fd3fed` at 2026-11-03T13:58:02Z,
 read from the Actions API with `event=push` —
 install, `tsc -b`, `npm test`, build, validate, secret-scan, `npm run smoke`, `npm run rehearse`, the
 headless-Chrome sweep and the perf probe, on Linux,

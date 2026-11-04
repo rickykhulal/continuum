@@ -8,7 +8,7 @@ import {
 } from '../components/charts';
 import { monthComparison, recordsInRange, livePointsForRegion, annualSeries, sensorCount } from '../lib/data';
 import { MONTHS_LONG, nf, pct, riskColor, longDate, shortDate } from '../lib/format';
-import { exportCSV, exportGeoJSON, exportSVGAsPNG } from '../lib/export';
+import { exportCSV, exportGeoJSON, exportHotspotCSV, exportSVGAsPNG } from '../lib/export';
 import { SENSOR_SHORT } from '../lib/types';
 
 export function Atlas() {
@@ -51,6 +51,12 @@ export function Atlas() {
   const onExportGeoJSON = () => {
     const out = exportGeoJSON(region, fires, windowStart, today);
     store.toast(`GeoJSON ready — ${nf(out.rows)} real hotspot geometries from the live window.`);
+  };
+  const onExportHotspots = () => {
+    const out = exportHotspotCSV(region, fires, windowStart, today);
+    store.toast(out.rows
+      ? `Hotspot CSV ready — ${nf(out.rows)} detected points · ${out.filename}`
+      : `Hotspot CSV ready — no detection fell inside this area in the live window · ${out.filename}`);
   };
   const onExportPNG = async () => {
     const svg = calendarRef.current?.querySelector('svg') ?? null;
@@ -326,6 +332,10 @@ export function Atlas() {
               <button type="button" className="export-btn" onClick={onExportGeoJSON}>
                 <span className="export-icon">GEO</span>
                 <span><strong>Live hotspots</strong><small>Real FIRMS points + AOI polygon</small></span>
+              </button>
+              <button type="button" className="export-btn" onClick={onExportHotspots}>
+                <span className="export-icon">CSV</span>
+                <span><strong>Hotspot table</strong><small>One row per detected point</small></span>
               </button>
               <button type="button" className="export-btn" onClick={() => void onExportPNG()}>
                 <span className="export-icon">PNG</span>

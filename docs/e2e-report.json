@@ -1,12 +1,12 @@
 {
-  "pass": 107,
-  "total": 107,
+  "pass": 112,
+  "total": 112,
   "failed": [],
   "results": [
     {
       "name": "Watch renders hero + live window",
       "pass": true,
-      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"13:45:06UTC · 3 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"03:54:19UTC · 4 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
     },
     {
       "name": "Five spacecraft listed",
@@ -26,7 +26,7 @@
     {
       "name": "Simulation clock advances (rAF live)",
       "pass": true,
-      "detail": "{\"clock1\":\"13:45:24UTC · 3 November 2026\",\"clock2\":\"13:46:18UTC · 3 November 2026\"}"
+      "detail": "{\"clock1\":\"03:54:37UTC · 4 November 2026\",\"clock2\":\"03:55:48UTC · 4 November 2026\"}"
     },
     {
       "name": "Speed selector switches to 600x",
@@ -36,7 +36,7 @@
     {
       "name": "Time offset slider seeks the globe back a day",
       "pass": true,
-      "detail": "{\"before\":\"13:48:00UTC · 3 November 2026\",\"after\":\"13:44:57UTC · 2 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"13:44:58UTC · 3 November 2026\",\"value\":\"0\",\"expected\":\"2 November 2026\"}"
+      "detail": "{\"before\":\"03:57:48UTC · 4 November 2026\",\"after\":\"03:53:50UTC · 3 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"03:53:50UTC · 4 November 2026\",\"value\":\"0\",\"expected\":\"3 November 2026\"}"
     },
     {
       "name": "Region chip switches AOI to Pantanal",
@@ -149,6 +149,16 @@
       "detail": "{\"geoClick\":true,\"geoFile\":{\"file\":\"continuum_pantanal_2026-10-26_2026-11-02.geojson\",\"size\":58409,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_pantanal_2026-10-26_2026-11-02.geojson\"}}"
     },
     {
+      "name": "Hotspot CSV downloads one row per detected point, named instrument and all",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_pantanal_hotspots_2026-10-26_2026-11-02.csv\",\"size\":12299,\"rows\":162}"
+    },
+    {
+      "name": "The hotspot CSV and the hotspot GeoJSON carry the same detections",
+      "pass": true,
+      "detail": "{\"geoFeatures\":162,\"csvRows\":162}"
+    },
+    {
       "name": "PNG calendar export downloads",
       "pass": true,
       "detail": "{\"file\":\"continuum_pantanal_calendar_2026-11-02.png\",\"size\":369095,\"path\":\"C:\\\\Users\\\\Ricky\\\\AppData\\\\Local\\\\Temp\\\\continuum-downloads\\\\continuum_pantanal_calendar_2026-11-02.png\"}"
@@ -211,7 +221,7 @@
     {
       "name": "Advisory copies with real calibration text",
       "pass": true,
-      "detail": "{\"toast\":\"Advisory copied to the clipboard.\",\"clip\":\"CONTINUUM — BURNING ACTIVITY ADVISORY\\r\\nGenerated 2026-11-03 · research prototype · NOT an official NASA product\\r\\n\\r\\nAREA: Chilecito & Famatina Valley (Argentina)\\r\\nCENTRE: -29.16°, -67.50° · 19,400 km²\\r\\nRECORD: 2000-11-01 to 2026-11-02 · 9,498 harmonized daily values\\r\\n\\r\\nSTATUS: ELEVATED — 84th percentile for the first 2 days of November.\\r\\nCurrent 2 vs. historical median 1 (2.00×).\\r\\n\\r\\nLIVE WINDOW: 2026-10-26 to 2026-11-02; 27 VIIRS-equivalent detections across 7 active days.\\r\\nSensor calibration: MODIS → VIIRS ratio 12.88× (90% CI 12.49–13.28); the 2012 break in the raw record is 136%, reduced to -45% after harmonization.\\r\\nAnalog seasons: 2016 (75%), 2019 (63%), 2018 (59%). Median next-four-week departure +107%. Leave-one-out hit rate 65%.\\r\\nSeason: typical window 7 Aug–20 Oct, peak 14 Aug; current phase off-season, running behind of climatology (75% of expected to date).\\r\\n\\r\\nWHAT WOULD CHANGE THE CALL:\\r\\n• A shift in the live window outside the 12.5–13.3 calibration interval would widen the uncertainty and lower trust.\\r\\n• Cloud cover or missed overpasses can hide fire; absence of detections is not absence of fire.\\r\\n• This advisory ranks activity against the same area's own history. It does not model ignition, spread or suppression.\\r\\n\\r\\nMETHOD VERSION 0.1.0 · reference record calibrated to the live FIRMS window, not the official NASA archive.\\r\\nCaveat: The latest days are provisional. Supports situational awareness; not a warning, dispatch or evacuation service.\"}"
+      "detail": "{\"toast\":\"Advisory copied to the clipboard.\",\"clip\":\"CONTINUUM — BURNING ACTIVITY ADVISORY\\r\\nGenerated 2026-11-04 · research prototype · NOT an official NASA product\\r\\n\\r\\nAREA: Chilecito & Famatina Valley (Argentina)\\r\\nCENTRE: -29.16°, -67.50° · 19,400 km²\\r\\nRECORD: 2000-11-01 to 2026-11-02 · 9,498 harmonized daily values\\r\\n\\r\\nSTATUS: ELEVATED — 84th percentile for the first 2 days of November.\\r\\nCurrent 2 vs. historical median 1 (2.00×).\\r\\n\\r\\nLIVE WINDOW: 2026-10-26 to 2026-11-02; 27 VIIRS-equivalent detections across 7 active days.\\r\\nSensor calibration: MODIS → VIIRS ratio 12.88× (90% CI 12.49–13.28); the 2012 break in the raw record is 136%, reduced to -45% after harmonization.\\r\\nAnalog seasons: 2016 (75%), 2019 (63%), 2018 (59%). Median next-four-week departure +107%. Leave-one-out hit rate 65%.\\r\\nSeason: typical window 7 Aug–20 Oct, peak 14 Aug; current phase off-season, running behind of climatology (75% of expected to date).\\r\\n\\r\\nWHAT WOULD CHANGE THE CALL:\\r\\n• A shift in the live window outside the 12.5–13.3 calibration interval would widen the uncertainty and lower trust.\\r\\n• Cloud cover or missed overpasses can hide fire; absence of detections is not absence of fire.\\r\\n• This advisory ranks activity against the same area's own history. It does not model ignition, spread or suppression.\\r\\n\\r\\nMETHOD VERSION 0.1.0 · reference record calibrated to the live FIRMS window, not the official NASA archive.\\r\\nCaveat: The latest days are provisional. Supports situational awareness; not a warning, dispatch or evacuation service.\"}"
     },
     {
       "name": "Advisory downloads as .txt",
@@ -221,7 +231,7 @@
     {
       "name": "Advisory file carries live sensors + calibration",
       "pass": true,
-      "detail": "CONTINUUM — BURNING ACTIVITY ADVISORY\nGenerated 2026-11-03 · research prototype · NOT an official NASA product\n\nAREA: Chilecito & Famatina Valley (Argentina)\nCE"
+      "detail": "CONTINUUM — BURNING ACTIVITY ADVISORY\nGenerated 2026-11-04 · research prototype · NOT an official NASA product\n\nAREA: Chilecito & Famatina Valley (Argentina)\nCE"
     },
     {
       "name": "FR-27 PDF brief downloads as a valid one-page PDF",
@@ -521,7 +531,12 @@
     {
       "name": "Water outside the probe radius says open ocean and still becomes an area",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.14° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.1°\",\"hash\":\"#/watch?r=aoi-s8p52-e179p14&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-8.5200&lon=179.1400&rad=150&n=-8.5%C2%B0%2C+179.1%C2%B0\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.17° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\",\"hash\":\"#/watch?r=aoi-s8p52-e179p17&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-8.5200&lon=179.1700&rad=150&n=-8.5%C2%B0%2C+179.2%C2%B0\"}"
+    },
+    {
+      "name": "The name a user types wins over the abbreviation the gazetteer publishes",
+      "pass": true,
+      "detail": "{\"rows\":[\"Marshall Is.236 km² · 0 detections this window7.11°, 171.19°\"],\"region\":\"Marshall Is. — country wide\",\"hash\":\"#/watch?r=country-marshall-is&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=marshall-is\"}"
     },
     {
       "name": "A click inside a country border selects that whole border, not a circle around the point",
@@ -537,6 +552,16 @@
       "name": "A border named in a link pasted into an open tab stays the analysed area",
       "pass": true,
       "detail": "{\"hash\":\"#/atlas?r=country-japan&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=japan\",\"namesJapan\":true,\"cells\":9506}"
+    },
+    {
+      "name": "Typed latitude and longitude open the area they name, with the radius typed",
+      "pass": true,
+      "detail": "{\"toast\":\"Custom 180 km area opened at -10.50°, -55.20°.\",\"hash\":\"#/atlas?r=aoi-s10p50-w55p20&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-10.5000&lon=-55.2000&rad=180&n=-10.5%C2%B0%2C+-55.2%C2%B0\",\"cells\":9506,\"named\":true}"
+    },
+    {
+      "name": "An out-of-range latitude is refused with the range stated, and the area does not move",
+      "pass": true,
+      "detail": "{\"toast\":\"Enter a latitude between −90 and 90 and a longitude between −180 and 180.\",\"moved\":false}"
     }
   ]
 }

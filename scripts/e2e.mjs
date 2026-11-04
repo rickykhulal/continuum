@@ -395,6 +395,20 @@ try {
   const geoClick = await clickText('Live hotspots', '.export-btn');
   const geoFile = await waitFile(/\.geojson$/i);
   check('GeoJSON export downloads live hotspots', geoClick && !!geoFile && geoFile.size > 50000, { geoClick, geoFile });
+
+  // The challenge asks for a downloadable CSV *of hotspots*, not only of the daily series. Same window
+  // as the GeoJSON, so the row count has to agree with the geometry count.
+  const hotClick = await clickText('Hotspot table', '.export-btn');
+  const hotFile = await waitFile(/_hotspots_.*\.csv$/i);
+  const hotBody = hotFile ? fs.readFileSync(hotFile.path, 'utf8') : '';
+  const geoFeatures = geoFile ? JSON.parse(fs.readFileSync(geoFile.path, 'utf8')).features.filter((f) => f.properties.kind === 'hotspot').length : -1;
+  const rowRe = /^\S+,2026-\d{2}-\d{2},-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?,(?:MODIS|VIIRS|NOAA-20|NOAA-21),\d+(?:\.\d+)?,(?:LOW|NOMINAL|HIGH)$/;
+  const hotRows = hotBody.split('\n').filter((l) => rowRe.test(l.trim()));
+  const headerOk = /^time_utc,date,latitude_east,longitude_east,sensor,frp_mw,confidence$/m.test(hotBody);
+  const honestSource = /# source,NASA FIRMS/.test(hotBody) && /# coverage,Geometry exists only for the live FIRMS window/.test(hotBody);
+  check('Hotspot CSV downloads one row per detected point, named instrument and all',
+    !!hotClick && !!hotFile && headerOk && honestSource && hotRows.length > 0, { file: hotFile?.file, size: hotFile?.size, rows: hotRows.length });
+  check('The hotspot CSV and the hotspot GeoJSON carry the same detections', geoFeatures === hotRows.length && geoFeatures > 0, { geoFeatures, csvRows: hotRows.length });
   await clickText('Calendar image', '.export-btn');
   const pngFile = await waitFile(/\.png$/i, 15000);
   check('PNG calendar export downloads', !!pngFile, pngFile);
@@ -1030,6 +1044,22 @@ try {
   const oceanClick = await ev(`return { toast: document.querySelector('.toast')?.textContent?.trim() || '', region: document.querySelector('.region-name')?.textContent?.trim(), hash: location.hash };`);
   check('Water outside the probe radius says open ocean and still becomes an area', /Open ocean/.test(oceanClick.toast || '') && /179/.test(oceanClick.toast || '') && /aoi-/.test(oceanClick.hash || ''), { centre: oceanCentre, ...oceanClick });
 
+  // A sovereign whose name Natural Earth shortens: typing the common name has to reach the border.
+  // It runs after the water click on purpose — selecting the Marshalls parks the camera on the
+  // centroid of its own polygon, where a centre click is land by definition.
+  const marshall = await ev(`
+    const input = document.querySelector('.world-search-input');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    input.focus();
+    setter.call(input, 'Marshall Islands');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 700));
+    const rows = [...document.querySelectorAll('.world-results button')].map(b => b.textContent.replace(/\\s+/g,' ').trim().slice(0, 90));
+    document.querySelector('.world-results button')?.click();
+    await new Promise(r => setTimeout(r, 1700));
+    return { rows, region: document.querySelector('.region-name')?.textContent?.trim(), hash: location.hash, toast: document.querySelector('.toast')?.textContent?.trim() };`);
+  check('The name a user types wins over the abbreviation the gazetteer publishes', /Marshall/i.test((marshall.rows || []).join(' ')) && /Marshall/i.test(marshall.region || '') && /country-marshall-is/.test(marshall.hash || ''), { rows: marshall.rows, region: marshall.region, hash: marshall.hash });
+
   // The same centre click, but on a globe looking at a country's own centroid. The point is inside that
   // polygon, so the whole border is the area the user meant; a 150 km circle around the centroid was not.
   await ev(`
@@ -1062,6 +1092,38 @@ try {
     const t = document.querySelector('main')?.innerText || '';
     return { hash: location.hash, namesJapan: /Japan/.test(t), cells: document.querySelectorAll('[class*=cell]').length };`);
   check('A border named in a link pasted into an open tab stays the analysed area', /country-japan/.test(deepLink.hash) && deepLink.namesJapan && deepLink.cells > 9000, deepLink);
+
+  // The statement's considerations ask for "an option to enter latitude and longitude". Until this check
+  // the only evidence was that the two inputs are labelled, which is not the same as them working.
+  const coordArea = await ev(`
+    const set = (el, v) => {
+      const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      s.call(el, v);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    const inputs = [...document.querySelectorAll('.area-coords input')];
+    set(inputs[0], '-10.50'); set(inputs[1], '-55.20'); set(inputs[2], '180');
+    document.querySelector('.area-coords button').click();
+    await new Promise(r => setTimeout(r, 2200));
+    const t = document.querySelector('.toast')?.textContent?.trim() || '';
+    return { toast: t, hash: location.hash, cells: document.querySelectorAll('[class*=cell]').length,
+             named: t.includes('Custom 180 km area opened at') && t.includes('-10.50') && t.includes('-55.20') };`);
+  check('Typed latitude and longitude open the area they name, with the radius typed', coordArea.named && /aoi-/.test(coordArea.hash) && coordArea.cells > 9000, coordArea);
+
+  const coordReject = await ev(`
+    const set = (el, v) => {
+      const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      s.call(el, v);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    const before = location.hash;
+    const inputs = [...document.querySelectorAll('.area-coords input')];
+    set(inputs[0], '123');
+    document.querySelector('.area-coords button').click();
+    await new Promise(r => setTimeout(r, 900));
+    return { toast: document.querySelector('.toast')?.textContent?.trim() || '', moved: location.hash !== before };`);
+  check('An out-of-range latitude is refused with the range stated, and the area does not move',
+    /latitude between/.test(coordReject.toast) && !coordReject.moved, coordReject);
 
   await send('Page.navigate', { url: `${ORIGIN}/?e2e=${Date.now()}#/watch` }, S);
   await waitFor('main');

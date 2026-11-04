@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T13:47:40.552Z",
+  "generated_at": "2026-11-03T14:24:01.452Z",
   "port": "http://127.0.0.1:4181",
   "passed": 49,
   "total": 49,
@@ -192,7 +192,7 @@
     {
       "name": "429 RATE_LIMITED with Retry-After on class C",
       "ok": true,
-      "detail": "13 of 30 class-C calls limited"
+      "detail": "2 of 30 class-C calls limited"
     },
     {
       "name": "GET /metrics without a token → 401",
@@ -222,12 +222,12 @@
     {
       "name": "Counters reflect the traffic this run generated",
       "ok": true,
-      "detail": "summary 11, class C 33, rate-limited 13 (expected 13)"
+      "detail": "summary 11, class C 33, rate-limited 2 (expected 2)"
     },
     {
       "name": "Gauges report bundle readiness and process state",
       "ok": true,
-      "detail": "bundle_ready=1, uptime 5.37s"
+      "detail": "bundle_ready=1, uptime 6.376s"
     },
     {
       "name": "Duration series carry a route label and a non-negative max",

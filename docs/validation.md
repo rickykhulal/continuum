@@ -1050,6 +1050,43 @@ and `POST /api/v1/area/summary` for a country.
   rendered, URL keeps `country-japan`) — `npm run e2e` **105/105**, `npm test` 70/70, `npm run validate`
   23/23, `npm run smoke` 49/49 on the same tree.
 
+- **Reachability of every state is now gated at the ranker, not only at the map.**
+  [tests/sovereign-coverage.test.mjs](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/tests/sovereign-coverage.test.mjs)
+  hydrates the shipped world layer from `public/data/countries.json` + `country_fires.json` and drives the
+  *same* `searchWorld()` the browser runs (exported through `server/analytics.ts` so the test cannot drift
+  from the app) over four assertions: all **194** independent-state names (193 UN members + Vatican City)
+  resolve to a gazetteer border or a curated place; typing any of them returns that state's own area first;
+  **13** UN/ISO long forms resolve to the border they name; and every ranked hit is a real area — an id in
+  `worldCountries()`, finite coordinates, a defined `detections` figure. It found one genuine gap: Natural
+  Earth publishes **"Marshall Is."**, so the name a user types ("Marshall Islands") did not rank its own
+  border. Fixed with `SPELLING_ALIASES` in [src/lib/countries.ts](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/lib/countries.ts),
+  merged into the gazetteer **at hydration time** rather than in `scripts/build-countries.mjs`, because
+  rebuilding `countries.json` would move `bundle_version` and invalidate every published latency and
+  coverage figure in this file. Measured: `npm test` **74/74**, and the served bundle still reports
+  `bundle_version: continuum-2026-11-02-954f24dbc630` — the alias merge is provably bundle-neutral.
+- **The sweep's own ordering was a bug, and it was a real one.** Adding the Marshall check before the
+  open-water click made `Water outside the probe radius says open ocean…` fail with
+  `Marshall Is. selected country-wide`. Not an app defect: selecting an atoll country parks the camera on
+  the centroid of its own polygon, so the centre pixel *is* land and the click correctly answers
+  country-wide. The check was moved after the water click, with the reason recorded in the script, because a
+  camera-state dependency that only shows up as an app failure is worse than the defect it pretends to catch.
+- **The challenge's "downloadable CSV File of hot spots" is now literally satisfied, and measured against
+  the geometry file.** Atlas gained a fifth export, *Hotspot table*
+  ([src/lib/export.ts](file:///c:/Users/Ricky/Desktop/NASA%20HACKATHON/src/lib/export.ts) → `exportHotspotCSV`),
+  one row per detected point with `time_utc, date, latitude_east, longitude_east, sensor, frp_mw, confidence`
+  and the source + geometry-coverage limit in `#` header comments. Two new checks download it in the browser
+  and parse it back: at the Pantanal AOI for the live window the file is **12,299 bytes / 162 point rows**, and
+  the GeoJSON produced by the same search carries **exactly 162** `kind: "hotspot"` features — the two files
+  cannot now disagree without failing the sweep. Typed latitude/longitude got the same treatment: checks
+  `Typed latitude and longitude open the area they name, with the radius typed` (−10.50°, −55.20°, 180 km →
+  `r=aoi-…`, full 9,498-day record rendered) and `An out-of-range latitude is refused with the range stated,
+  and the area does not move` (123° → the range message, hash unchanged). Before this, "option to enter
+  latitude and longitude" was only evidenced by the inputs being *labelled*, which is not the same claim.
+  `npm run e2e` **112/112** on this tree, `npm run validate` 23/23, `npm run smoke` 49/49, secret-scan clean.
+- **`docs/challenge-conformance.md`** maps every objective and every "you may consider" line of
+  `docs/challengestatements.txt` to the shipped surface and the check that proves it, and states what the
+  build does *not* claim (reconstruction labelling, live-window-only geometry, observed zeros, nothing deployed).
+
 **Not claimed.** The Render dashboard Blueprint import (no account was driven from here), container
 builds (no engine in this environment), and anything that needs a host: availability, cold start on the
 free tier, CDN behaviour. `docs/runbooks.md` §6.1 records the deploy sequence and labels the host-bound
