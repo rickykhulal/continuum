@@ -978,6 +978,13 @@ and `POST /api/v1/area/summary` for a country.
   **241/241 HTTP 200, 0 failures, one distinct `counts.days` value — 9498 — and 63 borders reporting a
   measured 0.** Nothing had to be relaxed to reproduce it; the earlier un-paced pass only needed the raised
   limits because it issued calls faster than the documented rate class allows.
+- **Third re-run, 2026-11-04T04:05–04:11Z on `104e58d`.** The same 241 ids were asked again of the API on
+  :8787 at the shipped defaults, paced to one request per 1.1 s, with the client honouring `Retry-After`
+  rather than the limit being raised: **241/241 HTTP 200, 0 failures, one distinct series length —
+  `values.length = 9498` — for every id, 178 borders with detections and 63 with a measured 0**, against
+  the window 2026-10-26 → 2026-11-02 and `rows_in_countries` 929,967 of 966,066 read (96.26 %). The
+  pushed commit's own CI run (`run_number` 15, `104e58d`) concluded **success** at 04:09:20Z with
+  **20/20 steps** green on `ubuntu-latest`.
 
 - **Gazetteer gaps, measured and then closed.** Natural Earth 50m publishes 241 admin-0 units. Tested
   against the shipped `data/countries.json` index, the 14 names below have no polygon — searched as

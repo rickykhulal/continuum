@@ -127,10 +127,10 @@ proves nothing drifted in transit.
 clean directory and the chain re-run there: build with identical hashed assets, `npm test` 70/70,
 `npm run validate` 23/23 ("16 files verified, 4 `data_raw` build inputs absent"), `npm run smoke` 49/49,
 `npm run e2e` 100/100, `npm run rehearse` 12/12 and `GET /ready` 200. `.github/workflows/ci.yml` has since run
-the same sequence on `ubuntu-latest` on **eleven consecutive pushes** (`ab3e0c0` through `8fd3fed`, latest
-concluded 2026-11-03T13:58:02Z) and concluded **success** each time. Coverage is measured against every id the
+the same sequence on `ubuntu-latest` on **twelve consecutive pushes** (`ab3e0c0` through `104e58d`, latest
+concluded 2026-11-04T04:09:20Z with all 20 steps success) and concluded **success** each time. Coverage is measured against every id the
 gazetteer publishes, not a sample: 241/241 country records answer over HTTP with the full 9,498-day series
-(178 non-zero, 63 measured zeros) — re-asked end to end at 13:03Z on the current `HEAD`, inside the shipped
+(178 non-zero, 63 measured zeros) — re-asked end to end at 04:05–04:11Z on 2026-11-04 against the current `HEAD`, inside the shipped
 rate limits — and each country's live-window sensor lanes equal its point-in-polygon
 count in `public/data/country_fires.json`. `docs/runbooks.md` §6.1 has the deploy sequence and the two
 failures the clone caught (line-ending normalisation editing a hashed byte; `req.socket.encryption` never
