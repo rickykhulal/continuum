@@ -81,12 +81,41 @@ export function loadWorldLayer(): Promise<void> {
 }
 
 /**
- * Fill the same tables from files that are already parsed. The browser gets them by fetch; the
+ * Spellings the shipped gazetteer does not carry. Natural Earth abbreviates some admin-0 names
+ * ("Marshall Is.") and the UN/ISO long forms are what people actually type, so they are merged into
+ * the search haystack here — one place, used identically by the browser and the read-only API, and no
+ * change to the content-hashed data bundle. The display name stays the source spelling.
+ */
+export const SPELLING_ALIASES: Record<string, string[]> = {
+  'marshall-is': ['Marshall Islands'],
+  micronesia: ['Federated States of Micronesia'],
+  brunei: ['Brunei Darussalam'],
+  syria: ['Syrian Arab Republic'],
+  tanzania: ['United Republic of Tanzania'],
+  gambia: ['The Gambia', 'Republic of The Gambia'],
+  laos: ['Lao PDR', "Lao People's Democratic Republic"],
+  iran: ['Iran (Islamic Republic of)'],
+  'dr-congo': ['Democratic Republic of the Congo'],
+  congo: ['Congo (Brazzaville)'],
+  palestine: ['State of Palestine'],
+  'vatican-city': ['Holy See'],
+  'united-arab-emirates': ['UAE'],
+  'timor-leste': ['Timor Leste'],
+};
+
+/** Fill the same tables from files that are already parsed. The browser gets them by fetch; the
  * Node API reads them off disk. Both then call installWorldLayer(), so the 241 areas — and the
  * numbers attached to them — are constructed by exactly one code path.
  */
 export function hydrateWorldLayer(gazetteerFile: Gazetteer, firesFile: FireWindow): void {
-  gazetteer = gazetteerFile.countries ?? [];
+  gazetteer = (gazetteerFile.countries ?? []).map((c) => {
+    const extra = SPELLING_ALIASES[c.id];
+    if (!extra) return c;
+    const have = new Set((c.aliases ?? []).map((a) => a.toLowerCase()));
+    const add = extra.filter((a) => !have.has(a.toLowerCase()));
+    return add.length ? { ...c, aliases: [...(c.aliases ?? []), ...add] } : c;
+  });
+
   byId = new Map(gazetteer.map((c) => [c.id, c]));
   windows = new Map((firesFile.countries ?? []).map((c) => [c.id, c]));
   windowMeta = firesFile.meta ?? null;

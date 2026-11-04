@@ -49,8 +49,8 @@ export {
   livePointsForRegion,
   countLiveByDay,
 } from '../src/lib/data';
-export { customRegion, searchPlaces } from '../src/data/places';
-export { hydrateWorldLayer, installWorldLayer, uninstallWorldLayer, countryRegion, countryById, worldCountries, countryWindow, windowMeta_ } from '../src/lib/countries';
+export { customRegion, searchPlaces, PLACES } from '../src/data/places';
+export { hydrateWorldLayer, installWorldLayer, uninstallWorldLayer, countryRegion, countryById, worldCountries, countryWindow, windowMeta_, searchWorld, SPELLING_ALIASES } from '../src/lib/countries';
 export { SENSOR_SHORT } from '../src/lib/types';
 export { loadWeather, stressBand } from '../src/lib/weather';
 export { buildPdf as buildBriefPdf, downloadPdf } from '../src/lib/pdf';
