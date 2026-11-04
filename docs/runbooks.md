@@ -181,9 +181,9 @@ was written and is five files short of the one that ships now. The list comes fr
 the bundle cannot be left out of the drill. If a bundle file is added and the drill starts failing
 `/ready → 503 … missing` on the relocated copy, that is the check doing its job.
 **Verified on a remote:** `.github/workflows/ci.yml` on `ubuntu-latest` has conclusion **success** on
-every push since `ab3e0c0` — twelve consecutive runs, the latest being `104e58d` at 2026-11-04T04:09:20Z
-(`run_number` 15, started 03:59:32Z, all 20 steps success), read from the Actions API with `event=push`,
-not from the badge —
+every push since `ab3e0c0` — twelve consecutive runs measured through `104e58d` at 2026-11-04T04:09:20Z,
+and the run for the commit that recorded that measurement (`56625a9`) was green at 04:20:01Z, thirteen in a
+row (read from the Actions API with `event=push`, not from the badge; each job lists **20/20 steps success**) —
 install, `tsc -b`, `npm test`, build, validate, secret-scan, `npm run smoke`, `npm run rehearse`, the
 headless-Chrome sweep and the perf probe, on Linux,
 from a checkout with no `data_raw/`. The three earlier runs on that branch failed at the rehearsal step
