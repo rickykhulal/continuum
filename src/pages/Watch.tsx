@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState, useEffect, type CSSProperties } from 'react';
 import { Globe, type GlobeHandle } from '../components/Globe';
 import { WorldSearch } from '../components/WorldSearch';
-import { Badge, Sparkline, TableAlt } from '../components/ui';
+import { Sparkline, TableAlt } from '../components/ui';
 import { useStore } from '../lib/store';
 import { analogDeparture, calibrationFor, REGIONS, twinAnalogs } from '../lib/data';
 import { countryWindow } from '../lib/countries';
@@ -13,6 +13,8 @@ import { SENSOR_COLORS } from '../lib/types';
 const SATS = SATELLITE_SPECS;
 const SPEEDS = [1, 60, 600, 3600];
 
+type WatchTab = 'constellation' | 'radar' | 'regions';
+
 export function Watch() {
   const store = useStore();
   const globeRef = useRef<GlobeHandle>(null);
@@ -23,6 +25,8 @@ export function Watch() {
   const [selectedSat, setSelectedSat] = useState<string | null>('snpp');
   const [satStats, setSatStats] = useState<{ id: string; lat: number; lon: number; alt: number; covered: boolean }[]>([]);
   const [ticker, setTicker] = useState(0);
+  const [sidePanelOpen, setSidePanelOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<WatchTab>('constellation');
 
   const onTick = useCallback((ms: number) => setSimMs(ms), []);
   const onSatStats = useCallback((stats: { id: string; lat: number; lon: number; alt: number; covered: boolean }[]) => setSatStats(stats), []);
@@ -53,8 +57,6 @@ export function Watch() {
   const sat = SATS.find((s) => s.id === selectedSat) ?? null;
   const stat = satStats.find((s) => s.id === selectedSat);
   const regionLive = useMemo(() => {
-    // A country's own window is measured exactly, border to border; a hand-picked AOI falls back to
-    // the detections the bundle holds inside its bbox, which is a stride sample outside the pilots.
     const cw = store.region.countryId ? countryWindow(store.region.countryId) : null;
     if (cw) return cw.total;
     if (!live) return 0;
@@ -103,232 +105,309 @@ export function Watch() {
         onSatStats={onSatStats}
       />
 
-      <div className="watch-vignette" aria-hidden />
-      <div className="watch-grid">
+      {/* Floating unboxed hero - stays strictly top-left, never overlaps globe center */}
+      <div className="watch-hero-clean">
+        <div className="watch-hero-eyebrow">
+          <span className="hero-mark">◈</span> ORBITAL OBSERVATORY <span className="sep" /> 2000–{new Date().getFullYear()}
+        </div>
+        <h1 className="watch-hero-title">
+          The fire record,<br />
+          <span className="accent-text">repaired.</span>
+        </h1>
+        <p className="watch-hero-copy">
+          Five spacecraft. Two sensor families. One continuous, uncertainty-bearing record of burning from Terra to VIIRS.
+        </p>
+        <div className="watch-hero-actions">
+          <button type="button" className="btn btn-primary" onClick={() => store.setView('atlas')}>
+            Open the Atlas <span aria-hidden>→</span>
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={() => store.setView('outlook')}>
+            Predict the future <span aria-hidden>→</span>
+          </button>
+        </div>
+        <div className="watch-hero-stats">
+          <span className="hero-stat-live">
+            <i className="live-dot" />
+            {live ? `${nf(live.meta.counts.kept)} real detections worldwide` : 'Syncing live FIRMS window'}
+          </span>
+          <span className="hero-stat-sep">·</span>
+          <span>Real TLEs & SGP4 orbits</span>
+        </div>
+      </div>
 
-        <section className="watch-hero panel-card">
-          <div className="hero-overlay" aria-hidden />
-          <div className="panel-card-body">
-            <div className="hero-eyebrow">
-              <span className="hero-mark">◈</span> ORBITAL WATCH <span className="sep" /> 2026 NASA SPACE APPS
-            </div>
-            <h1>The fire record,<br /><span>repaired.</span></h1>
-            <p>
-              Five spacecraft. Two sensor families. One continuous, uncertainty-bearing record of burning —
-              from Terra&apos;s first pass in 2000 to the VIIRS constellation overhead right now.
-            </p>
-            <div className="hero-actions">
-              <button className="btn btn-primary" onClick={() => store.setView('atlas')}>Open the Atlas <span aria-hidden>→</span></button>
-              <button className="btn btn-ghost" onClick={() => store.setView('outlook')}>Predict the future <span aria-hidden>→</span></button>
-              <button className="link-btn hero-tour" onClick={() => store.setTourOpen(true)}>Judge tour</button>
-            </div>
-            <div className="hero-meta">
-              <span><i className="live-dot" /> {live ? `${nf(live.meta.counts.kept)} real detections worldwide (live FIRMS window)` : 'loading live data'}</span>
-              <span className="sep" />
-              <span>{live ? `${live.meta.windowStart} → ${live.meta.windowEnd} (${daysBetween(live.meta.windowStart, live.meta.windowEnd) + 1} calendar days)` : '—'}</span>
-              <span className="sep" />
-              <span>real TLEs · SGP4 orbital positions</span>
-            </div>
-            <div className="provenance-chip live" aria-label="Live data: NASA FIRMS rolling window, real detections">
-              <span className="dot" aria-hidden />
-              LIVE FIRMS · {live ? `${nf(live.meta.counts.kept)} detections` : 'loading'}
-            </div>
-          </div>
-        </section>
-
-        <section className="watch-constellation panel-card" aria-label="Satellite constellation">
-          <div className="panel-card-head">
-            <div className="rail-head">
-              <span className="eyebrow">Constellation</span>
-              <button className="link-btn" onClick={() => { setOffsetHours(0); globeRef.current?.resetLive(); }}>reset view</button>
-            </div>
-          </div>
-          <div className="constellation-scroll">
-            <div className="sat-list">
-              {SATS.map((s) => {
-                const st = satStats.find((x) => x.id === s.id);
-                const active = selectedSat === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    className={`sat-row ${active ? 'active' : ''}`}
-                    onClick={() => handleSat(s.id)}
-                    aria-pressed={active}
-                    style={{ '--sat': s.color } as CSSProperties}
-                  >
-                    <span className="sat-orb" />
-                    <span className="sat-body">
-                      <span className="sat-name">{s.name}</span>
-                      <span className="sat-meta">{s.sensor} · {s.pixelM} m pixels · {st ? `${st.lat.toFixed(1)}°, ${st.lon.toFixed(1)}°` : s.overpass}</span>
-                    </span>
-                    <span className={`sat-status ${st?.covered ? 'ok' : ''}`} title={st?.covered ? 'Over the selected area now' : 'Not over the selected area'} />
-                  </button>
-                );
-              })}
-            </div>
-            {sat && (
-              <div className="sat-detail">
-                <div className="sat-detail-head">
-                  <strong style={{ color: sat.color }}>{sat.name}</strong>
-                  <span>{sat.agency} · {sat.era}</span>
-                </div>
-                <p>{sat.role}</p>
-                <div className="sat-specs">
-                  <div><span>Altitude</span><b>{stat ? nf(stat.alt, 0) : sat.altitude} km</b></div>
-                  <div><span>Swath width</span><b>{nf(sat.swathKm)} km</b></div>
-                  <div><span>Pixel size</span><b>{sat.pixelM} m</b></div>
-                  <div><span>Overpass time</span><b>{sat.overpass.split(' ')[0]}</b></div>
-                </div>
-                <div className="sat-cover">
-                  <span className={`cover-dot ${cover?.covered ? 'ok' : ''}`} />
-                  {store.region.shortName}: {cover?.covered ? 'inside the swath now' : `outside the swath (${nf(cover?.distanceKm ?? 0)} km from nadir)`}
-                </div>
-                <button className="btn btn-small btn-ghost" onClick={analyzeNadir}>Analyze nadir area →</button>
-              </div>
-            )}
-            <div className="legend">
-              <div><i style={{ background: SENSOR_COLORS[0] }} /> MODIS Terra / Aqua</div>
-              <div><i style={{ background: SENSOR_COLORS[1] }} /> VIIRS S-NPP</div>
-              <div><i style={{ background: SENSOR_COLORS[2] }} /> NOAA-20 VIIRS</div>
-              <div><i style={{ background: SENSOR_COLORS[3] }} /> NOAA-21 VIIRS</div>
-            </div>
-          </div>
-        </section>
-
-        <section className="watch-alert panel-card" aria-live="polite">
-          <div className="panel-card-head">
-            <span className="eyebrow">Risk radar · {store.today}</span>
-          </div>
-          <div className="panel-card-body">
-            {alert ? (
-              <button className="alert-line" onClick={() => { store.selectRegion(alert.region.id); store.setView('atlas'); }}>
-                <span className="alert-band" style={{ background: riskColor(alert.status.band) }} />
-                <span className="alert-text">
-                  <strong>{alert.region.shortName}</strong> — {alert.status.band} · {ordinal(Math.round(alert.status.percentile))} percentile
-                </span>
-                <span className="alert-cta">inspect →</span>
+      {/* Collapsible Mission Dock on the right */}
+      {sidePanelOpen && (
+        <aside className="watch-side-dock" aria-label="Mission controls and details">
+          <div className="side-dock-head">
+            <div className="side-dock-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'constellation'}
+                className={`side-tab ${activeTab === 'constellation' ? 'active' : ''}`}
+                onClick={() => setActiveTab('constellation')}
+              >
+                Constellation
               </button>
-            ) : (
-              <div className="muted">Computing today&apos;s risk across pilot regions…</div>
-            )}
-            <button className="alert-forecast" onClick={() => store.setView('outlook')}>
-              <span className="alert-forecast-label">
-                <span className="eyebrow">Predict the future</span>
-                <span className="alert-forecast-window">next 4 weeks · median of {outlook.years.length || 3} analog seasons</span>
-              </span>
-              <strong style={{ color: outlook.next4 >= 0 ? 'var(--accent)' : 'var(--green)' }}>{pct(outlook.next4)}</strong>
-              <span className="alert-forecast-base">{Math.round(outlook.hitRate)}% backtest hit rate</span>
-              <span className="alert-forecast-go" aria-hidden>open →</span>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'radar'}
+                className={`side-tab ${activeTab === 'radar' ? 'active' : ''}`}
+                onClick={() => setActiveTab('radar')}
+              >
+                Risk Radar
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'regions'}
+                className={`side-tab ${activeTab === 'regions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('regions')}
+              >
+                Pilot Regions
+              </button>
+            </div>
+            <button
+              type="button"
+              className="side-dock-close"
+              onClick={() => setSidePanelOpen(false)}
+              aria-label="Collapse panel"
+            >
+              ✕
             </button>
-            <div className="alert-foot">
-              <span>Watchlist {store.watchlist.length}/7</span>
-              <button className="link-btn" onClick={() => store.setAlertsOpen(true)}>alert center</button>
-            </div>
-            <p className="drawer-note" style={{ fontSize: '7.5px', marginTop: '8px', color: 'rgba(160, 190, 215, 0.5)' }}>
-              Research advisory — not an official warning, dispatch, or evacuation service.
-            </p>
           </div>
-        </section>
 
-        <section className="watch-regions panel-card">
-          <div className="panel-card-head">
-            <div className="rail-head">
-              <span className="eyebrow">Pilot regions</span>
-              <span className="muted">{store.region.country}</span>
-            </div>
-          </div>
-          <div className="panel-card-body">
-            <WorldSearch onFocusGlobe={(center) => globeRef.current?.focusRegion(center)} />
-            <div className="region-chips">
-              {REGIONS.map((r) => (
-                <button
-                  key={r.id}
-                  className={`region-chip ${r.id === store.regionId ? 'active' : ''}`}
-                  onClick={() => { store.selectRegion(r.id); globeRef.current?.focusRegion(r.center); }}
-                >
-                  {r.shortName}
+          <div className="side-dock-body">
+            {activeTab === 'constellation' && (
+              <div className="dock-section">
+                <div className="rail-head">
+                  <span className="eyebrow">Active Satellites</span>
+                  <button type="button" className="link-btn" onClick={() => { setOffsetHours(0); globeRef.current?.resetLive(); }}>
+                    reset view
+                  </button>
+                </div>
+                <div className="sat-list">
+                  {SATS.map((s) => {
+                    const st = satStats.find((x) => x.id === s.id);
+                    const active = selectedSat === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className={`sat-row ${active ? 'active' : ''}`}
+                        onClick={() => handleSat(s.id)}
+                        aria-pressed={active}
+                        style={{ '--sat': s.color } as CSSProperties}
+                      >
+                        <span className="sat-orb" />
+                        <span className="sat-body">
+                          <span className="sat-name">{s.name}</span>
+                          <span className="sat-meta">{s.sensor} · {s.pixelM}m · {st ? `${st.lat.toFixed(1)}°, ${st.lon.toFixed(1)}°` : s.overpass}</span>
+                        </span>
+                        <span className={`sat-status ${st?.covered ? 'ok' : ''}`} title={st?.covered ? 'Over target area' : 'Outside swath'} />
+                      </button>
+                    );
+                  })}
+                </div>
+                {sat && (
+                  <div className="sat-detail">
+                    <div className="sat-detail-head">
+                      <strong style={{ color: sat.color }}>{sat.name}</strong>
+                      <span className="mono">{sat.agency} · {sat.era}</span>
+                    </div>
+                    <p>{sat.role}</p>
+                    <div className="sat-specs">
+                      <div><span>Altitude</span><b>{stat ? nf(stat.alt, 0) : sat.altitude} km</b></div>
+                      <div><span>Swath</span><b>{nf(sat.swathKm)} km</b></div>
+                      <div><span>Resolution</span><b>{sat.pixelM} m</b></div>
+                      <div><span>Overpass</span><b>{sat.overpass.split(' ')[0]}</b></div>
+                    </div>
+                    <div className="sat-cover">
+                      <span className={`cover-dot ${cover?.covered ? 'ok' : ''}`} />
+                      {store.region.shortName}: {cover?.covered ? 'inside the swath now' : `outside (${nf(cover?.distanceKm ?? 0)} km)`}
+                    </div>
+                    <button type="button" className="btn btn-small btn-secondary" onClick={analyzeNadir}>
+                      Analyze nadir area →
+                    </button>
+                  </div>
+                )}
+                <div className="legend">
+                  <div><i style={{ background: SENSOR_COLORS[0] }} /> MODIS Terra / Aqua</div>
+                  <div><i style={{ background: SENSOR_COLORS[1] }} /> VIIRS S-NPP</div>
+                  <div><i style={{ background: SENSOR_COLORS[2] }} /> NOAA-20 VIIRS</div>
+                  <div><i style={{ background: SENSOR_COLORS[3] }} /> NOAA-21 VIIRS</div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'radar' && (
+              <div className="dock-section">
+                <div className="rail-head">
+                  <span className="eyebrow">Risk Radar · {store.today}</span>
+                </div>
+                {alert ? (
+                  <button type="button" className="alert-line" onClick={() => { store.selectRegion(alert.region.id); store.setView('atlas'); }}>
+                    <span className="alert-band" style={{ background: riskColor(alert.status.band) }} />
+                    <span className="alert-text">
+                      <strong>{alert.region.shortName}</strong> — {alert.status.band} · {ordinal(Math.round(alert.status.percentile))} percentile
+                    </span>
+                    <span className="alert-cta">inspect →</span>
+                  </button>
+                ) : (
+                  <div className="muted">Computing today&apos;s risk across regions…</div>
+                )}
+                <button type="button" className="alert-forecast" onClick={() => store.setView('outlook')}>
+                  <span className="alert-forecast-label">
+                    <span className="eyebrow">Four-Week Outlook</span>
+                    <span className="alert-forecast-window">median of {outlook.years.length || 3} analog seasons</span>
+                  </span>
+                  <strong style={{ color: outlook.next4 >= 0 ? 'var(--accent)' : 'var(--green)' }}>{pct(outlook.next4)}</strong>
+                  <span className="alert-forecast-base">{Math.round(outlook.hitRate)}% backtest hit rate</span>
+                  <span className="alert-forecast-go" aria-hidden>open →</span>
                 </button>
-              ))}
-              <button className="region-chip point" onClick={() => { store.setView('atlas'); toast('Click anywhere on the globe — land is named by its country, water becomes an open-ocean AOI.'); }}>
-                + any point on Earth
-              </button>
-            </div>
-            <div className="region-focus">
-              <div>
-                <div className="region-name">{store.region.name}</div>
-                <div className="region-sub">{store.region.admin} · {nf(store.region.areaKm2)} km² · {store.region.biome}</div>
+                <div className="alert-foot">
+                  <span>Watchlist {store.watchlist.length}/7</span>
+                  <button type="button" className="link-btn" onClick={() => store.setAlertsOpen(true)}>
+                    open alert center
+                  </button>
+                </div>
+                <p className="drawer-note" style={{ fontSize: '11px', marginTop: '12px', color: 'var(--muted)' }}>
+                  Research advisory only — not an official warning or dispatch service.
+                </p>
               </div>
-              <div className="region-kpis">
-                <div><span>Live window detections</span><b>{nf(regionLive)}</b></div>
-                <div><span>Risk band</span><b style={{ color: riskColor(store.status.band) }}>{store.status.band}</b></div>
-              </div>
-            </div>
-          </div>
-        </section>
+            )}
 
-        <section className="watch-timeline panel-card" aria-label="Simulation timeline">
-          <div className="panel-card-body">
-            <div className="timeline-left">
-              <button className="play-btn" onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pause simulation' : 'Play simulation'}>
-                {playing ? '❚❚' : '▶'}
-              </button>
-              <div className="clock">
-                <strong>{simDate.toISOString().slice(11, 19)}</strong>
-                <span>UTC · {longDate(simDate.toISOString().slice(0, 10))}</span>
+            {activeTab === 'regions' && (
+              <div className="dock-section">
+                <div className="rail-head">
+                  <span className="eyebrow">Pilot Regions</span>
+                  <span className="muted">{store.region.country}</span>
+                </div>
+                <WorldSearch onFocusGlobe={(center) => globeRef.current?.focusRegion(center)} />
+                <div className="region-chips">
+                  {REGIONS.map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      className={`region-chip ${r.id === store.regionId ? 'active' : ''}`}
+                      onClick={() => { store.selectRegion(r.id); globeRef.current?.focusRegion(r.center); }}
+                    >
+                      {r.shortName}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="region-chip point"
+                    onClick={() => { store.setView('atlas'); toast('Click anywhere on the globe — land is named by its country, water becomes an open-ocean AOI.'); }}
+                  >
+                    + any point on Earth
+                  </button>
+                </div>
+                <div className="region-focus">
+                  <div>
+                    <div className="region-name">{store.region.name}</div>
+                    <div className="region-sub">{store.region.admin} · {nf(store.region.areaKm2)} km² · {store.region.biome}</div>
+                  </div>
+                  <div className="region-kpis">
+                    <div><span>Live detections</span><b>{nf(regionLive)}</b></div>
+                    <div><span>Risk band</span><b style={{ color: riskColor(store.status.band) }}>{store.status.band}</b></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="timeline-mid">
-              <div className="timeline-ticks" aria-hidden>
-                {Array.from({ length: 13 }, (_, i) => <i key={i} />)}
-              </div>
-              <input
-                type="range"
-                min={-72}
-                max={72}
-                step={0.25}
-                value={offsetHours}
-                aria-label="Time offset in hours from live"
-                onChange={(e) => {
-                  const hours = Number(e.target.value);
-                  setOffsetHours(hours);
-                  globeRef.current?.seek(Date.now() + hours * 3600_000);
-                }}
-              />
-              <div className="timeline-scale"><span>−72 h</span><span>live</span><span>+72 h</span></div>
-              <div className="timeline-offset">{offsetHours === 0 ? 'at live' : `${offsetHours > 0 ? '+' : ''}${offsetHours} h from live`}</div>
-            </div>
-            <div className="timeline-right">
-              <div className="speeds" aria-label="Playback speed">
-                {SPEEDS.map((s) => (
-                  <button key={s} className={speed === s ? 'active' : ''} onClick={() => setSpeed(s)} aria-pressed={speed === s}>{s === 1 ? 'real' : `${s}×`}</button>
-                ))}
-              </div>
-              <div className="timeline-fires">
-                <Sparkline values={perHour} width={130} height={26} color="#ffb020" />
-                <span>{nf(perHour.reduce((a, b) => a + b, 0))} detections / 7-day window</span>
-                <TableAlt
-                  columns={['Hour of window', 'Detections']}
-                  rows={perHour.map((v, i) => [`h${i + 1}`, v])}
-                  summary="Hourly detections table"
-                  note={`168 one-hour bins covering the rolling FIRMS window up to ${live?.meta.windowEnd ?? 'the window end'}. Bin 1 is the earliest hour; the sparkline plots the same series.`}
-                />
-              </div>
-            </div>
+            )}
           </div>
-        </section>
+        </aside>
+      )}
 
-        <div className="watch-badges">
-          <Badge tone="live" pulse>LIVE FIRMS</Badge>
-          <Badge tone="default">DATA THROUGH {store.today}</Badge>
-          {freshness > 2 ? <Badge tone="warn">{freshness} d lag</Badge> : <Badge tone="good">REAL-TIME</Badge>}
-          <span className="watch-sim">SIM {speed === 1 ? 'REAL TIME' : `${speed}×`} · REAL SGP4</span>
+      {/* Slim timeline scrubber bar at bottom */}
+      <div className="watch-scrubber-bar">
+        <div className="scrubber-left">
+          <button
+            type="button"
+            className="scrubber-play-btn"
+            onClick={() => setPlaying((p) => !p)}
+            aria-label={playing ? 'Pause simulation' : 'Play simulation'}
+          >
+            {playing ? '❚❚' : '▶'}
+          </button>
+          <div className="scrubber-clock">
+            <strong className="mono">{simDate.toISOString().slice(11, 19)} UTC</strong>
+            <span>{longDate(simDate.toISOString().slice(0, 10))}</span>
+          </div>
         </div>
 
-        <div className="watch-caveat">
-          Not an official warning, dispatch, or evacuation service. Research prototype · NASA Space Apps 2026.
+        <div className="scrubber-mid">
+          <span className="scrubber-edge-label mono">-72h</span>
+          <div className="scrubber-slider-wrap">
+            <input
+              type="range"
+              min={-72}
+              max={72}
+              step={0.25}
+              value={offsetHours}
+              aria-label="Simulation offset from live time"
+              onChange={(e) => {
+                const hours = Number(e.target.value);
+                setOffsetHours(hours);
+                globeRef.current?.seek(Date.now() + hours * 3600_000);
+              }}
+            />
+            <span className="scrubber-offset-badge mono">
+              {offsetHours === 0 ? 'LIVE NOW' : `${offsetHours > 0 ? '+' : ''}${offsetHours}h`}
+            </span>
+          </div>
+          <span className="scrubber-edge-label mono">+72h</span>
         </div>
 
-        <div className="watch-hint">drag to rotate · scroll to zoom · click a satellite or any point</div>
+        <div className="scrubber-right">
+          <div className="scrubber-speeds" role="group" aria-label="Playback speed">
+            {SPEEDS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={speed === s ? 'active' : ''}
+                onClick={() => setSpeed(s)}
+                aria-pressed={speed === s}
+              >
+                {s === 1 ? '1×' : `${s}×`}
+              </button>
+            ))}
+          </div>
+          <div className="scrubber-fires">
+            <Sparkline values={perHour} width={90} height={20} color="#ff8a3d" />
+            <TableAlt
+              columns={['Hour', 'Detections']}
+              rows={perHour.map((v, i) => [`h${i + 1}`, v])}
+              summary="Hourly detections table"
+              note="168 hourly bins of the live 7-day window."
+            />
+          </div>
+          <button
+            type="button"
+            className={`side-dock-toggle ${sidePanelOpen ? 'active' : ''}`}
+            onClick={() => setSidePanelOpen(!sidePanelOpen)}
+            aria-label="Toggle mission panels"
+          >
+            <span>{sidePanelOpen ? 'Close panels ❯' : 'Mission panels ❮'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom docked metadata bar - explicit columns preventing any text collision */}
+      <div className="watch-dock-footer">
+        <div className="dock-foot-item left">
+          <span className="mono">LIVE FIRMS WINDOW</span>
+          <span className="sep" />
+          <span>DATA THROUGH {store.today}</span>
+          {freshness > 2 && <span className="dock-lag">({freshness}d lag)</span>}
+        </div>
+        <div className="dock-foot-item center">
+          <span>drag to rotate · scroll to zoom · click satellite or country</span>
+        </div>
+        <div className="dock-foot-item right">
+          <span>Research advisory · Not an official warning or evacuation service</span>
+        </div>
       </div>
     </div>
   );
