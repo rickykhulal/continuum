@@ -8,10 +8,10 @@ import { MONTHS, longDate, nf, pct, riskColor, ordinal } from '../lib/format';
 
 function WeatherStrip({ weather }: { weather: WeatherContext }) {
   const width = 860;
-  const height = 220;
+  const height = 230;
   const padL = 40;
   const padB = 26;
-  const padT = 18;
+  const padT = 36;
   const days = weather.days.slice(-150);
   const maxRain = Math.max(2, ...days.map((d) => d.precip ?? 0));
   const x = (i: number) => padL + (i / Math.max(1, days.length - 1)) * (width - padL - 18);
@@ -67,14 +67,14 @@ function WeatherStrip({ weather }: { weather: WeatherContext }) {
           <text x={x(days.length - 1) - 6} y={yStress(last.stress) - 8} textAnchor="end" className="axis-value" fill="#ffb020">{last.stress}</text>
         </g>
       )}
-      <text x={padL} y={12} className="axis-label">fire-weather stress (0–100) · rainfall (mm, lower band) · last 150 days</text>
-      <g transform={`translate(${width - 320},${padT + 2})`}>
-        <rect x={0} y={0} width={310} height={18} rx={3} fill="rgba(6,12,20,.7)" />
-        <line x1={8} x2={22} y1={9} y2={9} stroke="#ff9a6a" strokeWidth={2} />
-        <text x={28} y={12} className="axis-label">stress</text>
-        <rect x={80} y={4} width={8} height={10} fill="rgba(74,168,255,.55)" />
-        <text x={94} y={12} className="axis-label">rain</text>
-        <text x={146} y={12} className="axis-label">source: {weather.source}</text>
+      <text x={padL} y={16} className="axis-label">fire-weather stress (0–100) · rainfall (mm, lower band) · last 150 days</text>
+      <g transform={`translate(${width - 320}, 4)`}>
+        <rect x={0} y={0} width={310} height={20} rx={3} fill="rgba(6,12,20,.85)" stroke="rgba(255,255,255,0.08)" />
+        <line x1={8} x2={22} y1={10} y2={10} stroke="#ff9a6a" strokeWidth={2} />
+        <text x={28} y={13} className="axis-label">stress</text>
+        <rect x={80} y={5} width={8} height={10} fill="rgba(74,168,255,.55)" />
+        <text x={94} y={13} className="axis-label">rain</text>
+        <text x={146} y={13} className="axis-label">source: {weather.source}</text>
       </g>
     </svg>
     </div>
@@ -84,10 +84,10 @@ function WeatherStrip({ weather }: { weather: WeatherContext }) {
 
 function ExpectedObserved({ weather }: { weather: WeatherContext }) {
   const width = 860;
-  const height = 240;
+  const height = 250;
   const padL = 46;
   const padB = 28;
-  const padT = 18;
+  const padT = 44;
   const n = Math.min(220, weather.dates.length);
   const start = weather.dates.length - n;
   const obs = weather.observed.slice(start);
@@ -114,13 +114,13 @@ function ExpectedObserved({ weather }: { weather: WeatherContext }) {
       ))}
       <path d={line(exp)} fill="none" stroke="#6ee7ff" strokeWidth={1.5} strokeOpacity={0.75} strokeDasharray="4 3" />
       <path d={line(obs)} fill="none" stroke="#ffffff" strokeWidth={2} />
-      <text x={padL} y={12} className="axis-label">observed harmonized activity vs. weather-expected activity · last 220 days</text>
-      <g transform={`translate(${width - 290},${padT + 2})`}>
-        <rect x={0} y={0} width={280} height={36} rx={3} fill="rgba(6,12,20,.75)" />
-        <line x1={8} x2={24} y1={11} y2={11} stroke="#fff" strokeWidth={2} />
-        <text x={30} y={14} className="axis-label">observed</text>
-        <line x1={8} x2={24} y1={27} y2={27} stroke="#6ee7ff" strokeWidth={2} strokeDasharray="3 2" />
-        <text x={30} y={30} className="axis-label">expected from stress</text>
+      <text x={padL} y={16} className="axis-label">observed harmonized activity vs. weather-expected activity · last 220 days</text>
+      <g transform={`translate(${width - 290}, 6)`}>
+        <rect x={0} y={0} width={280} height={32} rx={3} fill="rgba(6,12,20,.85)" stroke="rgba(255,255,255,0.08)" />
+        <line x1={8} x2={24} y1={10} y2={10} stroke="#fff" strokeWidth={2} />
+        <text x={30} y={13} className="axis-label">observed</text>
+        <line x1={8} x2={24} y1={23} y2={23} stroke="#6ee7ff" strokeWidth={2} strokeDasharray="3 2" />
+        <text x={30} y={26} className="axis-label">expected from stress</text>
       </g>
     </svg>
     </div>
@@ -200,11 +200,31 @@ export function Outlook() {
         }
       />
 
-      <div className="stat-row stat-row-4">
-        <Stat label="Season peak" value={clock.peakLabel} sub={`${clock.startLabel} → ${clock.endLabel}`} />
-        <Stat label="Pace vs. climatology" value={<span style={{ color: riskColor(clock.direction === 'ahead' ? 'elevated' : clock.direction === 'behind' ? 'high' : 'normal') }}>{clock.direction}</span>} sub={`${Math.round(clock.yearShare)}% of expected activity · ${peakDistance}`} />
-        <Stat label="Analog outlook · 4 wk" value={pct(next4)} sub={`median of ${twin.analogs.length} closest seasons · hit rate ${Math.round(twin.backtestHitRate)}%`} accent={next4 > 0 ? '#ff8a3d' : '#56d6a0'} />
-        <Stat label={lastWeather ? 'Fire-weather stress' : 'Weather'} value={lastWeather ? `${lastWeather.stress}` : loading ? '…' : '—'} sub={band ? `${band.label} · ${nf(lastWeather?.t2m ?? 0, 1)} °C · ${nf(lastWeather?.precip ?? 0, 1)} mm · ${lastWeather?.date}` : 'NASA POWER daily reanalysis'} accent={band?.color} />
+      <div className="atlas-kpi-bar" role="region" aria-label="Key outlook metrics">
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">Season peak</span>
+          <div className="atlas-kpi-val">{clock.peakLabel}</div>
+          <span className="atlas-kpi-sub">{clock.startLabel} → {clock.endLabel}</span>
+        </div>
+        <div className="atlas-kpi-card" style={{ borderLeftColor: riskColor(clock.direction === 'ahead' ? 'elevated' : clock.direction === 'behind' ? 'high' : 'normal') }}>
+          <span className="atlas-kpi-label">Pace vs. climatology</span>
+          <div className="atlas-kpi-val" style={{ color: riskColor(clock.direction === 'ahead' ? 'elevated' : clock.direction === 'behind' ? 'high' : 'normal') }}>{clock.direction}</div>
+          <span className="atlas-kpi-sub">{Math.round(clock.yearShare)}% expected · {peakDistance}</span>
+        </div>
+        <div className="atlas-kpi-card" style={{ borderLeftColor: next4 > 0 ? '#ff8a3d' : '#34d399' }}>
+          <span className="atlas-kpi-label">Analog outlook · 4 wk</span>
+          <div className="atlas-kpi-val" style={{ color: next4 > 0 ? '#ff8a3d' : '#34d399' }}>{pct(next4)}</div>
+          <span className="atlas-kpi-sub">median of {twin.analogs.length} twins · {Math.round(twin.backtestHitRate)}% hit rate</span>
+        </div>
+        <div className="atlas-kpi-card" style={{ borderLeftColor: band?.color ?? 'rgba(255,255,255,0.1)' }}>
+          <span className="atlas-kpi-label">Fire-weather stress</span>
+          <div className="atlas-kpi-val" style={{ color: band?.color ?? 'inherit' }}>
+            {lastWeather ? `${lastWeather.stress}` : loading ? <span className="skeleton-pill">Loading…</span> : 'Unavailable'}
+          </div>
+          <span className="atlas-kpi-sub">
+            {band ? `${band.label} · ${nf(lastWeather?.t2m ?? 0, 1)} °C · ${nf(lastWeather?.precip ?? 0, 1)} mm` : loading ? 'Fetching NASA POWER…' : 'Upstream telemetry offline'}
+          </span>
+        </div>
       </div>
 
       <Panel
@@ -228,7 +248,7 @@ export function Outlook() {
             <div><span>Median analog departure · 4 wk</span><b style={{ color: next4 >= 0 ? '#ff9a6a' : '#56d6a0' }}>{pct(next4)}</b></div>
             <div><span>Analog hit rate</span><b>{Math.round(twin.backtestHitRate)}%</b></div>
             <div><span>Season pace</span><b>{clock.direction}</b></div>
-            <div><span>Fire-weather stress</span><b>{lastWeather ? `${lastWeather.stress} · ${stressBand(lastWeather.stress).label}` : loading ? '…' : '—'}</b></div>
+            <div><span>Fire-weather stress</span><b>{lastWeather ? `${lastWeather.stress} · ${stressBand(lastWeather.stress).label}` : loading ? 'Fetching…' : 'Unavailable'}</b></div>
           </div>
         </div>
         <p className="panel-note">
