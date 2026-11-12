@@ -367,7 +367,8 @@ export function Atlas() {
 
           <Panel title="What changed at the break" eyebrow="2012 · MODIS → VIIRS">
             <p className="mini-copy">
-              VIIRS sees roughly 2–3× more hotspots than MODIS at the same fire because its pixels are nine times smaller.
+              VIIRS detects many more fires per km² than MODIS because its 375 m pixels resolve smaller, cooler fires that MODIS 1 km pixels miss entirely.
+              The aggregate detection ratio (k) is measured from actual overlap days — not pixel geometry — and is shown on the Diagnosis page.
               Raw counts jump at the 2012 handover; the harmonized record removes that step instead of reporting it as a fire trend.
             </p>
             <div className="mini-cta">

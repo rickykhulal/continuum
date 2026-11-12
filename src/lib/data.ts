@@ -20,7 +20,7 @@ import type {
   SensorObservation,
 } from './types';
 import { clamp, gaussian, hashString, mean, mulberry32, percentileRank, poisson, quantile, stdev } from './random';
-import { dayOfYear, isoDate, addDays, parseISO, daysBetween } from './format';
+import { dayOfYear, isoDate, addDays, parseISO, daysBetween, ordinal } from './format';
 import { haversineKm } from './geo';
 import {
   archiveCoverage,
@@ -1343,7 +1343,7 @@ export function statusFor(
       ? `Not enough history to rank this month reliably. Showing the observed ${metricWord} for ${region.shortName}.`
       : current === 0
         ? `No ${metricWord} recorded in ${region.shortName} for ${cutoff} days into ${monthName(month)}. That is not proof of no fire — only no detection.`
-        : `${region.shortName} is at the ${Math.round(pct)}th percentile of the ${year - 25}–${year - 1} record for the first ${cutoff} days of ${monthName(month)}. ` +
+        : `${region.shortName} is at the ${ordinal(Math.round(pct))} percentile of the ${year - 25}–${year - 1} record for the first ${cutoff} days of ${monthName(month)}. ` +
           `${ratio >= 1 ? `${ratio.toFixed(1)}× the historical median` : `${Math.round((1 - ratio) * 100)}% below the historical median`}. ` +
           `Band: ${band}. Thresholds: elevated ≥75th, high ≥90th, extreme ≥97th.`;
   return {

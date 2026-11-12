@@ -268,7 +268,7 @@ function DataLoadState({ onRetry }: { onRetry: () => void }) {
               Waking the server, this can take up to a minute.
             </p>
             <p className="boot-sub">
-              Continuum synchronizes 26 years of MODIS/VIIRS historical calibration with today&apos;s real-time satellite overpasses.
+              Continuum synchronizes 26 years of MODIS/VIIRS historical calibration with today&apos;s FIRMS near-real-time overpasses (~3 h latency).
             </p>
             <div className="boot-progress-track">
               <div
