@@ -14,11 +14,14 @@ function WeatherStrip({ weather }: { weather: WeatherContext }) {
   const padT = 36;
   const days = weather.days.slice(-150);
   const maxRain = Math.max(2, ...days.map((d) => d.precip ?? 0));
+  const rawMaxStress = Math.max(...days.map((d) => d.stress), 10);
+  const maxStress = Math.min(100, Math.ceil(rawMaxStress / 10) * 10 + 5);
   const x = (i: number) => padL + (i / Math.max(1, days.length - 1)) * (width - padL - 18);
-  const yStress = (v: number) => padT + (1 - v / 100) * (height - padT - padB);
+  const yStress = (v: number) => padT + (1 - v / maxStress) * (height - padT - padB);
   const bw = Math.max(1, (width - padL - 18) / days.length - 1);
   const stressPath = days.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${yStress(d.stress).toFixed(1)}`).join(' ');
   const last = days[days.length - 1];
+  const gridTicks = [0, Math.round(maxStress / 2), maxStress];
 
   return (
     <ChartTable
@@ -41,7 +44,7 @@ function WeatherStrip({ weather }: { weather: WeatherContext }) {
           <stop offset="100%" stopColor="#ff7a45" stopOpacity="0.01" />
         </linearGradient>
       </defs>
-      {[0, 50, 100].map((v) => (
+      {gridTicks.map((v) => (
         <g key={v}>
           <line x1={padL} x2={width - 18} y1={yStress(v)} y2={yStress(v)} stroke="rgba(140,180,220,.1)" />
           <text x={padL - 8} y={yStress(v) + 3} textAnchor="end" className="axis-label">{v}</text>
@@ -318,9 +321,13 @@ export function Outlook() {
       <Panel
         title="Fire weather, from real NASA POWER data"
         eyebrow={`${region.center[0].toFixed(2)}°, ${region.center[1].toFixed(2)}° · daily MERRA-2`}
-        right={weather ? <Badge tone={weather.source === 'NASA POWER' ? 'live' : 'warn'}>{weather.source}</Badge> : <Badge tone="mute">loading</Badge>}
+        right={weather ? <Badge tone={weather.source === 'NASA POWER' ? 'live' : 'warn'}>{weather.source}</Badge> : <Badge tone="mute">telemetry</Badge>}
       >
-        {loading && <Empty>Fetching NASA POWER daily temperature, rainfall and humidity…</Empty>}
+        {loading && (
+          <div className="skeleton-block" role="status" aria-label="Loading telemetry">
+            <span style={{ position: 'absolute', opacity: 0 }}>Fetching NASA POWER telemetry…</span>
+          </div>
+        )}
         {!loading && weather && (
           <>
             <WeatherStrip weather={weather} />

@@ -191,7 +191,7 @@ export function PageHeader({
 
 /** FR-33: every chart carries the same numbers as a collapsible, screen-reader-friendly table. */
 export function TableAlt({
-  summary = 'Table of the values shown',
+  summary = 'View data',
   columns,
   rows,
   note,
@@ -203,7 +203,7 @@ export function TableAlt({
 }) {
   return (
     <details className="table-alt">
-      <summary>{summary}</summary>
+      <summary>{summary.startsWith('Table of') ? 'View data' : summary}</summary>
       {rows.length === 0 ? (
         <p className="alt-note">No rows in the current window.</p>
       ) : (

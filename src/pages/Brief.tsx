@@ -26,7 +26,7 @@ export function Brief() {
   const liveSum = liveRecs.reduce((s, r) => s + r.harmonized, 0);
   const liveDays = liveRecs.filter((r) => r.harmonized > 0).length;
   const next4 = mean(twin.analogs.map((a) => a.next4WeeksAnomalyPct));
-  const bandColor = riskColor(status.band);
+  const bandColor = status.band === 'normal' ? '#1b7a4c' : riskColor(status.band);
   const area = store.region.shortName;
 
   const advisory = useMemo(() => {

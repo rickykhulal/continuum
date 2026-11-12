@@ -482,7 +482,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const toast = useCallback((msg: string) => {
     setToastMsg(msg);
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
-    toastTimer.current = window.setTimeout(() => setToastMsg(null), 4200);
+    toastTimer.current = window.setTimeout(() => setToastMsg(null), 4000);
   }, []);
 
   return (

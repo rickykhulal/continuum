@@ -812,13 +812,13 @@ export function TrendCompare({ records, mode }: { records: DailyRecord[]; mode: 
       {years.filter((_, i) => i % 4 === 0).map((yr) => (
         <text key={yr} x={x(yr)} y={height - 8} textAnchor="middle" className="axis-label">{yr}</text>
       ))}
-      <text x={width - 20} y={height - 8} textAnchor="end" className="axis-label" opacity={0.65}>active: {mode}</text>
       <g transform={`translate(${width - 210},${padT + 4})`}>
-        <rect x={0} y={0} width={190} height={42} fill="var(--bg-2)" stroke="var(--line-strong)" rx={4} />
-        <line x1={8} x2={24} y1={15} y2={15} stroke="#ff7a45" strokeWidth={2} />
-        <text x={30} y={18} className="axis-label">raw sensor record</text>
-        <line x1={8} x2={24} y1={30} y2={30} stroke="#38bdf8" strokeWidth={2} />
-        <text x={30} y={33} className="axis-label">harmonized (VIIRS-eq)</text>
+        <rect x={0} y={0} width={190} height={56} fill="var(--bg-2)" stroke="var(--line-strong)" rx={4} />
+        <line x1={8} x2={24} y1={14} y2={14} stroke="#ff7a45" strokeWidth={2} />
+        <text x={30} y={17} className="axis-label">raw sensor record</text>
+        <line x1={8} x2={24} y1={28} y2={28} stroke="#38bdf8" strokeWidth={2} />
+        <text x={30} y={31} className="axis-label">harmonized (VIIRS-eq)</text>
+        <text x={8} y={47} className="axis-label" fill="var(--muted)">active view: {mode}</text>
       </g>
     </svg>
     </ChartTable>
