@@ -60,15 +60,52 @@ export function Method() {
         }
       />
 
-      <div className="stat-row stat-row-4">
-        <Stat
-          label="Bridge ratio k"
-          value={bridge.k > 0 ? `${bridge.k.toFixed(2)}×` : '—'}
-          sub={`recomputed per area · ${bridgeSourceLabel(bridge.source)} · ${nf(bridge.days)} days`}
-        />
-        <Stat label="Break reduction" value={`${Math.round(bias.reductionPct)}%`} sub={`${bias.rawBreakPct.toFixed(1)}% → ${bias.correctedBreakPct.toFixed(1)}%`} />
-        <Stat label="Analog backtest" value={`${Math.round(twin.backtestHitRate)}%`} sub={`${twin.sampleYears} leave-one-out seasons, coin flip = 50%`} />
-        <Stat label="Sandbox recovery" value={`${sandbox.recoveryError.toFixed(1)}%`} sub="7-day mean absolute error after correction" />
+      <Panel title="Mathematical formulation" eyebrow="Five operations, fully reproducible" className="method-equations-hero">
+        <div className="equation-hero-grid">
+          <div className="equation-card">
+            <span className="equation-step">01 · Bridge Ratio</span>
+            <div className="eq-formula">k = Σ V<sub>overlap</sub> / Σ M<sub>overlap</sub></div>
+            <p>Empirical scale factor between 1km MODIS and 375m VIIRS resolution over shared observation days.</p>
+          </div>
+          <div className="equation-card">
+            <span className="equation-step">02 · Harmonization</span>
+            <div className="eq-formula">H<sub>t</sub> = V<sub>t</sub> &nbsp;·&nbsp; H<sub>t</sub> = k · M<sub>t</sub></div>
+            <p>Direct VIIRS counts when available; calibrated VIIRS-equivalent scaled count on MODIS-only eras.</p>
+          </div>
+          <div className="equation-card">
+            <span className="equation-step">03 · Uncertainty Propagation</span>
+            <div className="eq-formula">SE(H) ≈ k · √(1/ΣM + 1/ΣV)</div>
+            <p>First-order delta method propagation delivering calibrated 90% confidence intervals (±1.645 SE).</p>
+          </div>
+          <div className="equation-card">
+            <span className="equation-step">04 · Climatology Anomaly</span>
+            <div className="eq-formula">BW = 0.35·z(T) − 0.25·z(RH) + 0.20·z(WS)</div>
+            <p>MERRA-2 atmospheric burn-weather demand standardized against pooled DOY ±15d climatology.</p>
+          </div>
+        </div>
+      </Panel>
+
+      <div className="atlas-kpi-bar" role="region" aria-label="Key validation metrics">
+        <div className="atlas-kpi-card" style={{ borderLeftColor: '#38bdf8' }}>
+          <span className="atlas-kpi-label">Bridge ratio k</span>
+          <div className="atlas-kpi-val" style={{ color: '#38bdf8' }}>{bridge.k > 0 ? `${bridge.k.toFixed(2)}×` : '—'}</div>
+          <span className="atlas-kpi-sub">{bridgeSourceLabel(bridge.source)} · {nf(bridge.days)} d</span>
+        </div>
+        <div className="atlas-kpi-card" style={{ borderLeftColor: '#34d399' }}>
+          <span className="atlas-kpi-label">Break reduction</span>
+          <div className="atlas-kpi-val" style={{ color: '#34d399' }}>{Math.round(bias.reductionPct)}%</div>
+          <span className="atlas-kpi-sub">{bias.rawBreakPct.toFixed(1)}% → {bias.correctedBreakPct.toFixed(1)}%</span>
+        </div>
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">Analog backtest</span>
+          <div className="atlas-kpi-val">{Math.round(twin.backtestHitRate)}%</div>
+          <span className="atlas-kpi-sub">{twin.sampleYears} leave-one-out seasons</span>
+        </div>
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">Sandbox recovery</span>
+          <div className="atlas-kpi-val">{sandbox.recoveryError.toFixed(1)}%</div>
+          <span className="atlas-kpi-sub">7-d MAE post-correction</span>
+        </div>
       </div>
 
       <Panel title="The method card" eyebrow="Five operations, no hidden steps">
