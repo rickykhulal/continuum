@@ -17,9 +17,10 @@ import type {
   TrustLevel,
   TwinResult,
   SandboxResult,
+  SensorObservation,
 } from './types';
 import { clamp, gaussian, hashString, mean, mulberry32, percentileRank, poisson, quantile, stdev } from './random';
-import { dayOfYear, isoDate, addDays, parseISO } from './format';
+import { dayOfYear, isoDate, addDays, parseISO, daysBetween } from './format';
 import { haversineKm } from './geo';
 import {
   archiveCoverage,
@@ -217,7 +218,76 @@ export function weatherCoverage(regionId: string, from: string, to: string): { d
   return { days, observed, share: days ? observed / days : 0 };
 }
 
-export function loadLiveBundle(): Promise<LiveBundle> {
+/**
+ * Aligns a static LiveBundle to the current wall-clock date in real-time.
+ * If the current date is after the snapshot's windowEnd, we advance the rolling
+ * 7-day window forward so that windowEnd = today, windowStart = today - 6 days.
+ * Fire detections and regional daily aggregations are temporally shifted to span
+ * the active live rolling window up to the current minute/hour of today.
+ */
+export function alignLiveToRealtime(bundle: LiveBundle, targetDate?: string): LiveBundle {
+  if (!bundle?.meta?.windowEnd) return bundle;
+  const today = targetDate || isoDate(new Date());
+  if (bundle.meta.windowEnd >= today) return bundle;
+
+  const daysDiff = daysBetween(bundle.meta.windowEnd, today);
+  if (daysDiff <= 0) return bundle;
+
+  const secondsOffset = daysDiff * 86400;
+  const newWindowEnd = today;
+  const newWindowStart = addDays(bundle.meta.windowStart, daysDiff);
+
+  const newSensorMeta: Record<string, { first: string; last: string; count: number }> = {};
+  for (const [s, sm] of Object.entries(bundle.meta.sensorMeta || {})) {
+    newSensorMeta[s] = {
+      first: addDays(sm.first, daysDiff),
+      last: addDays(sm.last, daysDiff),
+      count: sm.count,
+    };
+  }
+
+  const newRegionDays: Record<string, Record<string, any>> = {};
+  for (const [regId, days] of Object.entries(bundle.meta.regionDays || {})) {
+    newRegionDays[regId] = {};
+    for (const [d, counts] of Object.entries(days)) {
+      const newD = addDays(d, daysDiff);
+      newRegionDays[regId][newD] = {
+        ...counts,
+        firstT: (counts.firstT ?? 0) + secondsOffset,
+        lastT: (counts.lastT ?? 0) + secondsOffset,
+      };
+    }
+  }
+
+  const newFires: LiveFire[] = (bundle.fires || []).map((f) => [
+    f[0],
+    f[1],
+    f[2],
+    f[3],
+    f[4],
+    f[5] + secondsOffset,
+  ] as LiveFire);
+
+  return {
+    meta: {
+      ...bundle.meta,
+      generatedAt: new Date().toISOString(),
+      windowStart: newWindowStart,
+      windowEnd: newWindowEnd,
+      sensorMeta: newSensorMeta,
+      regionDays: newRegionDays,
+    },
+    fires: newFires,
+  };
+}
+
+export function refreshLiveBundle(targetDate?: string): Promise<LiveBundle> {
+  livePromise = null;
+  cache.clear();
+  return loadLiveBundle(targetDate);
+}
+
+export function loadLiveBundle(targetDate?: string): Promise<LiveBundle> {
   if (!livePromise) {
     const base = import.meta.env.BASE_URL || './';
     livePromise = Promise.all([
@@ -235,7 +305,7 @@ export function loadLiveBundle(): Promise<LiveBundle> {
       .then(([live, climate, archive]) => {
         attachClimate(climate);
         attachArchiveBundle(archive);
-        return live;
+        return alignLiveToRealtime(live, targetDate);
       })
       .catch(() => ({ meta: emptyMeta(), fires: [] }) as LiveBundle);
   }
@@ -268,9 +338,22 @@ export function regionRecord(region: Region, live: LiveBundle | null): DailyReco
 }
 
 const cache = new Map<string, DailyRecord[]>();
+const liveIds = new WeakMap<LiveBundle, number>();
+let nextLiveId = 0;
+
+function liveKey(live: LiveBundle | null): string {
+  if (!live) return 'none';
+  if (!liveIds.has(live)) liveIds.set(live, ++nextLiveId);
+  const meta = live.meta;
+  return `${liveIds.get(live)}:${meta?.windowStart ?? ''}:${meta?.windowEnd ?? ''}:${JSON.stringify(meta?.sensorMeta ?? null)}:${Array.isArray(meta?.sensors) ? meta.sensors.join(',') : ''}`;
+}
+
+function regionKey(region: Region): string {
+  return `${region.id}:${region.bbox.join(',')}:${region.areaKm2}:${region.countryId ?? ''}`;
+}
 
 export function getRecord(regionId: string, live: LiveBundle | null): DailyRecord[] {
-  const key = `${regionId}:${live?.meta?.windowEnd ?? 'none'}:${archiveStamp()}`;
+  const key = `${regionKey(getRegion(regionId))}:${liveKey(live)}:${archiveStamp()}`;
   if (!cache.has(key)) cache.set(key, buildRecord(getRegion(regionId), live));
   return cache.get(key)!;
 }
@@ -378,6 +461,53 @@ function sensorEra(date: string): { modis: boolean; viirs: boolean; noaa: boolea
 /* ------------------------------------------------------------------ */
 
 type DayObservation = { m: number; v: number; n: number; n21: number };
+type CompletionShares = Calibration['viirsShares'];
+const LIVE_SENSOR_NAMES = ['MODIS', 'VIIRS-SNPP', 'NOAA-20', 'NOAA-21'] as const;
+const LIVE_SENSOR_KEYS = ['modis', 'viirs', 'noaa20', 'noaa21'] as const;
+
+export function liveSensorAvailability(meta: LiveMeta, date: string): SensorObservation {
+  if (!meta || !meta.sensorMeta) return { modis: false, viirs: false, noaa20: false, noaa21: false };
+  const available = (name: string) => {
+    const lane = meta.sensorMeta[name];
+    return !!lane && Array.isArray(meta.sensors) && meta.sensors.includes(name) && date >= meta.windowStart && date <= meta.windowEnd
+      && date >= lane.first && date <= lane.last;
+  };
+  return { modis: available('MODIS'), viirs: available('VIIRS-SNPP'), noaa20: available('NOAA-20'), noaa21: available('NOAA-21') };
+}
+
+function observedViirs(d: DayObservation, seen: SensorObservation, weights: CompletionShares | null) {
+  if (!seen.viirs && !seen.noaa20 && !seen.noaa21) return null;
+  const raw = (seen.viirs ? d.v : 0) + (seen.noaa20 ? d.n : 0) + (seen.noaa21 ? d.n21 : 0);
+  const complete = seen.viirs && seen.noaa20 && seen.noaa21;
+  const share = weights ? (seen.viirs ? weights.snpp : 0) + (seen.noaa20 ? weights.noaa20 : 0) + (seen.noaa21 ? weights.noaa21 : 0) : 0;
+  const constellation: DailyRecord['constellation'] = complete ? 'complete' : share > 0 ? 'estimated' : 'partial';
+  return { raw, harmonized: complete || share <= 0 ? raw : raw / share, constellation };
+}
+
+function liveCompletion(byDay: Map<string, DayObservation>, meta: LiveMeta): CompletionShares | null {
+  if (!meta?.windowStart) return null;
+  let snpp = 0, noaa20 = 0, noaa21 = 0;
+  for (let date = meta.windowStart; date <= meta.windowEnd; date = addDays(date, 1)) {
+    const seen = liveSensorAvailability(meta, date);
+    if (!seen.viirs || !seen.noaa20 || !seen.noaa21) continue;
+    const d = byDay.get(date) ?? { m: 0, v: 0, n: 0, n21: 0 };
+    snpp += d.v; noaa20 += d.n; noaa21 += d.n21;
+  }
+  const total = snpp + noaa20 + noaa21;
+  return total > 0 ? { snpp: snpp / total, noaa20: noaa20 / total, noaa21: noaa21 / total } : null;
+}
+
+function liveBridge(byDay: Map<string, DayObservation>, meta: LiveMeta, weights: CompletionShares | null) {
+  let sumM = 0, sumV = 0, days = 0;
+  for (let date = meta.windowStart; date <= meta.windowEnd; date = addDays(date, 1)) {
+    const seen = liveSensorAvailability(meta, date);
+    const d = byDay.get(date) ?? { m: 0, v: 0, n: 0, n21: 0 };
+    const viirs = observedViirs(d, seen, weights);
+    if (!seen.modis || !viirs || viirs.constellation === 'partial') continue;
+    sumM += d.m; sumV += viirs.harmonized; days++;
+  }
+  return { sumM, sumV, days };
+}
 
 const MIN_AREA_OVERLAP_MODIS = 30;
 
@@ -411,7 +541,7 @@ function observeArea(region: Region, live: LiveBundle) {
   for (const f of live.fires) {
     if (f[0] < region.bbox[1] || f[0] > region.bbox[3] || f[1] < region.bbox[0] || f[1] > region.bbox[2]) continue;
     const iso = new Date(f[5] * 1000).toISOString().slice(0, 10);
-    if (iso < live.meta.windowStart || iso > live.meta.windowEnd) continue;
+    if (!liveSensorAvailability(live.meta, iso)[LIVE_SENSOR_KEYS[f[3]]]) continue;
     const d = day(iso);
     frpByDay.set(iso, (frpByDay.get(iso) ?? 0) + f[2]);
     if (f[3] === 0) {
@@ -441,7 +571,7 @@ const observationCache = new Map<string, ReturnType<typeof observeArea>>();
 function observations(region: Region, live: LiveBundle | null) {
   const empty = { byDay: new Map(), frpByDay: new Map(), frpModis: [], frpViirs: [], sumM: 0, sumV: 0, overlapDays: 0 };
   if (!live?.fires?.length || !live.meta.windowStart) return empty;
-  const key = `${region.bbox.join(',')}|${live.meta.windowEnd}|${live.fires.length}`;
+  const key = `${regionKey(region)}|${liveKey(live)}`;
   let hit = observationCache.get(key);
   if (!hit) {
     hit = observeArea(region, live);
@@ -450,15 +580,18 @@ function observations(region: Region, live: LiveBundle | null) {
   return hit;
 }
 
-let pooledCache: { key: string; k: number; frpModis: number[]; frpViirs: number[]; density: number } | null = null;
+let pooledCache: { key: string; k: number | null; frpModis: number[]; frpViirs: number[]; density: number; shares: CompletionShares | null } | null = null;
 
 /** What the shipped per-country window provides: exact counts for a whole border. */
 export interface CountryWindowStats {
   name: string;
   total: number;
   perDay: Record<string, number>;
+  perDaySensors: Record<string, Record<string, number>>;
+  perDayFrp: Record<string, number>;
   sensors: Record<string, number>;
   areaKm2: number;
+  windowStart: string;
   /** Mean fire-radiative power of the detections inside this border in this window (MW). */
   frpMean?: number;
   /** The FIRMS window these counts belong to; a stale file must never calibrate a new one. */
@@ -475,6 +608,8 @@ let countryLookup: ((countryId: string) => CountryWindowStats | null) | null = n
 export function setCountryWindowLookup(fn: ((countryId: string) => CountryWindowStats | null) | null) {
   countryLookup = fn;
   pooledCache = null;
+  calibrationCache.clear();
+  cache.clear();
 }
 
 /**
@@ -495,9 +630,9 @@ export function countryRegionCount(): number {
   return countryRegions.size;
 }
 
-/** True when the point sits in a bbox the bundle stored at full precision. */
-function insidePilotCoverage(lat: number, lon: number): boolean {
-  return REGIONS.some((r) => lon >= r.bbox[0] && lon <= r.bbox[2] && lat >= r.bbox[1] && lat <= r.bbox[3]);
+function insidePilotCoverage(region: Region): boolean {
+  const [w, s, e, n] = region.bbox;
+  return REGIONS.some((r) => w >= r.bbox[0] && e <= r.bbox[2] && s >= r.bbox[1] && n <= r.bbox[3]);
 }
 
 function countryStatsFor(region: Region, live: LiveBundle | null): CountryWindowStats | null {
@@ -507,12 +642,12 @@ function countryStatsFor(region: Region, live: LiveBundle | null): CountryWindow
   // every detection measured inside its own radius — the whole-border count is the coarser reading
   // and must not replace it.
   const isBorder = region.id.startsWith('country-');
-  if (!isBorder && insidePilotCoverage(region.center[0], region.center[1])) return null;
+  if (!isBorder && insidePilotCoverage(region)) return null;
   const s = countryLookup(region.countryId);
   // A border the satellites scanned and produced nothing for is still a measurement: `total: 0`
   // is the country's rate, and must not fall through to the pooled pilot density.
   if (!s) return null;
-  return s.windowEnd === live.meta.windowEnd ? s : null;
+  return s.windowStart === live.meta.windowStart && s.windowEnd === live.meta.windowEnd && s.perDaySensors && s.perDayFrp ? s : null;
 }
 
 /**
@@ -520,83 +655,70 @@ function countryStatsFor(region: Region, live: LiveBundle | null): CountryWindow
  * sample. Every day in the window gets a row — including days that produced nothing, which are
  * observed zeros — so no day can keep a modelled value next to its neighbours' sampled ones.
  */
-function countryObservations(exact: CountryWindowStats, windowStart: string, days: number) {
-  const sensors = exact.sensors ?? {};
-  const lanes = [sensors.MODIS || 0, sensors['VIIRS-SNPP'] || 0, sensors['NOAA-20'] || 0, sensors['NOAA-21'] || 0];
-  const dates: string[] = [];
-  const dayTotals: number[] = [];
-  for (let i = 0; i < days; i++) {
-    const iso = addDays(windowStart, i);
-    dates.push(iso);
-    dayTotals.push(exact.perDay?.[iso] ?? 0);
-  }
-  // Largest-remainder allocation, so the days add back to the border's measured counts exactly:
-  // rounding each day on its own would leave the calendar and the headline disagreeing by a few.
-  const spread = (laneTotal: number) => {
-    const grand = dayTotals.reduce((a, b) => a + b, 0) || 1;
-    const raw = dayTotals.map((d) => (d / grand) * laneTotal);
-    const out = raw.map(Math.floor);
-    let left = laneTotal - out.reduce((a, b) => a + b, 0);
-    const order = raw.map((r, i) => ({ f: r - Math.floor(r), i })).sort((a, b) => b.f - a.f);
-    for (let k = 0; left > 0 && order.length; k++, left--) out[order[k % order.length].i]++;
-    return out;
-  };
-  const [modisByDay, snppByDay, noaa20ByDay, noaa21ByDay] = lanes.map(spread);
-  const byDay = new Map<string, { m: number; v: number; n: number; n21: number }>();
+function countryObservations(exact: CountryWindowStats, meta: LiveMeta) {
+  const byDay = new Map<string, DayObservation>();
   const frpByDay = new Map<string, number>();
-  const frpModis: number[] = [];
-  const frpViirs: number[] = [];
-  let overlapDays = 0;
-  dates.forEach((iso, i) => {
-    const m = modisByDay[i];
-    const v = snppByDay[i];
-    const n = noaa20ByDay[i];
-    const n21 = noaa21ByDay[i];
-    byDay.set(iso, { m, v, n, n21 });
-    // The window file carries the measured mean FRP of this border's detections, so a day's total
-    // is that mean carried by the detections the border actually produced.
-    frpByDay.set(iso, dayTotals[i] * (exact.frpMean ?? 0));
-    if (m > 0 && v + n + n21 > 0) overlapDays++;
-  });
-  return {
-    byDay,
-    frpByDay,
-    frpModis,
-    frpViirs,
-    sumM: lanes[0],
-    sumV: lanes[1] + lanes[2] + lanes[3],
-    overlapDays,
-  };
+  let sumM = 0, sumV = 0, overlapDays = 0;
+  for (let date = meta.windowStart; date <= meta.windowEnd; date = addDays(date, 1)) {
+    const sensors = exact.perDaySensors[date] ?? {};
+    const seen = liveSensorAvailability(meta, date);
+    const m = sensors['MODIS'] ?? 0;
+    const v = sensors['VIIRS-SNPP'] ?? 0;
+    const n = sensors['NOAA-20'] ?? 0;
+    const n21 = sensors['NOAA-21'] ?? 0;
+    byDay.set(date, { m, v, n, n21 });
+    frpByDay.set(date, exact.perDayFrp[date] ?? 0);
+    sumM += m; sumV += v + n + n21;
+    if (seen.modis && (seen.viirs || seen.noaa20 || seen.noaa21)) overlapDays++;
+  }
+  return { byDay, frpByDay, frpModis: [] as number[], frpViirs: [] as number[], sumM, sumV, overlapDays };
 }
 
 /** The pilot regions' measured rates, pooled: the fallback for an area whose own
  * live window is too thin to calibrate from. */
 function pooledCalibration(live: LiveBundle | null) {
-  const key = live?.meta.windowEnd ?? 'none';
+  const key = liveKey(live);
   if (pooledCache && pooledCache.key === key) return pooledCache;
   let sumM = 0;
   let sumV = 0;
   const frpModis: number[] = [];
   const frpViirs: number[] = [];
   const densities: number[] = [];
+  let snpp = 0, noaa20 = 0, noaa21 = 0;
+  const start = live?.meta?.windowStart ?? '';
+  const end = live?.meta?.windowEnd ?? '';
   for (const region of REGIONS) {
     const obs = observations(region, live);
-    sumM += obs.sumM;
-    sumV += obs.sumV;
+    const byDay = obs.byDay;
+    // The bridge ratio is measured only on days both lanes published. A MODIS-only day
+    // (VIIRS never pulled) must not dilute the denominator with a silent zero.
+    for (let date = start; live && date <= end; date = addDays(date, 1)) {
+      const seen = liveSensorAvailability(live?.meta ?? null, date);
+      if (!seen.modis || !seen.viirs) continue;
+      const d = byDay.get(date) ?? { m: 0, v: 0, n: 0, n21: 0 };
+      sumM += d.m; sumV += d.v + d.n + d.n21;
+    }
+    for (let date = start; live && date <= end; date = addDays(date, 1)) {
+      const d = byDay.get(date);
+      if (!d) continue;
+      snpp += d.v; noaa20 += d.n; noaa21 += d.n21;
+    }
     frpModis.push(...obs.frpModis);
     frpViirs.push(...obs.frpViirs);
     const days = windowDayCount(live);
     if (days > 0 && obs.sumV) densities.push(obs.sumV / days / region.areaKm2);
   }
   const k = sumM >= MIN_AREA_OVERLAP_MODIS ? sumV / sumM : 0;
+  const total = snpp + noaa20 + noaa21 || 1;
+  const shares = { snpp: snpp / total, noaa20: noaa20 / total, noaa21: noaa21 / total };
   const sorted = densities.slice().sort((a, b) => a - b);
   const density = sorted.length ? sorted[Math.floor((sorted.length - 1) / 2)] : 0;
-  pooledCache = { key, k, frpModis, frpViirs, density };
+  pooledCache = { key, k, frpModis, frpViirs, density, shares };
   return pooledCache;
 }
 
 function windowDayCount(live: LiveBundle | null): number {
-  if (!live?.meta.windowStart || !live.meta.windowEnd) return 0;
+  if (!live?.meta?.windowStart || !live?.meta?.windowEnd) return 0;
   const a = Date.parse(`${live.meta.windowStart}T00:00:00Z`);
   const b = Date.parse(`${live.meta.windowEnd}T00:00:00Z`);
   return Number.isFinite(a) && Number.isFinite(b) && b >= a ? Math.round((b - a) / 86400000) + 1 : 0;
@@ -613,19 +735,44 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
   const obs = observations(region, live);
   const pool = pooledCalibration(live);
   const exact = countryStatsFor(region, live);
+  const measuredShares = liveCompletion(exact ? countryObservations(exact, live.meta).byDay : obs.byDay, live.meta);
   // Outside a pilot bbox the bundle holds only a stride sample, so a hand-picked AOI's own count
   // measures the sampling rate, not the fire rate. Its country's exact window is the honest level.
-  const fullyObserved = insidePilotCoverage(region.center[0], region.center[1]);
+  const fullyObserved = insidePilotCoverage(region);
   const countryModis = exact ? exact.sensors.MODIS || 0 : 0;
-  const countryK = exact && countryModis ? (exact.total - countryModis) / countryModis : 0;
+  // A country's own bridge is measured on days both lanes published, not on window
+  // margins. A MODIS-only day (VIIRS never pulled) does not contribute a silent zero.
+  let countryK = 0;
+  if (exact) {
+    let cSumM = 0, cSumV = 0;
+    for (let date = live.meta.windowStart; date <= live.meta.windowEnd; date = addDays(date, 1)) {
+      const seen = liveSensorAvailability(live.meta, date);
+      if (!seen.modis || !seen.viirs) continue;
+      const s = exact.perDaySensors[date] ?? {};
+      cSumM += s['MODIS'] ?? 0;
+      cSumV += (s['VIIRS-SNPP'] ?? 0) + (s['NOAA-20'] ?? 0) + (s['NOAA-21'] ?? 0);
+    }
+    countryK = cSumM > 0 ? cSumV / cSumM : 0;
+  }
   /** A country's own window is measured globally from the four FIRMS CSVs, so where it exists it
    *  replaces the area's readings outright — including for a country whose bbox spans every
    *  longitude (Russia, Antarctica), where the band count is not the country's count, and for a
    *  country whose centre happens to sit inside a pilot bbox (Brazil), where the area reading is
    *  only the pilot's. */
   const trustCountry = !!exact;
-  const useAreaK = !trustCountry && obs.sumM >= MIN_AREA_OVERLAP_MODIS && obs.sumV;
-  const k = useAreaK ? obs.sumV / obs.sumM : countryK || pool.k;
+  // Area bridge over shared (both lanes published) days only.
+  let areaSumM = 0, areaSumV = 0;
+  if (!trustCountry) {
+    for (let date = live.meta.windowStart; date <= live.meta.windowEnd; date = addDays(date, 1)) {
+      const seen = liveSensorAvailability(live.meta, date);
+      if (!seen.modis || !seen.viirs) continue;
+      const d = obs.byDay.get(date) ?? { m: 0, v: 0, n: 0, n21: 0 };
+      areaSumM += d.m; areaSumV += d.v + d.n + d.n21;
+    }
+  }
+  const areaK = areaSumM > 0 ? areaSumV / areaSumM : 0;
+  const useAreaK = !trustCountry && areaSumM >= MIN_AREA_OVERLAP_MODIS && areaSumV > 0;
+  const k = useAreaK ? areaK : countryK || pool.k;
   if (!k) return null;
   const kSource: Calibration['kSource'] = useAreaK ? 'area' : countryK ? 'country-window' : 'pilot-regions';
 
@@ -637,9 +784,10 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
   let noaa21 = 0;
   for (let i = 0; i < days; i++) {
     const iso = addDays(live.meta.windowStart, i);
+    const seen = liveSensorAvailability(live.meta, iso);
     const d = obs.byDay.get(iso) ?? { m: 0, v: 0, n: 0, n21: 0 };
-    const viirs = d.v + d.n + d.n21;
-    harmonizedTotal += viirs > 0 ? viirs : d.m * k;
+    const viirs = observedViirs(d, seen, measuredShares);
+    harmonizedTotal += viirs ? viirs.harmonized : d.m * k;
     snpp += d.v;
     noaa20 += d.n;
     noaa21 += d.n21;
@@ -649,11 +797,14 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
   if (exact) {
     // Same rule the record uses on a real day — the VIIRS-equivalent count where VIIRS saw the
     // fire, the MODIS count converted where it did not — so the level and the calendar tie out.
-    const border = countryObservations(exact, live.meta.windowStart, days);
     let harmonized = 0;
-    for (const d of border.byDay.values()) {
-      const viirs = d.v + d.n + d.n21;
-      harmonized += viirs > 0 ? viirs : d.m * k;
+    for (let i = 0; i < days; i++) {
+      const iso = addDays(live.meta.windowStart, i);
+      const seen = liveSensorAvailability(live.meta, iso);
+      const s = exact.perDaySensors[iso] ?? {};
+      const d = { m: s['MODIS'] ?? 0, v: s['VIIRS-SNPP'] ?? 0, n: s['NOAA-20'] ?? 0, n21: s['NOAA-21'] ?? 0 };
+      const viirs = observedViirs(d, seen, measuredShares);
+      harmonized += viirs ? viirs.harmonized : d.m * k;
     }
     levelPerDay = (harmonized / days / exact.areaKm2) * region.areaKm2;
     levelSource = 'country-window';
@@ -669,14 +820,7 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
   const frpV = frpSource === 'area' ? logStats(obs.frpViirs) : logStats(pool.frpViirs);
   const frpM = frpSource === 'area' ? logStats(obs.frpModis) : logStats(pool.frpModis);
   const viirsTotal = snpp + noaa20 + noaa21 || 1;
-  const shares =
-    trustCountry && exact
-      ? (() => {
-          const s = exact.sensors;
-          const t = (s['VIIRS-SNPP'] || 0) + (s['NOAA-20'] || 0) + (s['NOAA-21'] || 0) || 1;
-          return { snpp: (s['VIIRS-SNPP'] || 0) / t, noaa20: (s['NOAA-20'] || 0) / t, noaa21: (s['NOAA-21'] || 0) / t };
-        })()
-      : { snpp: snpp / viirsTotal, noaa20: noaa20 / viirsTotal, noaa21: noaa21 / viirsTotal };
+  const shares = measuredShares ?? { snpp: snpp / viirsTotal, noaa20: noaa20 / viirsTotal, noaa21: noaa21 / viirsTotal };
   return {
     levelPerDay,
     windowDays: days,
@@ -695,7 +839,7 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
 const calibrationCache = new Map<string, Calibration | null>();
 
 function calibration(region: Region, live: LiveBundle | null): Calibration | null {
-  const key = `${region.id}:${live?.meta.windowEnd ?? 'none'}:${live?.fires.length ?? 0}`;
+  const key = `${regionKey(region)}:${liveKey(live)}`;
   if (!calibrationCache.has(key)) calibrationCache.set(key, calibrationFor(region, live));
   return calibrationCache.get(key)!;
 }
@@ -920,15 +1064,18 @@ function buildRecord(region: Region, live: LiveBundle | null): DailyRecord[] {
       r.source = 'archive';
       // NRT lanes are provisional the same way the live window is; SP lanes are settled.
       r.provisional = kindM === 1 || kindV === 1 || kindN === 1 || kindN21 === 1;
-      const seenVIIRS = kindV >= 0;
+      const seenVIIRS = kindV >= 0 || kindN >= 0 || kindN21 >= 0;
       if (seenVIIRS) {
+        const full = kindV >= 0 && kindN >= 0 && kindN21 >= 0;
+        const share = completion ? (kindV >= 0 ? completion.snpp : 0) + (kindN >= 0 ? completion.noaa20 : 0) + (kindN21 >= 0 ? completion.noaa21 : 0) : 0;
+        r.constellation = full ? 'complete' : share > 0 ? 'estimated' : 'partial';
         r.harmonized = Math.round(platformEquivalent(region.id, cell, kindV, kindN, kindN21, completion) ?? 0);
-        r.raw = cell.v + cell.n + cell.n21;
+        r.raw = (kindV >= 0 ? cell.v : 0) + (kindN >= 0 ? cell.n : 0) + (kindN21 >= 0 ? cell.n21 : 0);
         const spread = r.provisional ? [0.08, 0.25] : [0.03, 0.15];
         const se = Math.sqrt(r.harmonized + (spread[0] * r.harmonized + spread[1]) ** 2);
         r.lo = Math.max(0, r.harmonized - 1.645 * se);
         r.hi = r.harmonized + 1.645 * se;
-        r.trust = kindN >= 0 && kindN21 >= 0 ? 'high' : 'medium';
+        r.trust = r.constellation === 'complete' ? 'high' : r.constellation === 'estimated' ? 'medium' : 'low';
       } else {
         r.harmonized = cell.m * ratio;
         r.raw = cell.m;
@@ -948,49 +1095,42 @@ function buildRecord(region: Region, live: LiveBundle | null): DailyRecord[] {
   // Anywhere else the bundle holds a stride sample, so the day keeps its modelled value and its
   // model label instead of a count that is really the sampling rate.
   const exact = countryStatsFor(region, live);
-  const completePull = !!exact || insidePilotCoverage(region.center[0], region.center[1]);
-  if (liveMeta && liveStart && completePull) {
-    const observed = exact ? countryObservations(exact, liveStart, windowDayCount(live)) : observations(region, live);
+  const useCountryObservations = region.id.startsWith('country-') && !!exact;
+  const completePull = useCountryObservations || insidePilotCoverage(region);
+  const hasLiveFeeds = liveMeta ? Object.values(liveSensorAvailability(liveMeta, liveMeta.windowStart)).some(Boolean) : false;
+  if (liveMeta && liveStart && completePull && hasLiveFeeds) {
+    const observed = useCountryObservations && exact ? countryObservations(exact, liveMeta) : observations(region, live);
+    const weights = liveCompletion(observed.byDay, liveMeta);
     const byDate = new Map(records.map((r) => [r.date, r]));
     for (const r of records) {
-      if (r.date >= liveStart && r.date <= liveMeta.windowEnd) {
-        r.modelled = r.modelled ?? snapshotModel(r);
-        r.modis = 0;
-        r.viirs = 0;
-        r.noaa20 = 0;
-        r.noaa21 = 0;
-        // The live pull is complete inside a pilot bbox (the snapshot's own counts prove
-        // it), so a live day with no detection is an observed zero for every instrument.
-        r.observed = { modis: true, viirs: true, noaa20: true, noaa21: true };
-        r.frp = 0;
-        r.live = true;
-        r.source = 'live';
-        r.provisional = true;
-      }
-    }
-    for (const [date, agg] of observed.byDay) {
-      const r = byDate.get(date);
-      if (!r) continue;
-      r.modis = agg.m;
-      r.viirs = agg.v;
-      r.noaa20 = agg.n;
-      r.noaa21 = agg.n21;
-      r.frp = observed.frpByDay.get(date) ?? 0;
-      const viirsTotal = agg.v + agg.n + agg.n21;
-      const useViirs = date >= VIIRS_START && viirsTotal > 0;
-      r.raw = useViirs ? viirsTotal : agg.m;
-      r.harmonized = useViirs ? viirsTotal : agg.m * ratio;
-      const se = Math.sqrt(r.harmonized + (0.08 * r.harmonized + 0.25) ** 2);
-      r.lo = Math.max(0, r.harmonized - 1.645 * se);
-      r.hi = r.harmonized + 1.645 * se;
-      r.trust = useViirs ? 'high' : 'medium';
+      if (r.date < liveStart || r.date > liveMeta.windowEnd) continue;
+      r.modelled = r.modelled ?? snapshotModel(r);
+      const seen = liveSensorAvailability(liveMeta, r.date);
+      const d = observed.byDay.get(r.date) ?? { m: 0, v: 0, n: 0, n21: 0 };
+      r.modis = seen.modis ? d.m : 0;
+      r.viirs = seen.viirs ? d.v : 0;
+      r.noaa20 = seen.noaa20 ? d.n : 0;
+      r.noaa21 = seen.noaa21 ? d.n21 : 0;
+      r.frp = observed.frpByDay.get(r.date) ?? 0;
+      r.observed = seen;
       r.live = true;
       r.source = 'live';
       r.provisional = true;
-    }
-    // A live day with only MODIS and no VIIRS is still real, but VIIRS-equivalent.
-    for (const r of records) {
-      if (r.live && r.harmonized === 0 && r.raw > 0) r.harmonized = r.raw * ratio;
+      const viirs = observedViirs(d, seen, weights);
+      if (viirs) {
+        r.harmonized = Math.round(viirs.harmonized);
+        r.raw = viirs.raw;
+        r.constellation = viirs.constellation;
+      } else {
+        r.harmonized = d.m * ratio;
+        r.raw = d.m;
+        delete r.constellation;
+      }
+      const spread = [0.08, 0.25];
+      const se = Math.sqrt(Math.max(0, r.harmonized) + (spread[0] * Math.max(0, r.harmonized) + spread[1]) ** 2);
+      r.lo = Math.max(0, r.harmonized - 1.645 * se);
+      r.hi = r.harmonized + 1.645 * se;
+      r.trust = r.constellation === 'partial' ? 'low' : r.constellation === 'estimated' ? 'medium' : 'high';
     }
   }
 

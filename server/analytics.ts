@@ -22,6 +22,7 @@ export {
   bridgeFor,
   provenanceMix,
   sensorCount,
+  liveSensorAvailability,
   setCountryWindowLookup,
   registerCountryRegions,
   lookupRegion,
@@ -48,9 +49,12 @@ export {
   runSandbox,
   livePointsForRegion,
   countLiveByDay,
+  alignLiveToRealtime,
+  refreshLiveBundle,
 } from '../src/lib/data';
+export { platformEquivalent, archiveRatio, archiveSupplementary } from '../src/lib/archive';
 export { customRegion, searchPlaces, PLACES } from '../src/data/places';
-export { hydrateWorldLayer, installWorldLayer, uninstallWorldLayer, countryRegion, countryById, worldCountries, countryWindow, windowMeta_, searchWorld, SPELLING_ALIASES } from '../src/lib/countries';
+export { hydrateWorldLayer, installWorldLayer, uninstallWorldLayer, countryRegion, countryById, worldCountries, countryWindow, windowMeta_, searchWorld, SPELLING_ALIASES, alignCountryFiresToRealtime } from '../src/lib/countries';
 export { SENSOR_SHORT } from '../src/lib/types';
 export { loadWeather, stressBand } from '../src/lib/weather';
 export { buildPdf as buildBriefPdf, downloadPdf } from '../src/lib/pdf';

@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const A = await import('./dist-server/analytics.mjs');
+const live = JSON.parse(fs.readFileSync('./public/data/live_fires.json','utf8'));
+const world = JSON.parse(fs.readFileSync('./public/data/countries.json','utf8'));
+const fires = JSON.parse(fs.readFileSync('./public/data/country_fires.json','utf8'));
+console.log('live window:', live.meta.windowStart, live.meta.windowEnd);
+console.log('fire window:', fires.meta.window.start, fires.meta.window.end);
+console.log('fire schemas', fires.countries[0]?.perDaySensors ? 'HAS perDaySensors' : 'NO perDaySensors');
+A.hydrateWorldLayer(world,fires);
+A.installWorldLayer();
+const r=A.lookupRegion('country-kenya');
+console.log('region countryId:', r?.countryId, 'bbox:', JSON.stringify(r?.bbox), 'center:', JSON.stringify(r?.center));
+const cal = A.calibrationFor(r,live);
+console.log('cal levelSource:', cal?.levelSource, 'kSource:', cal?.kSource);
+console.log('liveSensorAvailability:', JSON.stringify(A.liveSensorAvailability(live.meta, live.meta.windowStart)));
+const recs = A.regionRecord(r, live);
+const liveRecs = recs.filter(x => x.date >= live.meta.windowStart && x.date <= live.meta.windowEnd);
+console.log('live records:', liveRecs.length, 'sources:', [...new Set(liveRecs.map(x=>x.source))]);

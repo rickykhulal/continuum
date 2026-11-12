@@ -52,13 +52,9 @@ export interface DailyRecord {
   trust: TrustLevel;
   provisional: boolean;
   source: DataSource;
-  /**
-   * Which instruments the keyed archive actually published for this day. A false entry
-   * means "this product has not been pulled for this sensor yet", which is a different
-   * fact from an observed zero, so the UI must not print a count for it.
-   * Absent on modelled and live-window days, whose sensors are known from their own sources.
-   */
+  // Live availability uses each feed's detection-date envelope, not a ground-observation mask.
   observed?: SensorObservation;
+  constellation?: 'complete' | 'estimated' | 'partial';
   /**
    * What the reconstruction alone said about this day, kept on the days an observation
    * replaced it. Lets the diagnostics read one provenance end to end instead of comparing

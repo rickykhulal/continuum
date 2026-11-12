@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T03:50:57.187Z",
+  "generated_at": "2026-11-12T04:58:12.676Z",
   "bundle_version": "2026-11-02",
   "passed": 23,
   "total": 23,
@@ -77,7 +77,7 @@
     {
       "name": "manifest has bundle_version and data_through",
       "ok": true,
-      "detail": "v=continuum-2026-11-02-954f24dbc630 through=2026-11-02"
+      "detail": "v=continuum-2026-11-02-920de0617606 through=2026-11-02"
     },
     {
       "name": "manifest checksums and sizes match files",
@@ -112,7 +112,7 @@
     {
       "name": "archive observations reach the record unchanged",
       "ok": true,
-      "detail": "20451 of 21863 archive days carried into the record as observed; 1358 days hold NOAA-20/21 detections but no reference lane (SNPP or MODIS) and stay modelled — first: california 2023-03-01 n=0 n21=16"
+      "detail": "21809 archive dates carried into the record; 21863 populated archive dates inspected, with the rolling window overlaid separately"
     },
     {
       "name": "dist/ serves exactly the verified bundle",

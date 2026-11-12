@@ -173,6 +173,7 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
         ) : (
           <Badge tone="warn">custom AOI</Badge>
         )}
+        <span title={`Real-time FIRMS observations active through ${store.today}`}><Badge tone="live" pulse>LIVE: {store.today}</Badge></span>
         <button
           type="button"
           className={`btn btn-small ${drawOpen ? 'btn-live' : 'btn-ghost'}`}

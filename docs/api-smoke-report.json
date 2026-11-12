@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T14:24:01.452Z",
+  "generated_at": "2026-11-12T04:58:59.691Z",
   "port": "http://127.0.0.1:4181",
   "passed": 49,
   "total": 49,
@@ -57,7 +57,7 @@
     {
       "name": "GET /meta publishes the whole world index",
       "ok": true,
-      "detail": "241 borders, 178 with detections, 96.26% of window rows inside a border"
+      "detail": "241 borders, 181 with detections, 98.43% of window rows inside a border"
     },
     {
       "name": "POST /area/calendar",
@@ -127,7 +127,7 @@
     {
       "name": "POST /area/weather — live or documented 503",
       "ok": true,
-      "detail": "source NASA POWER, n=3957"
+      "detail": "source NASA POWER, n=3959"
     },
     {
       "name": "422 PARAMETER_INVALID without an area",
@@ -192,7 +192,7 @@
     {
       "name": "429 RATE_LIMITED with Retry-After on class C",
       "ok": true,
-      "detail": "2 of 30 class-C calls limited"
+      "detail": "13 of 30 class-C calls limited"
     },
     {
       "name": "GET /metrics without a token → 401",
@@ -222,12 +222,12 @@
     {
       "name": "Counters reflect the traffic this run generated",
       "ok": true,
-      "detail": "summary 11, class C 33, rate-limited 2 (expected 2)"
+      "detail": "summary 11, class C 33, rate-limited 13 (expected 13)"
     },
     {
       "name": "Gauges report bundle readiness and process state",
       "ok": true,
-      "detail": "bundle_ready=1, uptime 6.376s"
+      "detail": "bundle_ready=1, uptime 6.45s"
     },
     {
       "name": "Duration series carry a route label and a non-negative max",

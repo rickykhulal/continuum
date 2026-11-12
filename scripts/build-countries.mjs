@@ -19,8 +19,27 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = path.join(ROOT, 'public', 'data');
-const RAW = path.join(ROOT, 'data_raw');
+function directoryArg(flag, fallback) {
+  const at = process.argv.indexOf(flag);
+  if (at < 0) return fallback;
+  const value = process.argv[at + 1];
+  if (!value || value.startsWith('--')) throw new Error(`${flag} requires a directory`);
+  return path.resolve(value);
+}
+const RAW = directoryArg('--raw-dir', path.join(ROOT, 'data_raw'));
+const OUT = directoryArg('--out-dir', DATA);
+// The topology is always read-only, independent of the output directory.
 const TOPO = path.join(DATA, 'countries-50m.json');
+const SENSORS = [
+  { file: 'MODIS_C6_1_Global_7d.csv', sensor: 'MODIS' },
+  { file: 'SUOMI_VIIRS_C2_Global_7d.csv', sensor: 'VIIRS-SNPP' },
+  { file: 'J1_VIIRS_C2_Global_7d.csv', sensor: 'NOAA-20' },
+  { file: 'J2_VIIRS_C2_Global_7d.csv', sensor: 'NOAA-21' },
+];
+if (!process.argv.includes('--probe')) {
+  const missing = SENSORS.filter(({ file }) => !fs.existsSync(path.join(RAW, file)));
+  if (missing.length) throw new Error(`Missing required FIRMS CSV files: ${missing.map(({ file }) => file).join(', ')}`);
+}
 const R_EARTH_KM = 6371.0088;
 const DEG = Math.PI / 180;
 const CELL_DEG = Number(process.argv.includes('--cell') ? process.argv[process.argv.indexOf('--cell') + 1] : 0.2);
@@ -395,74 +414,85 @@ for (let ci = 0; ci < table.length; ci++) {
 }
 log(`countries: raster filled ${filled} cells at ${CELL_DEG}° (${nx}×${ny}) in ${Date.now() - t0} ms`);
 
+/** The grid is only a fast positive candidate, never evidence that no polygon contains a row.
+ *  Keep single attribution: a confirmed grid candidate wins, otherwise the first exact hit in
+ *  topology order wins. inCountry prefilters each polygon in its own unrolled bounding box. */
+function countryIndex(lon, lat) {
+  const candidate = grid[cellIndex(lon, lat)];
+  if (candidate >= 0 && inCountry(lon, lat, table[candidate])) return candidate;
+  return table.findIndex((c, ci) => ci !== candidate && inCountry(lon, lat, c));
+}
+
 if (process.argv.includes('--probe')) {
   for (let k = process.argv.indexOf('--probe') + 1; k < process.argv.length; k += 2) {
     const lat = Number(process.argv[k]);
     const lon = Number(process.argv[k + 1]);
-    if (!Number.isFinite(lat)) break;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) break;
     const ci = grid[cellIndex(lon, lat)];
     const cands = table.filter((c) => inCountry(lon, lat, c));
-    log(`probe ${lat},${lon} → cell ${ci >= 0 ? table[ci].name : 'ocean'}; exact hits: ${cands.map((c) => c.name).join(', ') || 'none'}`);
+    log(`probe ${lat},${lon} → cell ${ci >= 0 ? table[ci].name : 'unassigned'}; exact hits: ${cands.map((c) => c.name).join(', ') || 'none'}`);
   }
   process.exit(0);
 }
 
 /* ---------------------------------------------------------------- FIRMS tally */
-const SENSORS = [
-  { file: 'MODIS_C6_1_Global_7d.csv', sensor: 'MODIS' },
-  { file: 'SUOMI_VIIRS_C2_Global_7d.csv', sensor: 'VIIRS-SNPP' },
-  { file: 'J1_VIIRS_C2_Global_7d.csv', sensor: 'NOAA-20' },
-  { file: 'J2_VIIRS_C2_Global_7d.csv', sensor: 'NOAA-21' },
-];
-const byCountry = new Map(); // idx -> stats
+const byCountry = new Map(table.map((_, ci) => [ci, {
+  total: 0, frp: 0, frpMax: 0, day: 0, night: 0, sensors: {}, days: {}, perDaySensors: {}, perDayFrp: {},
+}]));
 const dates = new Set();
-let rows = 0, dropped = 0, ocean = 0, inland = 0;
+let rows = 0, dropped = 0, outside = 0, inland = 0;
 
+// Do not let blank fields (Number('') === 0) or non-decimal JS literals become measurements.
+const csvNumber = (s) => /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(s) ? Number(s) : NaN;
+const COLUMNS = { lat: 'latitude', lon: 'longitude', date: 'acq_date', time: 'acq_time', frp: 'frp', conf: 'confidence', dn: 'daynight' };
 for (const { file, sensor } of SENSORS) {
-  const p = path.join(RAW, file);
-  if (!fs.existsSync(p)) { log(`skip: ${file} missing`); continue; }
-  const text = fs.readFileSync(p, 'utf8');
+  const text = fs.readFileSync(path.join(RAW, file), 'utf8');
   const lines = text.split('\n');
-  const head = lines[0].trim().split(',');
-  const ix = { lat: head.indexOf('latitude'), lon: head.indexOf('longitude'), date: head.indexOf('acq_date'), frp: head.indexOf('frp'), conf: head.indexOf('confidence'), dn: head.indexOf('daynight') };
+  const head = lines[0].trim().split(',').map((s) => s.trim());
+  const missing = Object.values(COLUMNS).filter((name) => !head.includes(name));
+  if (missing.length || head.some((name) => !name) || new Set(head).size !== head.length) {
+    throw new Error(`Invalid FIRMS header in ${file}: missing columns [${missing.join(', ')}]; column names must be nonempty and unique`);
+  }
+  const ix = Object.fromEntries(Object.entries(COLUMNS).map(([key, name]) => [key, head.indexOf(name)]));
   const isModis = sensor === 'MODIS';
   for (let l = 1; l < lines.length; l++) {
-    const line = lines[l];
-    if (!line || line.length < 12 || line.charCodeAt(0) === 35) continue;
-    const f = line.split(',');
-    const lat = Number(f[ix.lat]);
-    const lon = Number(f[ix.lon]);
+    const line = lines[l].trim();
+    if (!line || line.startsWith('#')) continue;
+    const f = line.split(',').map((s) => s.trim());
+    if (f.length !== head.length) { dropped++; continue; }
+    const lat = csvNumber(f[ix.lat]);
+    const lon = csvNumber(f[ix.lon]);
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) { dropped++; continue; }
     const conf = f[ix.conf];
-    // Same quality rule as build-data.mjs: VIIRS low-confidence is dropped, MODIS keeps < 30.
-    if (!isModis ? conf === 'low' || conf === '0' : Number(conf) < 30) { dropped++; continue; }
+    // Same quality rule as build-data.mjs: finite MODIS confidence >= 30; VIIRS nominal/high only.
+    if (isModis ? !Number.isFinite(csvNumber(conf)) || csvNumber(conf) < 30 : conf !== 'nominal' && conf !== 'high') { dropped++; continue; }
     const acq = f[ix.date];
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(acq)) { dropped++; continue; }
+    const midnight = Date.parse(`${acq}T00:00:00Z`);
+    const time = f[ix.time].padStart(4, '0');
+    const frp = csvNumber(f[ix.frp]);
+    const dn = f[ix.dn];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(acq) || !Number.isFinite(midnight) || new Date(midnight).toISOString().slice(0, 10) !== acq
+      || !/^\d{1,4}$/.test(f[ix.time]) || !/^(?:[01]\d|2[0-3])[0-5]\d$/.test(time)
+      || !Number.isFinite(frp) || frp < 0 || (dn !== 'D' && dn !== 'N')) { dropped++; continue; }
     rows++;
     dates.add(acq);
-    const k = cellIndex(lon, lat);
-    const ci = grid[k];
-    if (ci < 0) { ocean++; continue; }
-    const c = table[ci];
-    // The raster is coarse at borders; confirm with the exact polygon before crediting.
-    if (!inCountry(lon, lat, c)) { ocean++; continue; }
+    const ci = countryIndex(lon, lat);
+    if (ci < 0) { outside++; continue; }
     inland++;
-    let st = byCountry.get(ci);
-    if (!st) {
-      st = { total: 0, frp: 0, frpMax: 0, day: 0, night: 0, sensors: {}, days: {} };
-      byCountry.set(ci, st);
-    }
-    const frp = Number(f[ix.frp]) || 0;
+    const st = byCountry.get(ci);
     st.total++;
     st.frp += frp;
     if (frp > st.frpMax) st.frpMax = frp;
-    if (f[ix.dn] === 'D') st.day++; else st.night++;
+    if (dn === 'D') st.day++; else st.night++;
     st.sensors[sensor] = (st.sensors[sensor] || 0) + 1;
     st.days[acq] = (st.days[acq] || 0) + 1;
+    const daySensors = st.perDaySensors[acq] ||= {};
+    daySensors[sensor] = (daySensors[sensor] || 0) + 1;
+    st.perDayFrp[acq] = (st.perDayFrp[acq] || 0) + frp;
   }
   log(`tally: ${file} → ${sensor} (running rows ${rows})`);
 }
-log(`tally: ${rows} quality rows, ${inland} inside a country, ${ocean} ocean/unclaimed, ${dropped} dropped`);
+log(`tally: ${rows} quality rows, ${inland} inside a country, ${outside} outside polygons/unassigned, ${dropped} dropped`);
 
 /* ------------------------------------------------------------------- gazetteer */
 const used = new Set();
@@ -475,6 +505,8 @@ for (const c of table) {
   c.display = display;
   c.aliases = ALIASES[display] || [];
 }
+const winStart = [...dates].sort()[0] || null;
+const winEnd = [...dates].sort().pop() || null;
 const gazetteer = table
   .map((c) => {
     const st = byCountry.get(table.indexOf(c));
@@ -494,16 +526,16 @@ const gazetteer = table
 
 const fires = {
   meta: {
-    schema_version: 1,
+    schema_version: 2,
     source: 'NASA FIRMS Global 7-day CSVs (data_raw) attributed by point-in-polygon to Natural Earth 50m country polygons',
-    projection_note: `country polygons at 50m; borders snapped on a ${CELL_DEG}° grid then re-tested against the exact ring`,
+    projection_note: `country polygons at 50m; ${CELL_DEG}° grid used only for a fast positive candidate, with exact polygon fallback; unmatched rows are outside polygons/unassigned`,
     window: { start: [...dates].sort()[0] || null, end: [...dates].sort().pop() || null },
     rows_read: rows,
     rows_dropped: dropped,
     rows_in_countries: inland,
-    rows_outside: ocean,
+    rows_outside: outside,
     coverage_pct: Number(((inland / Math.max(1, rows)) * 100).toFixed(2)),
-    countries_with_detections: byCountry.size,
+    countries_with_detections: [...byCountry.values()].filter((st) => st.total > 0).length,
     countries_total: gazetteer.length,
     built_at: new Date().toISOString(),
   },
@@ -517,6 +549,8 @@ const fires = {
         name: c.display,
         total: st.total,
         perDay: st.days,
+        perDaySensors: st.perDaySensors,
+        perDayFrp: st.perDayFrp,
         sensors: st.sensors,
         day: st.day,
         night: st.night,
@@ -524,6 +558,8 @@ const fires = {
         frpMax: Number(st.frpMax.toFixed(2)),
         per10kKm2: Number(((st.total / Math.max(1, c.areaKm2)) * 10000).toFixed(1)),
         areaKm2: c.areaKm2,
+        windowStart: winStart,
+        windowEnd: winEnd,
       };
     })
     .filter(Boolean)

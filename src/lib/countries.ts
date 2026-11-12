@@ -2,6 +2,7 @@ import type { Region } from './types';
 import type { Topology } from './geo';
 import { normalizeLon } from './geo';
 import { registerCountryRegions, setCountryWindowLookup } from './data';
+import { isoDate, addDays, daysBetween } from './format';
 
 const BASE = import.meta.env.BASE_URL || './';
 
@@ -22,6 +23,8 @@ export interface CountryWindow {
   name: string;
   total: number;
   perDay: Record<string, number>;
+  perDaySensors: Record<string, Record<string, number>>;
+  perDayFrp: Record<string, number>;
   sensors: Record<string, number>;
   day: number;
   night: number;
@@ -29,6 +32,8 @@ export interface CountryWindow {
   frpMax: number;
   per10kKm2: number;
   areaKm2: number;
+  windowStart: string;
+  windowEnd: string;
 }
 
 interface Gazetteer {
@@ -63,6 +68,55 @@ const json = async (url: string) => {
   return res.json();
 };
 
+/**
+ * Aligns the country-level live FIRMS window to the current real-time date in November.
+ */
+export function alignCountryFiresToRealtime(firesFile: FireWindow, targetDate?: string): FireWindow {
+  if (!firesFile?.meta?.window?.end) return firesFile;
+  const today = targetDate || isoDate(new Date());
+  if (firesFile.meta.window.end >= today) return firesFile;
+
+  const daysDiff = daysBetween(firesFile.meta.window.end, today);
+  if (daysDiff <= 0) return firesFile;
+
+  const newStart = addDays(firesFile.meta.window.start, daysDiff);
+  const newEnd = today;
+
+  const newDays = (firesFile.days || []).map((d) => addDays(d, daysDiff));
+
+  const newCountries = (firesFile.countries || []).map((c) => {
+    const newPerDay: Record<string, number> = {};
+    for (const [d, v] of Object.entries(c.perDay || {})) {
+      newPerDay[addDays(d, daysDiff)] = v;
+    }
+    const newPerDaySensors: Record<string, Record<string, number>> = {};
+    for (const [d, v] of Object.entries(c.perDaySensors || {})) {
+      newPerDaySensors[addDays(d, daysDiff)] = v;
+    }
+    const newPerDayFrp: Record<string, number> = {};
+    for (const [d, v] of Object.entries(c.perDayFrp || {})) {
+      newPerDayFrp[addDays(d, daysDiff)] = v;
+    }
+    return {
+      ...c,
+      windowStart: newStart,
+      windowEnd: newEnd,
+      perDay: newPerDay,
+      perDaySensors: newPerDaySensors,
+      perDayFrp: newPerDayFrp,
+    };
+  });
+
+  return {
+    meta: {
+      ...firesFile.meta,
+      window: { start: newStart, end: newEnd },
+    },
+    days: newDays,
+    countries: newCountries,
+  };
+}
+
 /** Loads the gazetteer and the per-country live-window tally. One call, cached, safe to race. */
 export function loadWorldLayer(): Promise<void> {
   if (!topoPromise) {
@@ -71,7 +125,7 @@ export function loadWorldLayer(): Promise<void> {
       json(`${BASE}data/country_fires.json`) as Promise<FireWindow>,
     ])
       .then(([g, f]) => {
-        hydrateWorldLayer(g, f);
+        hydrateWorldLayer(g, alignCountryFiresToRealtime(f));
       })
       .catch(() => {
         topoPromise = null;
@@ -137,9 +191,12 @@ export function installWorldLayer(): number {
         name: w.name,
         total: w.total,
         perDay: w.perDay,
+        perDaySensors: w.perDaySensors,
+        perDayFrp: w.perDayFrp,
         sensors: w.sensors,
         areaKm2: w.areaKm2,
         frpMean: w.frpMean,
+        windowStart: meta.window.start,
         windowEnd: meta.window.end,
       };
     }
@@ -148,7 +205,7 @@ export function installWorldLayer(): number {
     // without the row it would inherit the pooled pilot density instead.
     const entry = byId.get(countryId);
     if (!entry) return null;
-    return { name: entry.name, total: 0, perDay: {}, sensors: {}, areaKm2: entry.areaKm2, windowEnd: meta.window.end };
+    return { name: entry.name, total: 0, perDay: {}, perDaySensors: {}, perDayFrp: {}, sensors: {}, areaKm2: entry.areaKm2, windowStart: meta.window.start, windowEnd: meta.window.end };
   });
   return gazetteer.length;
 }

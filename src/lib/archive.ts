@@ -87,9 +87,10 @@ export function attachArchive(raw: ArchiveBundle | null) {
     ra.covered = block.covered || {};
     for (const [sensor, rows] of Object.entries(block.days || {})) {
       for (const [index, count, frp] of rows) {
+        if (ra.coverage(sensor, index) < 0) continue;
         const cell = ra.cell(index);
         if (sensor === 'm') { cell.m = count; cell.frpM = frp; }
-        else if (sensor === 'v') { cell.v = count; cell.frpV = frp; }
+        else if (sensor === 'v') { cell.v = count; cell.frpV += frp; }
         // FRP from the later spacecraft belongs in the same platform sum as the counts.
         else if (sensor === 'n') { cell.n = count; cell.frpV += frp; }
         else if (sensor === 'n21') { cell.n21 = count; cell.frpV += frp; }
@@ -121,18 +122,19 @@ export function archiveCoverage(regionId: string): ArchiveCoverage {
   const ra = archive.get(regionId);
   if (!ra) return { days: 0, first: '', last: '', sensors: {} };
   const sensors: Record<string, number> = {};
+  const covered = new Set<number>();
   let lo = Infinity;
   let hi = -Infinity;
   for (const [sensor, ranges] of Object.entries(ra.covered)) {
-    let n = 0;
+    const lane = new Set<number>();
     for (const [s, e] of ranges) {
-      n += e - s + 1;
+      for (let i = s; i <= e; i++) { lane.add(i); covered.add(i); }
       lo = Math.min(lo, s);
       hi = Math.max(hi, e);
     }
-    sensors[sensor] = n;
+    sensors[sensor] = lane.size;
   }
-  return { days: hi >= lo ? hi - lo + 1 : 0, first: hi >= lo ? indexDate(lo) : '', last: hi >= lo ? indexDate(hi) : '', sensors };
+  return { days: covered.size, first: covered.size ? indexDate(lo) : '', last: covered.size ? indexDate(hi) : '', sensors };
 }
 
 export function archiveStatus() {
@@ -165,7 +167,7 @@ export function archiveDay(regionId: string, date: string): ArchiveDayHit | null
   const kindV = ra.coverage('v', index);
   const kindN = ra.coverage('n', index);
   const kindN21 = ra.coverage('n21', index);
-  if (kindM < 0 && kindV < 0) return null;
+  if (kindM < 0 && kindV < 0 && kindN < 0 && kindN21 < 0) return null;
   const stored = ra.cells.get(index);
   const cell = stored || { m: 0, v: 0, n: 0, n21: 0, frpM: 0, frpV: 0 };
   return { cell, kindM, kindV, kindN, kindN21 };
@@ -206,10 +208,9 @@ export function constellationWeights(regionId: string): ConstellationWeights | n
       for (let i = s; i <= e; i++) {
         if (ra.coverage('v', i) < 0 || ra.coverage('n', i) < 0) continue;
         const cell = ra.cells.get(i);
-        if (!cell) continue;
-        snpp += cell.v;
-        noaa20 += cell.n;
-        noaa21 += cell.n21;
+        snpp += cell?.v ?? 0;
+        noaa20 += cell?.n ?? 0;
+        noaa21 += cell?.n21 ?? 0;
         days++;
       }
     }
@@ -244,13 +245,11 @@ export function platformEquivalent(
   kindN21: number,
   fallback: Pick<ConstellationWeights, 'snpp' | 'noaa20' | 'noaa21'> | null = null,
 ): number | null {
-  if (kindV < 0) return null;
+  if (kindV < 0 && kindN < 0 && kindN21 < 0) return null;
+  const observed = (kindV >= 0 ? cell.v : 0) + (kindN >= 0 ? cell.n : 0) + (kindN21 >= 0 ? cell.n21 : 0);
+  if (kindV >= 0 && kindN >= 0 && kindN21 >= 0) return observed;
   const w = constellationWeights(regionId) ?? fallback;
-  if (!w) return cell.v + (kindN >= 0 ? cell.n : 0) + (kindN21 >= 0 ? cell.n21 : 0);
-  let observed = cell.v;
-  let share = w.snpp;
-  if (kindN >= 0) { observed += cell.n; share += w.noaa20; }
-  if (kindN21 >= 0) { observed += cell.n21; share += w.noaa21; }
+  const share = w ? (kindV >= 0 ? w.snpp : 0) + (kindN >= 0 ? w.noaa20 : 0) + (kindN21 >= 0 ? w.noaa21 : 0) : 0;
   return share > 0 ? observed / share : observed;
 }
 
@@ -275,14 +274,20 @@ export function archiveRatio(region: Region, fallback: Pick<ConstellationWeights
   let sumM = 0;
   let sumV = 0;
   let days = 0;
-  for (const [s, e] of ra.covered.v || []) {
+  const w = constellationWeights(region.id) ?? fallback;
+  const visited = new Set<number>();
+  for (const [s, e] of [...(ra.covered.v || []), ...(ra.covered.n || []), ...(ra.covered.n21 || [])]) {
     for (let i = s; i <= e; i++) {
-      if (ra.coverage('m', i) < 0) continue;
-      const cell = ra.cells.get(i);
-      if (!cell) { days++; continue; }
+      if (visited.has(i) || ra.coverage('m', i) < 0) continue;
+      visited.add(i);
+      const kindV = ra.coverage('v', i);
       const kindN = ra.coverage('n', i);
       const kindN21 = ra.coverage('n21', i);
-      const equivalent = platformEquivalent(region.id, cell, 0, kindN, kindN21, fallback);
+      const full = kindV >= 0 && kindN >= 0 && kindN21 >= 0;
+      const share = w ? (kindV >= 0 ? w.snpp : 0) + (kindN >= 0 ? w.noaa20 : 0) + (kindN21 >= 0 ? w.noaa21 : 0) : 0;
+      if (!full && share <= 0) continue;
+      const cell = ra.cells.get(i) ?? { m: 0, v: 0, n: 0, n21: 0, frpM: 0, frpV: 0 };
+      const equivalent = platformEquivalent(region.id, cell, kindV, kindN, kindN21, fallback);
       if (equivalent == null) continue;
       sumV += equivalent;
       sumM += cell.m;

@@ -6,7 +6,7 @@
     {
       "name": "Watch renders hero + live window",
       "pass": true,
-      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"03:54:19UTC · 4 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4\"}"
+      "detail": "{\"hero\":\"The fire record,repaired.\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"sats\":5,\"region\":\"Chilecito & Famatina Valley\",\"clock\":\"03:22:04UTC · 12 November 2026\",\"badges\":\"LIVE FIRMSDATA THROUGH 2026-11-0210 d lagSIM 60× · REAL SGP4\"}"
     },
     {
       "name": "Five spacecraft listed",
@@ -16,7 +16,7 @@
     {
       "name": "Real SGP4 badge present",
       "pass": true,
-      "detail": "LIVE FIRMSDATA THROUGH 2026-11-02SIM 60× · REAL SGP4"
+      "detail": "LIVE FIRMSDATA THROUGH 2026-11-0210 d lagSIM 60× · REAL SGP4"
     },
     {
       "name": "NOAA-21 selection updates detail",
@@ -26,7 +26,7 @@
     {
       "name": "Simulation clock advances (rAF live)",
       "pass": true,
-      "detail": "{\"clock1\":\"03:54:37UTC · 4 November 2026\",\"clock2\":\"03:55:48UTC · 4 November 2026\"}"
+      "detail": "{\"clock1\":\"03:22:22UTC · 12 November 2026\",\"clock2\":\"03:22:40UTC · 12 November 2026\"}"
     },
     {
       "name": "Speed selector switches to 600x",
@@ -36,7 +36,7 @@
     {
       "name": "Time offset slider seeks the globe back a day",
       "pass": true,
-      "detail": "{\"before\":\"03:57:48UTC · 4 November 2026\",\"after\":\"03:53:50UTC · 3 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"03:53:50UTC · 4 November 2026\",\"value\":\"0\",\"expected\":\"3 November 2026\"}"
+      "detail": "{\"before\":\"03:23:52UTC · 12 November 2026\",\"after\":\"03:21:52UTC · 11 November 2026\",\"sliderAt\":\"-24\",\"reset\":\"03:21:53UTC · 12 November 2026\",\"value\":\"0\",\"expected\":\"11 November 2026\"}"
     },
     {
       "name": "Region chip switches AOI to Pantanal",
@@ -166,7 +166,7 @@
     {
       "name": "Share view produces a deep link",
       "pass": true,
-      "detail": "View link copied — http://localhost:8787/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
+      "detail": "View link copied — http://127.0.0.1:4185/#/atlas?r=pantanal&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-02"
     },
     {
       "name": "Draw-area editor validates and resolves a rectangle (FR-01)",
@@ -221,7 +221,7 @@
     {
       "name": "Advisory copies with real calibration text",
       "pass": true,
-      "detail": "{\"toast\":\"Advisory copied to the clipboard.\",\"clip\":\"CONTINUUM — BURNING ACTIVITY ADVISORY\\r\\nGenerated 2026-11-04 · research prototype · NOT an official NASA product\\r\\n\\r\\nAREA: Chilecito & Famatina Valley (Argentina)\\r\\nCENTRE: -29.16°, -67.50° · 19,400 km²\\r\\nRECORD: 2000-11-01 to 2026-11-02 · 9,498 harmonized daily values\\r\\n\\r\\nSTATUS: ELEVATED — 84th percentile for the first 2 days of November.\\r\\nCurrent 2 vs. historical median 1 (2.00×).\\r\\n\\r\\nLIVE WINDOW: 2026-10-26 to 2026-11-02; 27 VIIRS-equivalent detections across 7 active days.\\r\\nSensor calibration: MODIS → VIIRS ratio 12.88× (90% CI 12.49–13.28); the 2012 break in the raw record is 136%, reduced to -45% after harmonization.\\r\\nAnalog seasons: 2016 (75%), 2019 (63%), 2018 (59%). Median next-four-week departure +107%. Leave-one-out hit rate 65%.\\r\\nSeason: typical window 7 Aug–20 Oct, peak 14 Aug; current phase off-season, running behind of climatology (75% of expected to date).\\r\\n\\r\\nWHAT WOULD CHANGE THE CALL:\\r\\n• A shift in the live window outside the 12.5–13.3 calibration interval would widen the uncertainty and lower trust.\\r\\n• Cloud cover or missed overpasses can hide fire; absence of detections is not absence of fire.\\r\\n• This advisory ranks activity against the same area's own history. It does not model ignition, spread or suppression.\\r\\n\\r\\nMETHOD VERSION 0.1.0 · reference record calibrated to the live FIRMS window, not the official NASA archive.\\r\\nCaveat: The latest days are provisional. Supports situational awareness; not a warning, dispatch or evacuation service.\"}"
+      "detail": "{\"toast\":\"Advisory copied to the clipboard.\",\"clip\":\"CONTINUUM — BURNING ACTIVITY ADVISORY\\r\\nGenerated 2026-11-12 · research prototype · NOT an official NASA product\\r\\n\\r\\nAREA: Chilecito & Famatina Valley (Argentina)\\r\\nCENTRE: -29.16°, -67.50° · 19,400 km²\\r\\nRECORD: 2000-11-01 to 2026-11-02 · 9,498 harmonized daily values\\r\\n\\r\\nSTATUS: ELEVATED — 84th percentile for the first 2 days of November.\\r\\nCurrent 2 vs. historical median 1 (2.00×).\\r\\n\\r\\nLIVE WINDOW: 2026-10-26 to 2026-11-02; 27 VIIRS-equivalent detections across 7 active days.\\r\\nSensor calibration: MODIS → VIIRS ratio 12.88× (90% CI 12.49–13.28); the 2012 break in the raw record is 136%, reduced to -45% after harmonization.\\r\\nAnalog seasons: 2016 (75%), 2019 (63%), 2018 (59%). Median next-four-week departure +107%. Leave-one-out hit rate 65%.\\r\\nSeason: typical window 7 Aug–20 Oct, peak 14 Aug; current phase off-season, running behind of climatology (75% of expected to date).\\r\\n\\r\\nWHAT WOULD CHANGE THE CALL:\\r\\n• A shift in the live window outside the 12.5–13.3 calibration interval would widen the uncertainty and lower trust.\\r\\n• Cloud cover or missed overpasses can hide fire; absence of detections is not absence of fire.\\r\\n• This advisory ranks activity against the same area's own history. It does not model ignition, spread or suppression.\\r\\n\\r\\nMETHOD VERSION 0.1.0 · reference record calibrated to the live FIRMS window, not the official NASA archive.\\r\\nCaveat: The latest days are provisional. Supports situational awareness; not a warning, dispatch or evacuation service.\"}"
     },
     {
       "name": "Advisory downloads as .txt",
@@ -231,7 +231,7 @@
     {
       "name": "Advisory file carries live sensors + calibration",
       "pass": true,
-      "detail": "CONTINUUM — BURNING ACTIVITY ADVISORY\nGenerated 2026-11-04 · research prototype · NOT an official NASA product\n\nAREA: Chilecito & Famatina Valley (Argentina)\nCE"
+      "detail": "CONTINUUM — BURNING ACTIVITY ADVISORY\nGenerated 2026-11-12 · research prototype · NOT an official NASA product\n\nAREA: Chilecito & Famatina Valley (Argentina)\nCE"
     },
     {
       "name": "FR-27 PDF brief downloads as a valid one-page PDF",
@@ -481,17 +481,17 @@
     {
       "name": "Selecting a country makes it the analysed area",
       "pass": true,
-      "detail": "{\"region\":\"Antarctica — country wide\",\"hash\":\"#/watch?r=country-antarctica&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=antarctica\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"toast\":\"Antarctica: country-wide, no detection inside its border in this window.\"}"
+      "detail": "{\"region\":\"Antarctica — country wide\",\"hash\":\"#/watch?r=country-antarctica&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=antarctica\",\"live\":\"71,882 real detections worldwide8-day rolling windowreal TLEs · SGP4\",\"toast\":\"Antarctica: country-wide, 0 detections measured inside its border this window.\"}"
     },
     {
       "name": "The country label states measured detections, not a model",
       "pass": true,
-      "detail": "Antarctica: country-wide, no detection inside its border in this window."
+      "detail": "Antarctica: country-wide, 0 detections measured inside its border this window."
     },
     {
       "name": "A click on the pole names the continent, not open ocean",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Antarctica selected country-wide — no detection inside its border in this window.\",\"region\":\"Antarctica — country wide\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Antarctica selected country-wide — 0 detections measured inside its border in this window.\",\"region\":\"Antarctica — country wide\"}"
     },
     {
       "name": "A #country deep link restores that country as the area",
@@ -531,7 +531,7 @@
     {
       "name": "Water outside the probe radius says open ocean and still becomes an area",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.17° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\",\"hash\":\"#/watch?r=aoi-s8p52-e179p17&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-8.5200&lon=179.1700&rad=150&n=-8.5%C2%B0%2C+179.2%C2%B0\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Open ocean at -8.52°, 179.16° selected as a 150 km AOI — no country border contains it.\",\"region\":\"Point -8.5°, 179.2°\",\"hash\":\"#/watch?r=aoi-s8p52-e179p16&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&lat=-8.5200&lon=179.1600&rad=150&n=-8.5%C2%B0%2C+179.2%C2%B0\"}"
     },
     {
       "name": "The name a user types wins over the abbreviation the gazetteer publishes",
@@ -541,12 +541,12 @@
     {
       "name": "A click inside a country border selects that whole border, not a circle around the point",
       "pass": true,
-      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Australia selected country-wide — 64,226 detections measured inside its border in this window.\",\"region\":\"Australia — country wide\",\"hash\":\"#/watch?r=country-australia&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=australia\"}"
+      "detail": "{\"centre\":{\"x\":711,\"y\":432},\"toast\":\"Australia selected country-wide — 65,050 detections measured inside its border in this window.\",\"region\":\"Australia — country wide\",\"hash\":\"#/watch?r=country-australia&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-02&c=australia\"}"
     },
     {
       "name": "That click states the detections measured inside the border it just selected",
       "pass": true,
-      "detail": "Australia selected country-wide — 64,226 detections measured inside its border in this window."
+      "detail": "Australia selected country-wide — 65,050 detections measured inside its border in this window."
     },
     {
       "name": "A border named in a link pasted into an open tab stays the analysed area",

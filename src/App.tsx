@@ -91,8 +91,8 @@ function TopNav() {
       </nav>
 
       <div className="nav-right">
-        <span className={`nav-live ${store.live ? 'on' : ''}`} title="NASA FIRMS live window">
-          <i /> <span>{store.live ? 'LIVE' : 'SYNC'}</span>
+        <span className={`nav-live ${store.live ? 'on' : ''}`} title={`NASA FIRMS live window — real-time through ${store.today}`}>
+          <i /> <span>{store.live ? 'LIVE REAL-TIME' : 'SYNC'}</span>
         </span>
         <button type="button" className="nav-alert" onClick={() => store.setAlertsOpen(true)} aria-label={`Open alert center, ${high} areas above the 85th percentile`}>
           <span className="alert-bell" aria-hidden>◉</span>

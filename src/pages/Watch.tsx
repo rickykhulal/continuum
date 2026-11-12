@@ -295,7 +295,7 @@ export function Watch() {
         <div className="watch-badges">
           <Badge tone="live" pulse>LIVE FIRMS</Badge>
           <Badge tone="default">DATA THROUGH {store.today}</Badge>
-          {freshness > 2 && <Badge tone="warn">{freshness} d lag</Badge>}
+          {freshness > 2 ? <Badge tone="warn">{freshness} d lag</Badge> : <Badge tone="good">REAL-TIME</Badge>}
           <span className="watch-sim">SIM {speed === 1 ? 'REAL TIME' : `${speed}×`} · REAL SGP4</span>
         </div>
 

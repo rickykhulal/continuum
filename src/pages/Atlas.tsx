@@ -15,7 +15,12 @@ export function Atlas() {
   const store = useStore();
   const { region, records, today, live, metric, mode, split, selectedDate, setSelectedDate, frame, setFrame } = store;
   const { res: calRes, span: calSpan, focusYear, gap } = frame;
-  const [month, setMonth] = useState(() => Number(today.slice(5, 7)) || 10);
+  const [month, setMonth] = useState(() => Number(today.slice(5, 7)) || 11);
+
+  useEffect(() => {
+    const m = Number(today.slice(5, 7));
+    if (m >= 1 && m <= 12) setMonth(m);
+  }, [today]);
   const calendarRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<SVGSVGElement>(null);
 

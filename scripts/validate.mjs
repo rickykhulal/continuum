@@ -224,7 +224,6 @@ if (fs.existsSync(bundlePath)) {
     const drift = [];
     let labelled = 0;
     let observed = 0;
-    const noLane = [];
     for (const r of A.REGIONS) {
       const block = rawArchive.regions?.[r.id];
       if (!block?.days) continue;
@@ -246,14 +245,6 @@ if (fs.existsSync(bundlePath)) {
           continue;
         }
         if (meta.windowStart && day >= meta.windowStart) continue;
-        // A day the archive covers only with a supplementary NOAA lane cannot be placed on the
-        // VIIRS-platform scale: platformEquivalent() needs Suomi-NPP, or MODIS before 2012, as the
-        // reference. archiveDay() IS the product's coverage rule, so the check follows the shipped
-        // contract and names the detections it drops instead of filing them as drift or passing them.
-        if (!A.archiveDay(r.id, day) && (cell.n > 0 || cell.n21 > 0)) {
-          noLane.push(`${r.id} ${day} n=${cell.n} n21=${cell.n21}`);
-          continue;
-        }
         if (rec.source !== 'archive') drift.push(`${r.id} ${day}: labelled ${rec.source}, not archive`);
         else if (rec.modis !== cell.m || rec.viirs !== cell.v || rec.noaa20 !== cell.n || rec.noaa21 !== cell.n21) {
           drift.push(`${r.id} ${day}: record ${rec.modis}/${rec.viirs}/${rec.noaa20}/${rec.noaa21} vs archive ${cell.m}/${cell.v}/${cell.n}/${cell.n21}`);
@@ -264,9 +255,7 @@ if (fs.existsSync(bundlePath)) {
       'archive observations reach the record unchanged',
       drift.length === 0 && labelled > 0,
       drift.slice(0, 3).join('; ') ||
-        `${labelled} of ${observed} archive days carried into the record as observed${
-          noLane.length ? `; ${noLane.length} days hold NOAA-20/21 detections but no reference lane (SNPP or MODIS) and stay modelled — first: ${noLane[0]}` : ''
-        }`,
+        `${labelled} archive dates carried into the record; ${observed} populated archive dates inspected, with the rolling window overlaid separately`,
     );
   }
 } else {
