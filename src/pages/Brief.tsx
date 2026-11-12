@@ -135,7 +135,8 @@ export function Brief() {
         <div className="brief-meta">
           <span><b>Centre</b> {region.center[0].toFixed(2)}°, {region.center[1].toFixed(2)}°</span>
           <span><b>Area</b> {nf(region.areaKm2)} km²</span>
-          <span><b>Record</b> {records[0]?.year ?? 2000}–{today.slice(0, 4)}</span>
+          <span><b>Record Span</b> {records[0]?.year ?? 2000}–{today.slice(0, 4)}</span>
+          <span><b>Comparison Baseline</b> {records[0]?.year ?? 2000}–{Number(today.slice(0, 4)) - 1}</span>
           <span><b>Method</b> v0.1.0</span>
           <span><b>Data through</b> {today}</span>
         </div>
