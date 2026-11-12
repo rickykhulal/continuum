@@ -797,11 +797,12 @@ html[data-theme="light"] .segmented { background: var(--bg-2); }
 /* ------------------------------------------------------------------ panels */
 .panel {
   position: relative;
-  background: var(--bg-2);
+  background: var(--panel);
   border: 1px solid var(--line-faint);
   border-radius: var(--radius);
   padding: 24px;
   margin-bottom: 24px;
+  overflow: hidden;
 }
 .panel.secondary {
   border: none;
@@ -809,12 +810,6 @@ html[data-theme="light"] .segmented { background: var(--bg-2); }
   padding: 16px 0;
   border-top: 1px solid var(--line-faint);
   border-radius: 0;
-}
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 24px;
-  overflow: hidden;
 }
 .panel::before { display: none; }
 .panel-dense { padding: 16px; }

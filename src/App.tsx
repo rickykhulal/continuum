@@ -6,6 +6,7 @@ import type { StringKey } from './lib/i18n';
 import { AlertCenter, JudgeTour, SettingsPanel, Toasts } from './components/Overlays';
 import { nf, riskColor, ordinal } from './lib/format';
 import { provenanceMix, REGIONS } from './lib/data';
+import { initSound, isSoundEnabled, setSoundEnabled, playClick, playAlertChime } from './lib/sound';
 
 // Lazy-loaded pages
 const Watch = lazy(() => import('./pages/Watch').then(m => ({ default: m.Watch })));
@@ -59,6 +60,7 @@ const NAV: { id: ViewId; label: string; short: string }[] = [
 function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerOpen: (v: boolean) => void }) {
   const store = useStore();
   const high = store.alerts.filter(a => a.status.percentile >= 85).length;
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
   return (
     <header className="topnav">
       <button type="button" className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open main navigation">
@@ -100,6 +102,20 @@ function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerO
           <span className="alert-bell" aria-hidden>◉</span>
           <span className="nav-label">{store.t('alerts')}</span>
           {high > 0 && <span className="alert-count">{high}</span>}
+        </button>
+        <button
+          type="button"
+          className="icon-btn nav-sound"
+          onClick={() => {
+            const next = !soundOn;
+            setSoundOn(next);
+            setSoundEnabled(next);
+            if (next) playClick();
+          }}
+          aria-label={soundOn ? 'Disable audio feedback' : 'Enable audio feedback'}
+          title={soundOn ? 'Audio telemetry ON' : 'Audio telemetry OFF'}
+        >
+          <span aria-hidden>{soundOn ? '🔊' : '🔇'}</span>
         </button>
         <button type="button" className="lang-btn" onClick={() => store.setSettings({ lang: store.settings.lang === 'en' ? 'es' : 'en' })} aria-label="Toggle language">
           {store.settings.lang.toUpperCase()}
