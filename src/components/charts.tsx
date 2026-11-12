@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 import type { DailyRecord, Metric, Mode, MonthComparison, BiasResult, SeasonClock, TwinResult, SandboxResult } from '../lib/types';
 import { dailyValue, annualSeries, recordsInRange, sensorCount } from '../lib/data';
 import { fireColor, rampColorSmooth, MONTHS, nf, longDate, ordinal } from '../lib/format';
@@ -87,6 +87,8 @@ function CalendarHeatmapBase({
   const [cursor, setCursor] = useState<string>(selected ?? today);
   const [lensOpen, setLensOpen] = useState(false);
   const [lensYear, setLensYear] = useState(() => Number(today.slice(0, 4)));
+  const [tipPos, setTipPos] = useState<{ x: number; y: number } | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const { byKey, years, max, currentYear } = useMemo(() => {
     const map = new Map<string, DailyRecord>();
@@ -288,18 +290,24 @@ function CalendarHeatmapBase({
         role="application"
         aria-label={`Burning calendar, ${years[0]} to ${currentYear}. Arrow keys move the cursor, Enter opens a day.`}
         tabIndex={0}
+        ref={scrollRef}
         onKeyDown={onKeyDown}
         onFocus={() => setCursor(selected ?? today)}
-        onMouseLeave={() => setHoverBin(null)}
+        onMouseLeave={() => { setHoverBin(null); setHover(null); setTipPos(null); }}
+        onMouseMove={(e) => {
+          const rect = scrollRef.current?.getBoundingClientRect();
+          if (rect) setTipPos({ x: e.clientX - rect.left + 12, y: e.clientY - rect.top - 60 });
+        }}
       >
         {resolution === 'day' ? (
           <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="calendar-svg">
             {MONTHS.map((m, i) => {
               const doy = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335][i];
+              const showLabel = years.length <= 10 || i % 2 === 0;
               return (
                 <g key={m}>
                   <line x1={40 + (doy - 1) * CELL_W} x2={40 + (doy - 1) * CELL_W} y1={16} y2={height - 8} className="cal-month-rule" />
-                  <text x={40 + doy * CELL_W} y={9} className="cal-month">{m}</text>
+                  {showLabel && <text x={40 + doy * CELL_W} y={9} className="cal-month">{m}</text>}
                 </g>
               );
             })}
@@ -552,6 +560,48 @@ function CalendarHeatmapBase({
         })}
         note={`Monthly sums of the ${metric} series in ${mode} mode, ${years[0]}–${currentYear}. The grid colours are daily values; the table reports the monthly totals behind them.`}
       />
+
+      {/* Floating tooltip */}
+      {hover && tipPos && resolution === 'day' && (
+        <div
+          className="cal-tooltip"
+          style={{ left: tipPos.x, top: tipPos.y, position: 'absolute', pointerEvents: 'none' }}
+          role="tooltip"
+        >
+          <strong>{longDate(hover.date)}</strong>
+          <span className="mono">{nf(dailyValue(hover, metric, mode), metric === 'frp' ? 0 : 1)} {unit}</span>
+          {metric === 'hotspots' && mode === 'harmonized' && (
+            <span className="cal-tip-ci">90% CI {nf(hover.lo, 1)}–{nf(hover.hi, 1)}</span>
+          )}
+          <span>MODIS {sensorCount(hover, 'modis')} · S-NPP {sensorCount(hover, 'viirs')} · N20 {sensorCount(hover, 'noaa20')} · N21 {sensorCount(hover, 'noaa21')}</span>
+          <span className={`trust trust-${hover.trust}`}>{hover.trust} trust</span>
+          {hover.provisional && <span className="badge badge-warn">PROVISIONAL</span>}
+          {hover.live && <span className="badge badge-live">LIVE</span>}
+        </div>
+      )}
+
+      {/* Color scale legend (day resolution only) */}
+      {resolution === 'day' && (
+        <div className="cal-legend" aria-label="Color scale: low to extreme fire activity">
+          <span className="cal-legend-label">Low</span>
+          <svg width={200} height={10} className="cal-legend-ramp" aria-hidden>
+            <defs>
+              <linearGradient id="calLegGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={rampColorSmooth(0.05)} />
+                <stop offset="33%" stopColor={rampColorSmooth(0.33)} />
+                <stop offset="66%" stopColor={rampColorSmooth(0.66)} />
+                <stop offset="100%" stopColor={rampColorSmooth(1.0)} />
+              </linearGradient>
+            </defs>
+            <rect x={0} y={0} width={200} height={10} rx={3} fill="url(#calLegGrad)" />
+          </svg>
+          <span className="cal-legend-label">Extreme</span>
+          <span className="cal-legend-nodata" aria-label="No-data cell">
+            <svg width={12} height={10} aria-hidden><rect width={12} height={10} rx={2} fill="rgba(90,120,150,.18)" /></svg>
+            No data
+          </span>
+        </div>
+      )}
     </div>
   );
 }

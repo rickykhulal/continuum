@@ -1972,6 +1972,39 @@ html[data-theme="light"] .cal-year-track { fill: rgba(0, 0, 0, 0.05); }
 .lens-day.selected { box-shadow: inset 0 0 0 2px #fff; }
 .lens-day.cursor { outline: 1px solid rgba(255, 255, 255, 0.6); outline-offset: 1px; }
 
+/* Calendar floating tooltip */
+.cal-tooltip {
+  z-index: 80;
+  background: var(--panel-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 9px 12px;
+  min-width: 200px;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.55);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.cal-tooltip strong { font-size: 11.5px; font-weight: 600; }
+.cal-tooltip .mono { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--accent); }
+.cal-tooltip .cal-tip-ci { font-family: var(--font-mono); font-size: 9.5px; color: var(--dim); }
+
+/* Color scale legend */
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0 2px;
+}
+.cal-legend-label { font-family: var(--font-mono); font-size: 8px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.cal-legend-ramp { border-radius: 3px; flex-shrink: 0; }
+.cal-legend-nodata { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 8px; color: var(--dim); margin-left: 10px; }
+
+
 .split-calendar { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .split-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
 .split-head .muted { font-size: 10px; }
