@@ -312,6 +312,12 @@ export function loadLiveBundle(targetDate?: string): Promise<LiveBundle> {
   return livePromise;
 }
 
+/** Clear the memoized live-bundle promise so the next loadLiveBundle() re-fetches from the network.
+   Used by the app's retry button so a failed load can be recovered without a page refresh. */
+export function resetLiveBundle(): void {
+  livePromise = null;
+}
+
 function emptyMeta(): LiveMeta {
   // Only reached when the live bundle could not be loaded: every count below is zero, so nothing is
   // presented as a detection. The window names the rolling archive's span rather than a frozen date

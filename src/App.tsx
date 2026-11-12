@@ -149,6 +149,38 @@ function Footer() {
   );
 }
 
+function DataLoadState({ onRetry }: { onRetry: () => void }) {
+  const store = useStore();
+  return (
+    <section className="boot-page" role="status" aria-live="polite">
+      <span className="boot-mark" aria-hidden>◈</span>
+      <div className="boot-panel">
+        <div>
+          {store.loadError ? (
+            <>
+              <strong>Live data unavailable</strong>
+              <p>{store.loadError}</p>
+              <button type="button" className="btn btn-primary" onClick={onRetry}>
+                Retry loading
+              </button>
+              <p className="boot-note">The page shell stays interactive — you can open Settings or the guided tour while data reloads.</p>
+            </>
+          ) : (
+            <>
+              <strong>Acquiring the live FIRMS window</strong>
+              <p>The record is calibrated to that window, so nothing numeric is rendered before it arrives. The keyed archive and the MERRA-2 driver load with it.</p>
+              <div className="boot-progress" aria-hidden>
+                <span className="boot-progress-bar" />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      <span className="boot-line" aria-hidden />
+    </section>
+  );
+}
+
 export function App() {
   const store = useStore();
   const view = store.view;
@@ -202,13 +234,10 @@ export function App() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
-            {!store.live ? (
-              <section className="boot-page" role="status" aria-live="polite">
-                <span className="boot-mark" aria-hidden>◈</span>
-                <strong>Acquiring the live FIRMS window</strong>
-                <p>The record is calibrated to that window, so nothing numeric is rendered before it arrives. The keyed archive and the MERRA-2 driver load with it.</p>
-                <span className="boot-line" aria-hidden />
-              </section>
+            {!store.live && store.loading ? (
+              <DataLoadState onRetry={store.retryLoad} />
+            ) : (!store.live ? (
+              <DataLoadState onRetry={store.retryLoad} />
             ) : (
               <Suspense fallback={view === 'watch' ? <WatchBoot /> : <PageBoot view={view} />}>
                 {view === 'watch' && <Watch />}
@@ -218,7 +247,7 @@ export function App() {
                 {view === 'brief' && <Brief />}
                 {view === 'method' && <Method />}
               </Suspense>
-            )}
+            ))}
           </motion.div>
         </AnimatePresence>
       </main>

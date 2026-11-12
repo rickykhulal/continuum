@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { analogDeparture, biasXray, getRecord, recordsInRange, twinAnalogs } from '../lib/data';
 import { Badge } from './ui';
-import { MONTHS_LONG, nf, pct, riskColor, shortDate } from '../lib/format';
+import { MONTHS_LONG, nf, pct, riskColor, shortDate, ordinal } from '../lib/format';
 import type { ViewId } from '../lib/store';
 
 const TOUR: { view: ViewId; title: string; body: string; award: string }[] = [
@@ -81,7 +81,7 @@ export function AlertCenter() {
     const bias = store.live ? biasXray(getRecord(r.id, store.live)) : null;
     return [
       `CONTINUUM WATCH — ${r.shortName.toUpperCase()}`,
-      `${st.date} · ${st.band.toUpperCase()} activity · ${Math.round(st.percentile)}th percentile`,
+      `${st.date} · ${st.band.toUpperCase()} activity · ${ordinal(Math.round(st.percentile))} percentile`,
       `First ${st.windowDays} days of ${MONTHS_LONG[Number(st.date.slice(5, 7)) - 1]}: ${nf(st.current)} VIIRS-eq vs median ${nf(st.baselineMedian)} (${st.ratioToMedian ? st.ratioToMedian.toFixed(1) + '×' : '—'}).`,
       `Live window: ${nf(liveSum)} detections across ${nf(liveRecs.filter((d) => d.harmonized > 0).length)} active days.`,
       bias ? `Sensor calibration ${bias.ratio.toFixed(2)}× (90% CI ${bias.ratioLo.toFixed(2)}–${bias.ratioHi.toFixed(2)}). Raw 2012 break reduced from ${bias.rawBreakPct.toFixed(0)}% to ${bias.correctedBreakPct.toFixed(0)}%.` : '',
@@ -160,7 +160,7 @@ export function AlertCenter() {
                 <span className="alert-band" style={{ background: riskColor(a.status.band) }} />
                 <span className="alert-item-main">
                   <span className="alert-item-title">{a.region.shortName}<small>{a.region.country}</small></span>
-                  <span className="alert-item-meta">{a.status.band} · {Math.round(a.status.percentile)}th pct · {a.status.freshnessDays} d lag</span>
+                  <span className="alert-item-meta">{a.status.band} · {ordinal(Math.round(a.status.percentile))} pct · {a.status.freshnessDays} d lag</span>
                 </span>
                 <span className={`watch-star ${watching ? 'on' : ''}`} aria-hidden>{watching ? '●' : '○'}</span>
               </button>

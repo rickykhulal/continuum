@@ -79,6 +79,20 @@ export function timeUTC(t: number): string {
   return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}Z`;
 }
 
+/** Proper ordinal suffix: 1st, 2nd, 3rd, 4th, 11th, 12th, 13th, 21st… */
+export function ordinal(n: number): string {
+  if (!Number.isFinite(n)) return '—';
+  const i = Math.round(n);
+  const mod100 = i % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${i}th`;
+  switch (i % 10) {
+    case 1: return `${i}st`;
+    case 2: return `${i}nd`;
+    case 3: return `${i}rd`;
+    default: return `${i}th`;
+  }
+}
+
 export function daysBetween(a: string, b: string): number {
   return Math.round((parseISO(b).getTime() - parseISO(a).getTime()) / 86400000);
 }

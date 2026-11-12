@@ -4,7 +4,7 @@ import { analogDeparture, climateSourceFor, notableSeasons, recordsInRange, seas
 import { loadWeather, stressBand, type WeatherContext } from '../lib/weather';
 import { Badge, ChartTable, Panel, PageHeader, Stat, Empty } from '../components/ui';
 import { SeasonDial, TwinChart } from '../components/charts';
-import { MONTHS, longDate, nf, pct, riskColor } from '../lib/format';
+import { MONTHS, longDate, nf, pct, riskColor, ordinal } from '../lib/format';
 
 function WeatherStrip({ weather }: { weather: WeatherContext }) {
   const width = 860;
@@ -326,7 +326,7 @@ export function Outlook() {
       <div className="grid-2">
         <Panel title="The outlook, in words" eyebrow="Conditional, probabilistic, honest">
           <p className="big-copy">
-            {region.shortName} is at the <strong>{Math.round(store.status.percentile)}th percentile</strong> of its own
+            {region.shortName} is at the <strong>{ordinal(Math.round(store.status.percentile))} percentile</strong> of its own
             {' '}{Math.max(1, Number(today.slice(0, 4)) - 2000)}-year record for this point in {MONTHS[currentMonth - 1]}.
             {' '}The closest analog seasons point to a <strong style={{ color: next4 >= 0 ? '#ff8a3d' : '#56d6a0' }}>{pct(next4)}</strong> four-week
             departure from their own climatology. {band ? `Current fire-weather stress is ${lastWeather?.stress} (${band.label}).` : ''}
@@ -354,7 +354,7 @@ export function Outlook() {
                   <div>
                     <strong>{nf(s.value)} harmonized detections</strong>
                     <small>
-                      {Math.round(s.percentile)}th percentile of this record
+                      {ordinal(Math.round(s.percentile))} percentile of this record
                       {s.weatherAnomaly != null
                         ? ` · burn-weather anomaly ${s.weatherAnomaly >= 0 ? '+' : ''}${s.weatherAnomaly.toFixed(2)} SD`
                         : ''}

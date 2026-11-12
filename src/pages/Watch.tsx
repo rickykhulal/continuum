@@ -7,7 +7,7 @@ import { analogDeparture, calibrationFor, REGIONS, twinAnalogs } from '../lib/da
 import { countryWindow } from '../lib/countries';
 import { SATELLITE_SPECS } from '../lib/satellites';
 import { haversineKm } from '../lib/geo';
-import { nf, longDate, riskColor, daysBetween, pct } from '../lib/format';
+import { nf, longDate, riskColor, daysBetween, pct, ordinal } from '../lib/format';
 import { SENSOR_COLORS } from '../lib/types';
 
 const SATS = SATELLITE_SPECS;
@@ -125,7 +125,7 @@ export function Watch() {
             <div className="hero-meta">
               <span><i className="live-dot" /> {live ? `${nf(live.meta.counts.kept)} real detections worldwide (live FIRMS window)` : 'loading live data'}</span>
               <span className="sep" />
-              <span>{live ? `${daysBetween(live.meta.windowStart, live.meta.windowEnd) + 1}-day rolling window through ${store.today}` : '—'}</span>
+              <span>{live ? `${live.meta.windowStart} → ${live.meta.windowEnd} (${daysBetween(live.meta.windowStart, live.meta.windowEnd) + 1} calendar days)` : '—'}</span>
               <span className="sep" />
               <span>real TLEs · SGP4 orbital positions</span>
             </div>
@@ -204,7 +204,7 @@ export function Watch() {
               <button className="alert-line" onClick={() => { store.selectRegion(alert.region.id); store.setView('atlas'); }}>
                 <span className="alert-band" style={{ background: riskColor(alert.status.band) }} />
                 <span className="alert-text">
-                  <strong>{alert.region.shortName}</strong> — {alert.status.band} · {Math.round(alert.status.percentile)}th percentile
+                  <strong>{alert.region.shortName}</strong> — {alert.status.band} · {ordinal(Math.round(alert.status.percentile))} percentile
                 </span>
                 <span className="alert-cta">inspect →</span>
               </button>
@@ -295,6 +295,7 @@ export function Watch() {
                 }}
               />
               <div className="timeline-scale"><span>−72 h</span><span>live</span><span>+72 h</span></div>
+              <div className="timeline-offset">{offsetHours === 0 ? 'at live' : `${offsetHours > 0 ? '+' : ''}${offsetHours} h from live`}</div>
             </div>
             <div className="timeline-right">
               <div className="speeds" aria-label="Playback speed">

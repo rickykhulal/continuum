@@ -1,7 +1,7 @@
 import { memo, useMemo, useState } from 'react';
 import type { DailyRecord, Metric, Mode, MonthComparison, BiasResult, SeasonClock, TwinResult, SandboxResult } from '../lib/types';
 import { dailyValue, annualSeries, recordsInRange, sensorCount } from '../lib/data';
-import { fireColor, rampColorSmooth, MONTHS, nf, longDate } from '../lib/format';
+import { fireColor, rampColorSmooth, MONTHS, nf, longDate, ordinal } from '../lib/format';
 import { quantile } from '../lib/random';
 import { riskColor } from '../lib/format';
 import { ChartTable, TableAlt } from './ui';
@@ -723,9 +723,9 @@ export function MonthBars({ cmp, metric }: { cmp: MonthComparison; metric: Metri
     <ChartTable
       columns={['Year', 'Month total', 'Basis']}
       rows={cmp.years.map((yr) => [yr.year, nf(yr.value), yr.partial ? 'month to date' : 'full month'])}
-      note={`Median ${nf(cmp.median)} · 25th ${nf(cmp.p25)} · 75th ${nf(cmp.p75)}. ${cmp.currentYear} sits at the ${Math.round(cmp.percentile)}th percentile of the comparable years. Metric: ${metric}.`}
+      note={`Median ${nf(cmp.median)} · 25th ${nf(cmp.p25)} · 75th ${nf(cmp.p75)}. ${cmp.currentYear} sits at the ${ordinal(Math.round(cmp.percentile))} percentile of the comparable years. Metric: ${metric}.`}
     >
-    <svg viewBox={`0 0 ${width} ${height}`} className="chart" role="img" aria-label={`Month comparison. ${cmp.currentYear} is ${Math.round(cmp.percentile)}th percentile versus the historical median.`}>
+    <svg viewBox={`0 0 ${width} ${height}`} className="chart" role="img" aria-label={`Month comparison. ${cmp.currentYear} is ${ordinal(Math.round(cmp.percentile))} percentile versus the historical median.`}>
       <rect x={padL} y={y(cmp.p75)} width={width - padL - 16} height={Math.max(1, y(cmp.p25) - y(cmp.p75))} fill="rgba(110,231,255,.08)" />
       <line x1={padL} x2={width - 16} y1={medianY} y2={medianY} stroke="#6ee7ff" strokeDasharray="4 4" strokeOpacity={0.7} />
       <text x={padL + 4} y={medianY - 5} className="axis-label">median {nf(cmp.median)} {unit}</text>
@@ -1097,7 +1097,7 @@ export function StatusMeter({ percentile, band }: { percentile: number; band: st
       <circle cx={x} cy={27} r={7} fill="#fff" />
       <text x={8} y={10} className="axis-label">quiet</text>
       <text x={width - 8} y={10} textAnchor="end" className="axis-label">extreme</text>
-      <text x={x} y={52} textAnchor="middle" className="axis-value">{Math.round(percentile)}th · {band}</text>
+      <text x={x} y={52} textAnchor="middle" className="axis-value">{ordinal(Math.round(percentile))} · {band}</text>
     </svg>
     </ChartTable>
   );

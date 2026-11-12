@@ -4,7 +4,7 @@ import { AreaBar } from '../components/AreaBar';
 import { Badge, Panel, PageHeader } from '../components/ui';
 import { CalendarHeatmap, StatusMeter } from '../components/charts';
 import { biasXray, monthComparison, recordsInRange, statusFor, twinAnalogs, seasonClock } from '../lib/data';
-import { MONTHS_LONG, longDate, nf, pct, riskColor } from '../lib/format';
+import { MONTHS_LONG, longDate, nf, pct, riskColor, ordinal } from '../lib/format';
 import { exportCSV } from '../lib/export';
 import { downloadPdf } from '../lib/pdf';
 import { mean } from '../lib/random';
@@ -38,7 +38,7 @@ export function Brief() {
       `CENTRE: ${region.center[0].toFixed(2)}°, ${region.center[1].toFixed(2)}° · ${nf(region.areaKm2)} km²`,
       `RECORD: ${records[0]?.date ?? '2000-11-01'} to ${today} · ${nf(records.length)} harmonized daily values`,
       '',
-      `STATUS: ${status.band.toUpperCase()} — ${Math.round(status.percentile)}th percentile for the first ${status.windowDays} days of ${MONTHS_LONG[month - 1]}.`,
+      `STATUS: ${status.band.toUpperCase()} — ${ordinal(Math.round(status.percentile))} percentile for the first ${status.windowDays} days of ${MONTHS_LONG[month - 1]}.`,
       `Current ${nf(status.current)} vs. historical median ${nf(status.baselineMedian)} (${status.ratioToMedian.toFixed(2)}×).`,
       '',
       `LIVE WINDOW: ${liveRecs[0]?.date ?? '—'} to ${today}; ${nf(liveSum)} VIIRS-equivalent detections across ${liveDays} active days.`,
@@ -144,7 +144,7 @@ export function Brief() {
           <div className="brief-status" style={{ borderColor: bandColor }}>
             <div className="eyebrow">Month-to-date status</div>
             <div className="brief-band" style={{ color: bandColor }}>{status.band.toUpperCase()}</div>
-            <div className="brief-pct">{Math.round(status.percentile)}th percentile</div>
+            <div className="brief-pct">{ordinal(Math.round(status.percentile))} percentile</div>
             <StatusMeter percentile={status.percentile} band={status.band} />
           </div>
           <div className="brief-numbers">
@@ -164,7 +164,7 @@ export function Brief() {
             The raw sensor record overstates the 2012 change by {Math.abs(bias.rawBreakPct).toFixed(0)}%. After overlap-ratio
             harmonization, the residual break is {bias.correctedBreakPct.toFixed(0)}% — {Math.round(bias.reductionPct)}% of the
             artefact removed. The correction is recomputed for this area, with a 90% calibration interval of
-            {' '}{bias.ratioLo.toFixed(2)}–{bias.ratioHi.toFixed(2)}×. The current month sits at the {Math.round(cmp.percentile)}th
+            {' '}{bias.ratioLo.toFixed(2)}–{bias.ratioHi.toFixed(2)}×. The current month sits at the {ordinal(Math.round(cmp.percentile))}
             percentile of {cmp.years.filter((y) => !y.partial).length} comparable years; {cmp.currentYear} is shown to date, never as a complete month.
           </p>
           <p>
@@ -204,7 +204,7 @@ export function Brief() {
             <h3>What would change the call</h3>
             <ul>
               <li>A live-window ratio outside {bias.ratioLo.toFixed(1)}–{bias.ratioHi.toFixed(1)}× would widen intervals and lower trust.</li>
-              <li>Persistent cloud or an missed overpass can hide fire; no detection is not no fire.</li>
+              <li>Persistent cloud or a missed overpass can hide fire; no detection is not no fire.</li>
               <li>This is an activity ranking against the same area&apos;s history — not an ignition, spread or evacuation model.</li>
               <li>Provisional days: {status.provisional ? 'the latest days are provisional and labelled.' : 'none in the current window.'}</li>
             </ul>

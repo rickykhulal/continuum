@@ -7,7 +7,7 @@ import {
   CalendarFrame, CalendarHeatmap, MonthBars, TrendCompare, StatusMeter, RankBars,
 } from '../components/charts';
 import { monthComparison, recordsInRange, livePointsForRegion, annualSeries, sensorCount } from '../lib/data';
-import { MONTHS_LONG, nf, pct, riskColor, longDate, shortDate } from '../lib/format';
+import { MONTHS_LONG, nf, pct, riskColor, longDate, shortDate, ordinal } from '../lib/format';
 import { exportCSV, exportGeoJSON, exportHotspotCSV, exportSVGAsPNG } from '../lib/export';
 import { SENSOR_SHORT } from '../lib/types';
 
@@ -87,7 +87,7 @@ export function Atlas() {
             <Badge tone="live" pulse>LIVE FIRMS WINDOW</Badge>
             <Badge tone="default">{firstYear}–{lastYear} record</Badge>
             <Badge tone={store.status.band === 'extreme' || store.status.band === 'high' ? 'warn' : 'good'}>
-              {store.status.band.toUpperCase()} · {Math.round(store.status.percentile)}th pct
+              {store.status.band.toUpperCase()} · {ordinal(Math.round(store.status.percentile))} pct
             </Badge>
             {provisionalDays > 0 && <Badge tone="warn">{provisionalDays} provisional days</Badge>}
           </>
@@ -108,7 +108,7 @@ export function Atlas() {
         <Stat
           label="Is this normal?"
           value={<span style={{ color: bandColor }}>{store.status.band.toUpperCase()}</span>}
-          sub={`${Math.round(store.status.percentile)}th percentile · ${MONTHS_LONG[month - 1]} month-to-date`}
+          sub={`${ordinal(Math.round(store.status.percentile))} percentile · ${MONTHS_LONG[month - 1]} month-to-date`}
           accent={bandColor}
         />
         <Stat
@@ -220,7 +220,7 @@ export function Atlas() {
             <div><span>Median</span><b>{nf(cmp.median)}</b></div>
             <div><span>5-yr mean</span><b>{nf(cmp.mean5)}</b></div>
             <div><span>10-yr mean</span><b>{nf(cmp.mean10)}</b></div>
-            <div><span>Rank</span><b>{Math.round(cmp.percentile)}th</b></div>
+            <div><span>Rank</span><b>{ordinal(Math.round(cmp.percentile))}</b></div>
           </div>
           <p className="panel-note">
             Bars are complete historical months; the highlighted bar is {cmp.currentYear} to date.

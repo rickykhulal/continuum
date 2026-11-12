@@ -5,6 +5,7 @@ import {
   REGIONS,
   getRecord,
   loadLiveBundle,
+  resetLiveBundle,
   regionRecord,
   statusFor,
   recordsInRange,
@@ -51,6 +52,12 @@ interface Store {
   /** Any of the 241 country polygons in the bundle, framed by its real border. */
   selectCountry: (id: string) => void;
   live: LiveBundle | null;
+  /** True while the live bundle is being fetched for the first time. */
+  loading: boolean;
+  /** Error message when live loading has failed and retry is available. */
+  loadError: string | null;
+  /** Retry loading the live bundle (bounded to one in-flight attempt). */
+  retryLoad: () => void;
   records: DailyRecord[];
   today: string;
   range: [string, string];
@@ -224,6 +231,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [regionId, setRegionId] = useState(initialCustom?.id ?? initial.regionId);
   const [custom, setCustom] = useState<Region | null>(initialCustom);
   const [live, setLive] = useState<LiveBundle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [metric, setMetric] = useState<Metric>(initial.metric);
   const [mode, setMode] = useState<Mode>(initial.mode);
   const [frame, setFrameState] = useState<FrameState>(() => ({
@@ -250,14 +259,51 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let alive = true;
+    setLoading(true);
+    setLoadError(null);
+    const startedAt = Date.now();
     loadLiveBundle().then((b) => {
       if (!alive) return;
-      setLive(b);
-      if (!initial.to) setRangeState((r) => [r[0], b.meta.windowEnd]);
+      // Enforce a minimum loading floor so the loader never flashes away before the page shell is
+      // stable — the audit requires bounded, recoverable loading states.
+      const elapsed = Date.now() - startedAt;
+      const floor = Math.max(0, 700 - elapsed);
+      window.setTimeout(() => {
+        if (!alive) return;
+        setLive(b);
+        setLoading(false);
+        // A fully empty bundle means the fetch failed silently; surface it so the user can retry.
+        if (b.meta.counts.kept === 0 && !b.meta.windowStart) {
+          setLoadError('Live data unavailable — the FIRMS snapshot could not be loaded.');
+        } else if (!initial.to) {
+          setRangeState((r) => [r[0], b.meta.windowEnd]);
+        }
+      }, floor);
     });
     return () => {
       alive = false;
     };
+  }, [initial.to]);
+
+  const retryLoad = useCallback(() => {
+    resetLiveBundle();
+    setLive(null);
+    setLoading(true);
+    setLoadError(null);
+    const startedAt = Date.now();
+    loadLiveBundle().then((b) => {
+      const elapsed = Date.now() - startedAt;
+      const floor = Math.max(0, 700 - elapsed);
+      window.setTimeout(() => {
+        setLive(b);
+        setLoading(false);
+        if (b.meta.counts.kept === 0 && !b.meta.windowStart) {
+          setLoadError('Live data unavailable — the FIRMS snapshot could not be loaded.');
+        } else if (!initial.to) {
+          setRangeState((r) => [r[0], b.meta.windowEnd]);
+        }
+      }, floor);
+    });
   }, [initial.to]);
 
   useEffect(() => {
@@ -444,7 +490,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       value={{
         view, region, regionId,
         setView, selectRegion, selectCustom, selectCountry,
-        live, records, today,
+        live, loading, loadError, retryLoad,
+        records, today,
         range, setRange,
         metric, setMetric, mode, setMode, split, setSplit,
         frame, setFrame,
