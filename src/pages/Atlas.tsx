@@ -104,28 +104,27 @@ export function Atlas() {
 
       <AreaBar />
 
-      <div className="stat-row stat-row-4">
-        <Stat
-          label="Is this normal?"
-          value={<span style={{ color: bandColor }}>{store.status.band.toUpperCase()}</span>}
-          sub={`${ordinal(Math.round(store.status.percentile))} percentile · ${MONTHS_LONG[month - 1]} month-to-date`}
-          accent={bandColor}
-        />
-        <Stat
-          label={`${MONTHS_LONG[month - 1]} vs history`}
-          value={pct(cmp.anomalyPct)}
-          sub={`${nf(cmp.currentValue)} now · median ${nf(cmp.median)}`}
-        />
-        <Stat
-          label="Live window"
-          value={nf(liveCount)}
-          sub={`VIIRS-equivalent · ${liveDays} active days · ${shortDate(windowStart)}–${shortDate(today)}`}
-        />
-        <Stat
-          label="Record depth"
-          value={`${lastYear - firstYear} yr`}
-          sub={`${nf(records.length)} daily records · ${nf(provisionalDays)} provisional`}
-        />
+      <div className="atlas-kpi-bar" role="region" aria-label="Key record metrics">
+        <div className="atlas-kpi-card" style={{ borderLeftColor: bandColor }}>
+          <span className="atlas-kpi-label">Current activity</span>
+          <div className="atlas-kpi-val" style={{ color: bandColor }}>{store.status.band.toUpperCase()}</div>
+          <span className="atlas-kpi-sub">{ordinal(Math.round(store.status.percentile))} percentile · {MONTHS_LONG[month - 1]} MTD</span>
+        </div>
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">{MONTHS_LONG[month - 1]} vs history</span>
+          <div className="atlas-kpi-val">{pct(cmp.anomalyPct)}</div>
+          <span className="atlas-kpi-sub">{nf(cmp.currentValue)} now · median {nf(cmp.median)}</span>
+        </div>
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">Live window</span>
+          <div className="atlas-kpi-val">{nf(liveCount)}</div>
+          <span className="atlas-kpi-sub">VIIRS-eq · {liveDays} active days · {shortDate(windowStart)}–{shortDate(today)}</span>
+        </div>
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">Record depth</span>
+          <div className="atlas-kpi-val">{lastYear - firstYear} <small>yr</small></div>
+          <span className="atlas-kpi-sub">{nf(records.length)} daily records · {nf(provisionalDays)} prov.</span>
+        </div>
       </div>
 
       <Panel
@@ -197,11 +196,19 @@ export function Atlas() {
             />
           </div>
         )}
-        <p className="panel-note">
-          {mode === 'harmonized'
-            ? 'Each value is a VIIRS-equivalent hotspot count summed from the daily rows behind it. Use the frame to read the record by day, week, month, quarter or year, and to match one year against another at the same point in the season.'
-            : 'Raw counts are exactly what the instruments reported. The 2012 step is a sensor-resolution artefact — this is the record the world usually quotes.'}
-        </p>
+        <details className="method-disclosure">
+          <summary>Calibration and sensor methodology</summary>
+          <div className="method-disclosure-content">
+            <p>
+              {mode === 'harmonized'
+                ? 'Each value is a VIIRS-equivalent hotspot count summed from the daily calibrated rows behind it. Use the frame to read the record by day, week, month, quarter or year, and to match one year against another at the same point in the season.'
+                : 'Raw counts are exactly what the instruments reported. The 2012 step is a sensor-resolution artifact — this is the raw uncorrected record.'}
+            </p>
+            <p className="panel-note-sub">
+              Historical baseline spans 2000–present. MODIS Terra/Aqua counts are bridged to VIIRS S-NPP resolution using empirical biome transfer functions.
+            </p>
+          </div>
+        </details>
       </Panel>
 
       <div className="grid-2">

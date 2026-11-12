@@ -1509,38 +1509,49 @@ html[data-theme="light"] .watch { background: #0b0c0e; }
 .draw-note { margin: 0; font-size: 10.5px; line-height: 1.5; color: var(--dim); max-width: 72ch; }
 
 /* ------------------------------------------------------- table alternatives (FR-33) */
-.table-alt { margin-top: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(8, 15, 24, 0.55); }
+.table-alt {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
 .table-alt > summary {
   cursor: pointer;
-  padding: 7px 11px;
+  padding: 8px 14px;
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.06em;
+  font-size: 12px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--muted);
   list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.15s ease;
 }
 .table-alt > summary::-webkit-details-marker { display: none; }
-.table-alt > summary::before { content: '▸ '; color: var(--accent); }
-.table-alt[open] > summary::before { content: '▾ '; color: var(--accent); }
+.table-alt > summary::before { content: '▸'; color: var(--accent); font-size: 12px; }
+.table-alt[open] > summary::before { content: '▾'; color: var(--accent); }
 .table-alt > summary:hover { color: var(--text); }
-.alt-scroll { max-height: 320px; overflow: auto; border-top: 1px solid var(--line); }
-.alt-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
-.alt-table th, .alt-table td { padding: 4px 9px; text-align: left; border-bottom: 1px solid rgba(140, 180, 220, 0.09); white-space: nowrap; }
+.alt-scroll { max-height: 340px; overflow: auto; border-top: 1px solid var(--line); }
+.alt-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.alt-table th, .alt-table td { padding: 6px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .alt-table thead th {
   position: sticky;
   top: 0;
-  background: rgba(10, 18, 28, 0.96);
+  background: var(--bg-3);
   font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.05em;
+  font-size: 11px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--dim);
+  color: var(--muted);
+  border-bottom: 1px solid var(--line-strong);
+  z-index: 1;
 }
-.alt-table tbody th { font-weight: 500; color: var(--muted); }
+.alt-table tbody th { font-weight: 500; color: var(--text-soft); }
 .alt-table .mono { font-family: var(--font-mono); color: var(--text); }
-.alt-table tbody tr:hover th, .alt-table tbody tr:hover .mono { color: #eafcff; }
-.alt-note { margin: 7px 11px 9px; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.alt-table tbody tr:hover th, .alt-table tbody tr:hover .mono { color: #ffffff; background: rgba(255, 255, 255, 0.02); }
+.alt-note { margin: 8px 14px 10px; font-size: 12px; line-height: 1.5; color: var(--muted); }
 .timeline-fires .table-alt { flex-basis: 100%; }
 .place-results {
   position: absolute;

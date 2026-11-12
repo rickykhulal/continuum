@@ -793,33 +793,33 @@ export function TrendCompare({ records, mode }: { records: DailyRecord[]; mode: 
     <svg viewBox={`0 0 ${width} ${height}`} className="chart" role="img" aria-label="Raw versus harmonized annual hotspots with the 2012 sensor transition marked.">
       <defs>
         <linearGradient id="gap" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ff7a45" stopOpacity="0.32" />
+          <stop offset="0%" stopColor="#ff7a45" stopOpacity="0.25" />
           <stop offset="100%" stopColor="#ff7a45" stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      <rect x={breakX} y={padT} width={width - breakX - 20} height={height - padT - padB} fill="rgba(255,176,32,.04)" />
-      <line x1={breakX} x2={breakX} y1={padT} y2={height - padB} stroke="#ffb020" strokeDasharray="3 4" strokeOpacity={0.8} />
-      <text x={breakX + 6} y={padT + 12} className="axis-label" fill="#ffb020">VIIRS era begins (2012)</text>
+      <rect x={breakX} y={padT} width={width - breakX - 20} height={height - padT - padB} fill="rgba(245,166,35,0.04)" />
+      <line x1={breakX} x2={breakX} y1={padT} y2={height - padB} stroke="var(--amber)" strokeDasharray="3 4" strokeOpacity={0.9} />
+      <text x={breakX + 6} y={padT + 12} className="axis-label" fill="var(--amber)" fontWeight="600">2012: VIIRS handover</text>
       <path d={area} fill="url(#gap)" />
       <path d={path(raw)} fill="none" stroke="#ff7a45" strokeWidth={1.8} strokeOpacity={0.9} />
-      <path d={path(harm)} fill="none" stroke="#6ee7ff" strokeWidth={2.2} />
+      <path d={path(harm)} fill="none" stroke="#38bdf8" strokeWidth={2.2} />
       {[0, 0.5, 1].map((f) => (
         <g key={f}>
-          <line x1={padL} x2={width - 20} y1={y(max * f)} y2={y(max * f)} stroke="rgba(140,180,220,.1)" />
-          <text x={padL - 8} y={y(max * f) + 3} textAnchor="end" className="axis-label">{nf(max * f)}</text>
+          <line x1={padL} x2={width - 20} y1={y(max * f)} y2={y(max * f)} stroke="var(--line)" />
+          <text x={padL - 8} y={y(max * f) + 4} textAnchor="end" className="axis-label">{nf(max * f)}</text>
         </g>
       ))}
       {years.filter((_, i) => i % 4 === 0).map((yr) => (
         <text key={yr} x={x(yr)} y={height - 8} textAnchor="middle" className="axis-label">{yr}</text>
       ))}
-      <g transform={`translate(${width - 190},${padT + 6})`}>
-        <rect x={0} y={0} width={180} height={38} fill="rgba(6,12,20,.72)" stroke="rgba(140,180,220,.18)" rx={4} />
-        <line x1={8} x2={24} y1={12} y2={12} stroke="#ff7a45" strokeWidth={2} />
-        <text x={30} y={15} className="axis-label">raw sensor record</text>
-        <line x1={8} x2={24} y1={27} y2={27} stroke="#6ee7ff" strokeWidth={2} />
-        <text x={30} y={30} className="axis-label">harmonized (VIIRS-eq)</text>
+      <text x={width - 20} y={height - 8} textAnchor="end" className="axis-label" opacity={0.65}>active: {mode}</text>
+      <g transform={`translate(${width - 210},${padT + 4})`}>
+        <rect x={0} y={0} width={190} height={42} fill="var(--bg-2)" stroke="var(--line-strong)" rx={4} />
+        <line x1={8} x2={24} y1={15} y2={15} stroke="#ff7a45" strokeWidth={2} />
+        <text x={30} y={18} className="axis-label">raw sensor record</text>
+        <line x1={8} x2={24} y1={30} y2={30} stroke="#38bdf8" strokeWidth={2} />
+        <text x={30} y={33} className="axis-label">harmonized (VIIRS-eq)</text>
       </g>
-      <text x={padL} y={height - 2} className="axis-label" opacity={0.6}>mode toggle: {mode}</text>
     </svg>
     </ChartTable>
   );
