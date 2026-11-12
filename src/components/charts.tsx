@@ -7,10 +7,10 @@ import { riskColor } from '../lib/format';
 import { ChartTable, TableAlt } from './ui';
 
 const CELL_W = 3.7;
-const CELL_H = 12.4;
+const CELL_H = 15.5;
 
 export type CalendarResolution = 'day' | 'week' | 'month' | 'quarter' | 'year';
-export type CalendarSpan = 'all' | 20 | 10 | 5 | 2 | 1;
+export type CalendarSpan = 'all' | 20 | 10 | 8 | 5 | 2 | 1;
 
 const RESOLUTIONS: { key: CalendarResolution; label: string; aria: string }[] = [
   { key: 'day', label: 'Days', aria: 'One cell per day' },
@@ -305,10 +305,9 @@ function CalendarHeatmapBase({
             })}
             {years.map((yr, row) => {
               const y = 22 + row * CELL_H;
-              const label = yr % 5 === 0 || yr === years[0] || yr === currentYear;
               return (
                 <g key={yr}>
-                  {label && <text x={2} y={y + 9} className="cal-year">{yr}</text>}
+                  <text x={2} y={y + 11} className="cal-year" fontWeight="600">{yr}</text>
                   {Array.from({ length: 366 }, (_, i) => {
                     const doy = i + 1;
                     const rec = byKey.get(`${yr}-${doy}`);
@@ -634,7 +633,8 @@ export function CalendarFrame({
         <label className="frame-field">
           <span>Span</span>
           <select className="select select-small" value={span} onChange={(e) => onSpan(e.target.value === 'all' ? 'all' : Number(e.target.value) as CalendarSpan)}>
-            <option value="all">All {years.length} years</option>
+            <option value={8}>Last 8 years (daily)</option>
+            <option value="all">Full 26-year view</option>
             <option value={20}>Last 20 years</option>
             <option value={10}>Last 10 years</option>
             <option value={5}>Last 5 years</option>

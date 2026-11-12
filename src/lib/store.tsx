@@ -237,7 +237,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<Mode>(initial.mode);
   const [frame, setFrameState] = useState<FrameState>(() => ({
     res: initial.res ?? 'day',
-    span: initial.span ?? 'all',
+    span: initial.span ?? 8,
     focusYear: initial.fy ?? Number(isoDate(new Date()).slice(0, 4)),
     gap: initial.gap ?? 1,
   }));
