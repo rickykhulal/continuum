@@ -107,6 +107,7 @@ export function Watch() {
       <div className="watch-grid">
 
         <section className="watch-hero">
+          <div className="hero-overlay" aria-hidden />
           <div className="hero-eyebrow">
             <span className="hero-mark">◈</span> ORBITAL WATCH <span className="sep" /> 2026 NASA SPACE APPS
           </div>
@@ -126,6 +127,10 @@ export function Watch() {
             <span>{live ? `${daysBetween(live.meta.windowStart, live.meta.windowEnd) + 1}-day rolling window` : '—'}</span>
             <span className="sep" />
             <span>real TLEs · SGP4</span>
+          </div>
+          <div className="provenance-chip live" aria-label="Live data: NASA FIRMS rolling window, real detections">
+            <span className="dot" aria-hidden />
+            LIVE FIRMS · {live ? `${nf(live.meta.counts.kept)} detections` : 'loading'}
           </div>
         </section>
 

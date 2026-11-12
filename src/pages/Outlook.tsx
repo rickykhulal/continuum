@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { analogDeparture, climateSourceFor, notableSeasons, recordsInRange, seasonClock, seasonLabelFor, twinAnalogs } from '../lib/data';
 import { loadWeather, stressBand, type WeatherContext } from '../lib/weather';
-import { Badge, ChartTable, Panel, Stat, Empty } from '../components/ui';
+import { Badge, ChartTable, Panel, PageHeader, Stat, Empty } from '../components/ui';
 import { SeasonDial, TwinChart } from '../components/charts';
 import { MONTHS, longDate, nf, pct, riskColor } from '../lib/format';
 
@@ -33,6 +33,7 @@ function WeatherStrip({ weather }: { weather: WeatherContext }) {
       summary={`Table of the ${days.length} days plotted`}
       note={`Source: ${weather.source}, fetched ${weather.fetchedAt.slice(0, 16)} UTC. Latest day is ${last ? `${last.stress} (${stressBand(last.stress).label})` : 'unavailable'}.`}
     >
+    <div className="chart-wrap">
     <svg viewBox={`0 0 ${width} ${height}`} className="chart" role="img" aria-label="Recent fire-weather stress from NASA POWER, with daily rainfall.">
       <defs>
         <linearGradient id="stressFill" x1="0" y1="0" x2="0" y2="1">
@@ -76,6 +77,7 @@ function WeatherStrip({ weather }: { weather: WeatherContext }) {
         <text x={146} y={12} className="axis-label">source: {weather.source}</text>
       </g>
     </svg>
+    </div>
     </ChartTable>
   );
 }
@@ -102,6 +104,7 @@ function ExpectedObserved({ weather }: { weather: WeatherContext }) {
       summary={`Table of the ${n} days plotted`}
       note={`Fit: log(activity + 1) on the stress index, r² ${weather.fit.r2.toFixed(3)}, slope ${weather.fit.slope.toFixed(4)}, n ${weather.fit.n} days (${weather.fit.period}). A positive residual means more burning than the weather alone would suggest.`}
     >
+    <div className="chart-wrap">
     <svg viewBox={`0 0 ${width} ${height}`} className="chart" role="img" aria-label="Observed harmonized fire activity against the expectation from fire-weather stress.">
       {[0, 0.5, 1].map((f) => (
         <g key={f}>
@@ -120,6 +123,7 @@ function ExpectedObserved({ weather }: { weather: WeatherContext }) {
         <text x={30} y={30} className="axis-label">expected from stress</text>
       </g>
     </svg>
+    </div>
     </ChartTable>
   );
 }
@@ -174,30 +178,27 @@ export function Outlook() {
 
   return (
     <div className="page outlook-page">
-      <header className="page-head">
-        <div className="page-head-main">
-          <div className="eyebrow">Predict the future · analog + fire weather</div>
-          <h1>Predict the future — with the uncertainty left in.</h1>
-          <p>
-            The record is the memory. Analog seasons are the prior. NASA POWER fire weather is the present condition.
-            Together they produce a conditional outlook you can act on — never an ignition forecast or an order.
-          </p>
-          <div className="chip-row">
+      <PageHeader
+        eyebrow="Predict the future · analog + fire weather"
+        title="Predict the future — with the uncertainty left in."
+        intro="The record is the memory. Analog seasons are the prior. NASA POWER fire weather is the present condition. Together they produce a conditional outlook you can act on — never an ignition forecast or an order."
+        chips={
+          <>
             <Badge tone="default">{region.name}</Badge>
             <Badge tone="warn">conditional · not LIVE</Badge>
             <Badge tone="good">leave-one-out analog test</Badge>
-            {/* The weather source arrives from a live NASA POWER call, so its own region announces it
-                when it resolves instead of leaving a screen-reader user on a silently changing page. */}
             <span aria-live="polite">
               {weather && <Badge tone={weather.source === 'NASA POWER' ? 'live' : 'warn'}>{weather.source}</Badge>}
             </span>
-          </div>
-        </div>
-        <div className="page-head-actions">
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('atlas')}>← Atlas</button>
-          <button type="button" className="btn btn-primary btn-small" onClick={() => store.setView('brief')}>Build brief →</button>
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          <>
+            <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('atlas')}>← Atlas</button>
+            <button type="button" className="btn btn-primary btn-small" onClick={() => store.setView('brief')}>Build brief →</button>
+          </>
+        }
+      />
 
       <div className="stat-row stat-row-4">
         <Stat label="Season peak" value={clock.peakLabel} sub={`${clock.startLabel} → ${clock.endLabel}`} />

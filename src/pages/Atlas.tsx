@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { AreaBar } from '../components/AreaBar';
 import { RegionMap } from '../components/RegionMap';
-import { Badge, Panel, Stat } from '../components/ui';
+import { Badge, Panel, PageHeader, Stat } from '../components/ui';
 import {
   CalendarFrame, CalendarHeatmap, MonthBars, TrendCompare, StatusMeter, RankBars,
 } from '../components/charts';
@@ -78,27 +78,29 @@ export function Atlas() {
 
   return (
     <div className="page atlas-page">
-      <header className="page-head">
-        <div className="page-head-main">
-          <div className="eyebrow">Atlas · burning calendar · {today}</div>
-          <h1>{region.name}</h1>
-          <p>{region.description}</p>
-          <div className="chip-row">
+      <PageHeader
+        eyebrow={`Atlas · burning calendar · ${today}`}
+        title={region.name}
+        intro={region.description}
+        chips={
+          <>
             <Badge tone="live" pulse>LIVE FIRMS WINDOW</Badge>
             <Badge tone="default">{firstYear}–{lastYear} record</Badge>
             <Badge tone={store.status.band === 'extreme' || store.status.band === 'high' ? 'warn' : 'good'}>
               {store.status.band.toUpperCase()} · {Math.round(store.status.percentile)}th pct
             </Badge>
             {provisionalDays > 0 && <Badge tone="warn">{provisionalDays} provisional days</Badge>}
-          </div>
-        </div>
-        <div className="page-head-actions">
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('method')}>How the model works</button>
-          <button type="button" className="btn btn-ghost btn-small" onClick={share}>Share view</button>
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('outlook')}>Predict 4 weeks →</button>
-          <button type="button" className="btn btn-primary btn-small" onClick={() => store.setView('brief')}>Field brief →</button>
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          <>
+            <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('method')}>How the model works</button>
+            <button type="button" className="btn btn-ghost btn-small" onClick={share}>Share view</button>
+            <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('outlook')}>Predict 4 weeks →</button>
+            <button type="button" className="btn btn-primary btn-small" onClick={() => store.setView('brief')}>Field brief →</button>
+          </>
+        }
+      />
 
       <AreaBar />
 
@@ -164,7 +166,7 @@ export function Atlas() {
           mode={mode}
           today={today}
         />
-        <div ref={calendarRef}>
+        <div ref={calendarRef} className="chart-wrap">
           <CalendarHeatmap
             records={records}
             metric={metric}

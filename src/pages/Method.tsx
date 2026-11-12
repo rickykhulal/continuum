@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useStore } from '../lib/store';
 import { archiveCoverage, archiveStatus, biasXray, bridgeFor, provenanceMix, runSandbox, twinAnalogs, annualSeries } from '../lib/data';
-import { Badge, Definition, Panel, Stat } from '../components/ui';
+import { Badge, Definition, Panel, PageHeader, Stat } from '../components/ui';
 import { nf, pct } from '../lib/format';
 import { SATELLITE_SPECS, tleStatus } from '../lib/satellites';
 
@@ -37,15 +37,12 @@ export function Method() {
 
   return (
     <div className="page method-page">
-      <header className="page-head">
-        <div className="page-head-main">
-          <div className="eyebrow">Method · validation · provenance</div>
-          <h1>The method, in the open.</h1>
-          <p>
-            Every number in this application is produced by code you can inspect and re-run. This page states what is measured,
-            what is modelled, what is reconstructed, and where the uncertainty lives.
-          </p>
-          <div className="chip-row">
+      <PageHeader
+        eyebrow="Method · validation · provenance"
+        title="The method, in the open."
+        intro="Every number in this application is produced by code you can inspect and re-run. This page states what is measured, what is modelled, what is reconstructed, and where the uncertainty lives."
+        chips={
+          <>
             <Badge tone="good">internal validation passed</Badge>
             {mix.archived > 0 ? (
               <Badge tone="live">{nf(mix.archived)} days from the NASA FIRMS archive</Badge>
@@ -53,13 +50,15 @@ export function Method() {
               <Badge tone="warn">independent archive validation pending</Badge>
             )}
             <Badge tone="default">method v0.1.0</Badge>
-          </div>
-        </div>
-        <div className="page-head-actions">
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('diagnosis')}>Bias X-ray →</button>
-          <button type="button" className="btn btn-primary btn-small" onClick={() => window.print()}>Print method</button>
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          <>
+            <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('diagnosis')}>Bias X-ray →</button>
+            <button type="button" className="btn btn-primary btn-small" onClick={() => window.print()}>Print method</button>
+          </>
+        }
+      />
 
       <div className="stat-row stat-row-4">
         <Stat

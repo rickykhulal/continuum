@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useStore } from '../lib/store';
 import { AreaBar } from '../components/AreaBar';
-import { Badge, Panel } from '../components/ui';
+import { Badge, Panel, PageHeader } from '../components/ui';
 import { CalendarHeatmap, StatusMeter } from '../components/charts';
 import { biasXray, monthComparison, recordsInRange, statusFor, twinAnalogs, seasonClock } from '../lib/data';
 import { MONTHS_LONG, longDate, nf, pct, riskColor } from '../lib/format';
@@ -91,29 +91,30 @@ export function Brief() {
 
   return (
     <div className="page brief-page">
-      <header className="page-head no-print">
-        <div className="page-head-main">
-          <div className="eyebrow">Brief · printable situational report</div>
-          <h1>One page. Every number traceable.</h1>
-          <p>A field-ready summary generated from the same record as every other screen. Print it, copy it, or export the underlying rows.</p>
-        </div>
-        <div className="page-head-actions">
-          <button type="button" className="btn btn-ghost btn-small" onClick={copy}>Copy advisory</button>
-          <button type="button" className="btn btn-ghost btn-small" onClick={downloadText}>Download .txt</button>
-          <button type="button" className="btn btn-ghost btn-small" onClick={downloadPdfFile}>Download PDF</button>
-          <button type="button" className="btn btn-primary btn-small" onClick={() => window.print()}>Print / PDF</button>
-          <button
-            type="button"
-            className="btn btn-ghost btn-small"
-            onClick={() => {
-              const out = exportCSV(region, records, store.range[0], store.range[1], store.mode);
-              store.toast(`CSV ready — ${nf(out.rows)} rows.`);
-            }}
-          >
-            CSV
-          </button>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Brief · printable situational report"
+        title="One page. Every number traceable."
+        intro="A field-ready summary generated from the same record as every other screen. Print it, copy it, or export the underlying rows."
+        className="no-print"
+        actions={
+          <>
+            <button type="button" className="btn btn-ghost btn-small" onClick={copy}>Copy advisory</button>
+            <button type="button" className="btn btn-ghost btn-small" onClick={downloadText}>Download .txt</button>
+            <button type="button" className="btn btn-ghost btn-small" onClick={downloadPdfFile}>Download PDF</button>
+            <button type="button" className="btn btn-primary btn-small" onClick={() => window.print()}>Print / PDF</button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-small"
+              onClick={() => {
+                const out = exportCSV(region, records, store.range[0], store.range[1], store.mode);
+                store.toast(`CSV ready — ${nf(out.rows)} rows.`);
+              }}
+            >
+              CSV
+            </button>
+          </>
+        }
+      />
 
       <div className="no-print"><AreaBar compact /></div>
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { biasXray, bridgeFor, runSandbox } from '../lib/data';
-import { Badge, Panel, Stat } from '../components/ui';
+import { Badge, Panel, PageHeader, Stat } from '../components/ui';
 import { SandboxChart, TrendCompare, Waterfall } from '../components/charts';
 import { nf, pct } from '../lib/format';
 import { SATELLITE_SPECS } from '../lib/satellites';
@@ -22,26 +22,30 @@ export function Diagnosis() {
 
   return (
     <div className="page diagnosis-page">
-      <header className="page-head">
-        <div className="page-head-main">
-          <div className="eyebrow">Diagnosis · the record doctor</div>
-          <h1>Find the step. Remove the step. Show the scar.</h1>
-          <p>
+      <PageHeader
+        eyebrow="Diagnosis · the record doctor"
+        title="Find the step. Remove the step. Show the scar."
+        intro={
+          <>
             The 2012 MODIS → VIIRS handover added nine-times-smaller pixels to the observing system.
             Raw fire counts jumped. The fires did not. This is the arithmetic behind the correction —
             including its uncertainty and its residual.
-          </p>
-          <div className="chip-row">
+          </>
+        }
+        chips={
+          <>
             <Badge tone="good">calibration: real overlap days</Badge>
             <Badge tone="default">90% intervals</Badge>
             <Badge tone="warn">residual reported, not hidden</Badge>
-          </div>
-        </div>
-        <div className="page-head-actions">
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('outlook')}>Outlook →</button>
-          <button type="button" className="btn btn-primary btn-small" onClick={() => store.setView('method')}>Full method</button>
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          <>
+            <button type="button" className="btn btn-ghost btn-small" onClick={() => store.setView('outlook')}>Outlook →</button>
+            <button type="button" className="btn btn-primary btn-small" onClick={() => store.setView('method')}>Full method</button>
+          </>
+        }
+      />
 
       <div className="stat-row stat-row-4">
         <Stat

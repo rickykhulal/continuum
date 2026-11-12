@@ -1,5 +1,5 @@
 // Main application entry point with professional UI and animations
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore, type ViewId } from './lib/store';
 import type { StringKey } from './lib/i18n';
@@ -56,12 +56,15 @@ const NAV: { id: ViewId; label: string; short: string }[] = [
   { id: 'method', label: 'Method', short: 'Method' },
 ];
 
-function TopNav() {
+function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerOpen: (v: boolean) => void }) {
   const store = useStore();
   const high = store.alerts.filter(a => a.status.percentile >= 85).length;
   const watching = store.watchlist.length;
   return (
     <header className="topnav">
+      <button type="button" className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open main navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+      </button>
       <button type="button" className="brand" onClick={() => store.setView('watch')} aria-label="Continuum home">
         <span className="brand-mark" aria-hidden>◈</span>
         <span className="brand-text"><strong>CONTINUUM</strong><small>{store.t('tagline')}</small></span>
@@ -149,10 +152,47 @@ function Footer() {
 export function App() {
   const store = useStore();
   const view = store.view;
+  const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <div className={`app view-${view}`}>
       <a className="skip-link" href="#main" onClick={e => { e.preventDefault(); const main = document.getElementById('main'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Skip to content</a>
-      <TopNav />
+      <TopNav drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+      <div className={`nav-drawer-overlay ${drawerOpen ? 'open' : ''}`} onClick={() => setDrawerOpen(false)} />
+      <nav className={`nav-drawer ${drawerOpen ? 'open' : ''}`} aria-label="Primary navigation">
+        <div className="nav-drawer-head">
+          <span className="brand-mark" aria-hidden>◈</span>
+          <strong>CONTINUUM</strong>
+          <button type="button" className="icon-btn nav-close" onClick={() => setDrawerOpen(false)} aria-label="Close navigation">
+            <span aria-hidden>✕</span>
+          </button>
+        </div>
+        <nav>
+          {NAV.map(n => {
+            const label = store.t(`nav_${n.id}` as StringKey);
+            return (
+              <button
+                key={n.id}
+                type="button"
+                className={store.view === n.id ? 'active' : ''}
+                aria-current={store.view === n.id ? 'page' : undefined}
+                onClick={() => { store.setView(n.id); setDrawerOpen(false); }}
+                title={label}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="nav-drawer-actions">
+          <button type="button" className="btn btn-small btn-primary" onClick={() => { store.setView('watch'); setDrawerOpen(false); }}>Orbital Watch</button>
+          <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('atlas'); setDrawerOpen(false); }}>Atlas</button>
+          <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('diagnosis'); setDrawerOpen(false); }}>Diagnosis</button>
+          <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('outlook'); setDrawerOpen(false); }}>Outlook</button>
+          <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('brief'); setDrawerOpen(false); }}>Brief</button>
+          <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('method'); setDrawerOpen(false); }}>Method</button>
+          <button type="button" className="link-btn" onClick={() => { store.setSettingsOpen(true); setDrawerOpen(false); }}>Settings</button>
+        </div>
+      </nav>
       <main id="main" tabIndex={-1} className={view === 'watch' ? 'main main-watch' : 'main'}>
         <AnimatePresence mode="wait">
           <motion.div

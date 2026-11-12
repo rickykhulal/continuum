@@ -166,6 +166,29 @@ export const visuallyHidden: CSSProperties = {
   position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap',
 };
 
+export function PageHeader({
+  eyebrow, title, intro, chips, actions, className = '',
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  intro?: string | ReactNode;
+  chips?: ReactNode;
+  actions?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <header className={`page-head ${className}`} id="main">
+      <div className="page-head-main">
+        {eyebrow && <div className="eyebrow">{eyebrow}</div>}
+        <h1>{title}</h1>
+        {intro && <p>{intro}</p>}
+        {chips && <div className="chip-row">{chips}</div>}
+      </div>
+      {actions && <div className="page-head-actions">{actions}</div>}
+    </header>
+  );
+}
+
 /** FR-33: every chart carries the same numbers as a collapsible, screen-reader-friendly table. */
 export function TableAlt({
   summary = 'Table of the values shown',

@@ -253,71 +253,80 @@ export function SettingsPanel() {
           <button type="button" className="icon-btn" onClick={() => store.setSettingsOpen(false)} aria-label="Close settings">✕</button>
         </header>
 
-        <section className="settings-section">
-          <h3>Theme</h3>
-          <div className="theme-cards">
-            <button type="button" className={`theme-card dark ${settings.theme === 'dark' ? 'active' : ''}`} onClick={() => store.setSettings({ theme: 'dark' })}>
-              <span className="theme-preview" />
-              <strong>Mission control</strong>
-              <small>Dark · default</small>
-            </button>
-            <button type="button" className={`theme-card light ${settings.theme === 'light' ? 'active' : ''}`} onClick={() => store.setSettings({ theme: 'light' })}>
-              <span className="theme-preview" />
-              <strong>Daylight</strong>
-              <small>Light theme</small>
-            </button>
+        <section className="settings-section panel-card">
+          <div className="panel-card-body">
+            <h3>Theme</h3>
+            <div className="theme-cards">
+              <button type="button" className={`theme-card dark ${settings.theme === 'dark' ? 'active' : ''}`} onClick={() => store.setSettings({ theme: 'dark' })}>
+                <span className="theme-preview" />
+                <strong>Mission control</strong>
+                <small>Dark · default</small>
+              </button>
+              <button type="button" className={`theme-card light ${settings.theme === 'light' ? 'active' : ''}`} onClick={() => store.setSettings({ theme: 'light' })}>
+                <span className="theme-preview" />
+                <strong>Daylight</strong>
+                <small>Light theme</small>
+              </button>
+            </div>
           </div>
         </section>
 
-        <section className="settings-section">
-          <h3>Accessibility</h3>
-          <label className="switch-row">
-            <span><strong>High contrast</strong><small>Stronger borders and text</small></span>
-            <input type="checkbox" checked={settings.contrast} onChange={(e) => store.setSettings({ contrast: e.target.checked })} />
-          </label>
-          <label className="switch-row">
-            <span><strong>Pattern fills</strong><small>Texture behind chart colors</small></span>
-            <input type="checkbox" checked={settings.textures} onChange={(e) => store.setSettings({ textures: e.target.checked })} />
-          </label>
-          <label className="switch-row">
-            <span><strong>Reduce motion</strong><small>Stop globe and transition animation</small></span>
-            <input type="checkbox" checked={settings.reduceMotion} onChange={(e) => store.setSettings({ reduceMotion: e.target.checked })} />
-          </label>
-          <label className="switch-row">
-            <span><strong>Map labels</strong><small>Show satellite and region labels</small></span>
-            <input type="checkbox" checked={settings.labels} onChange={(e) => store.setSettings({ labels: e.target.checked })} />
-          </label>
+        <section className="settings-section panel-card">
+          <div className="panel-card-body">
+            <h3>Accessibility</h3>
+            <label className="switch-row">
+              <span><strong>High contrast</strong><small>Stronger borders and text</small></span>
+              <input type="checkbox" checked={settings.contrast} onChange={(e) => store.setSettings({ contrast: e.target.checked })} />
+            </label>
+            <label className="switch-row">
+              <span><strong>Pattern fills</strong><small>Texture behind chart colors</small></span>
+              <input type="checkbox" checked={settings.textures} onChange={(e) => store.setSettings({ textures: e.target.checked })} />
+            </label>
+            <label className="switch-row">
+              <span><strong>Reduce motion</strong><small>Stop globe and transition animation</small></span>
+              <input type="checkbox" checked={settings.reduceMotion} onChange={(e) => store.setSettings({ reduceMotion: e.target.checked })} />
+            </label>
+            <label className="switch-row">
+              <span><strong>Map labels</strong><small>Show satellite and region labels</small></span>
+              <input type="checkbox" checked={settings.labels} onChange={(e) => store.setSettings({ labels: e.target.checked })} />
+            </label>
+          </div>
         </section>
 
-        <section className="settings-section">
-          <h3>Language</h3>
-          <div className="segmented">
-            <button type="button" className={settings.lang === 'en' ? 'active' : ''} onClick={() => store.setSettings({ lang: 'en' })} aria-pressed={settings.lang === 'en'}>English</button>
-            <button type="button" className={settings.lang === 'es' ? 'active' : ''} onClick={() => store.setSettings({ lang: 'es' })} aria-pressed={settings.lang === 'es'}>Español</button>
+        <section className="settings-section panel-card">
+          <div className="panel-card-body">
+            <h3>Language</h3>
+            <div className="segmented">
+              <button type="button" className={settings.lang === 'en' ? 'active' : ''} onClick={() => store.setSettings({ lang: 'en' })} aria-pressed={settings.lang === 'en'}>English</button>
+              <button type="button" className={settings.lang === 'es' ? 'active' : ''} onClick={() => store.setSettings({ lang: 'es' })} aria-pressed={settings.lang === 'es'}>Español</button>
+            </div>
+            <p className="drawer-note">Navigation and core chart labels switch language immediately; scientific method text remains in English with a Spanish abstract.</p>
           </div>
-          <p className="drawer-note">Navigation and core chart labels switch language immediately; scientific method text remains in English with a Spanish abstract.</p>
         </section>
 
-        <section className="settings-section">
-          <h3>Session</h3>
-          <div className="session-facts">
-            <div><span>Method</span><b>v0.1.0</b></div>
-            <div><span>Data through</span><b>{store.today}</b></div>
-            <div><span>Live detections worldwide</span><b>{nf(store.live?.meta.counts.kept ?? 0)}</b></div>
-            <div><span>Record rows</span><b>{nf(store.records.length)}</b></div>
+        <section className="settings-section panel-card">
+          <div className="panel-card-body">
+            <h3>Session</h3>
+            <div className="session-facts">
+              <div><span>Method</span><b>v0.1.0</b></div>
+              <div><span>Data through</span><b>{store.today}</b></div>
+              <div><span>Live detections worldwide</span><b>{nf(store.live?.meta.counts.kept ?? 0)}</b></div>
+              <div><span>Record rows</span><b>{nf(store.records.length)}</b></div>
+            </div>
           </div>
-          <button
-            type="button"
-            className="btn btn-small btn-ghost"
-            onClick={() => {
-              localStorage.removeItem('continuum.settings.v2');
-              localStorage.removeItem('continuum.watchlist.v2');
-              store.toast('Local settings and watchlist cleared. Reload to reset every view.');
-            }}
-          >
-            Reset local settings
-          </button>
         </section>
+
+        <button
+          type="button"
+          className="btn btn-small btn-ghost"
+          onClick={() => {
+            localStorage.removeItem('continuum.settings.v2');
+            localStorage.removeItem('continuum.watchlist.v2');
+            store.toast('Local settings and watchlist cleared. Reload to reset every view.');
+          }}
+        >
+          Reset local settings
+        </button>
 
         <p className="drawer-note">
           Only theme, language and watchlist are stored locally. No account, no tracking, no server-side record of your AOIs.
