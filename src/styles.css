@@ -267,9 +267,16 @@ html[data-view-pending] .main { opacity: 0.55; transition: opacity 0.15s ease; }
   flex-shrink: 0;
 }
 .brand-mark {
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   color: var(--ember);
-  line-height: 1;
+}
+.brand-mark svg {
+  width: 100%;
+  height: 100%;
 }
 .brand-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
 .brand-text strong { font-size: 13.5px; letter-spacing: 0.16em; font-weight: 700; color: var(--text); }
@@ -790,6 +797,19 @@ html[data-theme="light"] .segmented { background: var(--bg-2); }
 /* ------------------------------------------------------------------ panels */
 .panel {
   position: relative;
+  background: var(--bg-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.panel.secondary {
+  border: none;
+  background: transparent;
+  padding: 16px 0;
+  border-top: 1px solid var(--line-faint);
+  border-radius: 0;
+}
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);

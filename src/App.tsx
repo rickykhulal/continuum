@@ -65,7 +65,13 @@ function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerO
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
       </button>
       <button type="button" className="brand" onClick={() => store.setView('watch')} aria-label="Continuum home">
-        <span className="brand-mark" aria-hidden>◈</span>
+        <span className="brand-mark" aria-hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.4" />
+            <path d="M12 3a9 9 0 0 1 9 9" stroke="#ff8a3d" strokeWidth="2.5" />
+            <circle cx="12" cy="12" r="3" fill="#ff8a3d" stroke="none" />
+          </svg>
+        </span>
         <span className="brand-text"><strong>CONTINUUM</strong><small>{store.t('tagline')}</small></span>
       </button>
       <nav className="nav" aria-label="Primary">
@@ -170,7 +176,13 @@ function Footer() {
     <footer className="footer">
       <div className="footer-top">
         <div className="footer-brand">
-          <span className="brand-mark" aria-hidden>◈</span>
+          <span className="brand-mark" aria-hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.4" />
+            <path d="M12 3a9 9 0 0 1 9 9" stroke="#ff8a3d" strokeWidth="2.5" />
+            <circle cx="12" cy="12" r="3" fill="#ff8a3d" stroke="none" />
+          </svg>
+        </span>
           <div>
             <strong>CONTINUUM</strong>
             <span>One continuous record of burning, from Terra to VIIRS.</span>
@@ -271,7 +283,13 @@ export function App() {
       <div className={`nav-drawer-overlay ${drawerOpen ? 'open' : ''}`} onClick={() => setDrawerOpen(false)} />
       <nav className={`nav-drawer ${drawerOpen ? 'open' : ''}`} aria-label="Primary navigation">
         <div className="nav-drawer-head">
-          <span className="brand-mark" aria-hidden>◈</span>
+          <span className="brand-mark" aria-hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.4" />
+            <path d="M12 3a9 9 0 0 1 9 9" stroke="#ff8a3d" strokeWidth="2.5" />
+            <circle cx="12" cy="12" r="3" fill="#ff8a3d" stroke="none" />
+          </svg>
+        </span>
           <strong>CONTINUUM</strong>
           <button type="button" className="icon-btn nav-close" onClick={() => setDrawerOpen(false)} aria-label="Close navigation">
             <span aria-hidden>✕</span>
