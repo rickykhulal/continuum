@@ -5,6 +5,7 @@ import { PLACES } from '../data/places';
 import { searchWorld, loadWorldLayer, countryWindow, type WorldHit } from '../lib/countries';
 import { nf } from '../lib/format';
 import { Badge } from './ui';
+import { motion } from 'framer-motion';
 import { DrawArea } from './DrawArea';
 
 export function AreaBar({ compact = false }: { compact?: boolean }) {
