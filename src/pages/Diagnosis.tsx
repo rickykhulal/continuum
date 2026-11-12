@@ -47,36 +47,46 @@ export function Diagnosis() {
         }
       />
 
-      <div className="stat-row stat-row-4">
-        <Stat
-          label="Raw 2012 break"
-          value={pct(bias.rawBreakPct, 1)}
-          sub={`trend-adjusted jump in instrument counts, measured on the ${bias.breakBasis === 'observations' ? 'archive observations on both sides' : 'reconstruction on both sides — the archive does not reach 2011 yet'}`}
-        />
+      <div className="atlas-kpi-bar" role="region" aria-label="Key bias diagnosis metrics">
+        <div className="atlas-kpi-card" style={{ borderLeftColor: '#ff8a3d' }}>
+          <span className="atlas-kpi-label">Raw 2012 break</span>
+          <div className="atlas-kpi-val" style={{ color: '#ff8a3d' }}>{pct(bias.rawBreakPct, 1)}</div>
+          <span className="atlas-kpi-sub">MODIS → VIIRS uncorrected jump</span>
+        </div>
         {bias.seam && (
-          <Stat
-            label="Archive seam"
-            value={pct(bias.seam.pct, 1)}
-            sub={`first year of archive after each source switch, against the reconstruction · ${bias.seam.switches} switch${bias.seam.switches === 1 ? '' : 'es'} · first ${bias.seam.from}`}
-          />
+          <div className="atlas-kpi-card">
+            <span className="atlas-kpi-label">Archive seam</span>
+            <div className="atlas-kpi-val">{pct(bias.seam.pct, 1)}</div>
+            <span className="atlas-kpi-sub">{bias.seam.switches} switch{bias.seam.switches === 1 ? '' : 'es'} · first {bias.seam.from}</span>
+          </div>
         )}
-        <Stat label="Harmonized residual" value={pct(bias.correctedBreakPct, 1)} sub="after overlap-ratio correction" accent="#56d6a0" />
-        <Stat label="Break removed" value={`${Math.round(bias.reductionPct)}%`} sub="not rounded away — quantified" accent="#6ee7ff" />
-        <Stat
-          label="Era bridge ΣV/ΣM"
-          value={`${bias.ratio.toFixed(2)}×`}
-          sub={`era-wide ratio behind the break split · 90% CI ${bias.ratioLo.toFixed(2)}–${bias.ratioHi.toFixed(2)} · ${bias.overlapDays} overlap days`}
-        />
+        <div className="atlas-kpi-card" style={{ borderLeftColor: '#34d399' }}>
+          <span className="atlas-kpi-label">Harmonized residual</span>
+          <div className="atlas-kpi-val" style={{ color: '#34d399' }}>{pct(bias.correctedBreakPct, 1)}</div>
+          <span className="atlas-kpi-sub">after overlap-ratio correction</span>
+        </div>
+        <div className="atlas-kpi-card" style={{ borderLeftColor: '#38bdf8' }}>
+          <span className="atlas-kpi-label">Break removed</span>
+          <div className="atlas-kpi-val" style={{ color: '#38bdf8' }}>{Math.round(bias.reductionPct)}%</div>
+          <span className="atlas-kpi-sub">quantified, not erased</span>
+        </div>
+        <div className="atlas-kpi-card">
+          <span className="atlas-kpi-label">Era bridge ΣV/ΣM</span>
+          <div className="atlas-kpi-val">{bias.ratio.toFixed(2)}<small>× contagion</small></div>
+          <span className="atlas-kpi-sub">90% CI {bias.ratioLo.toFixed(2)}–{bias.ratioHi.toFixed(2)} · {bias.overlapDays} d</span>
+        </div>
       </div>
 
-      <Panel title="Bias X-ray" eyebrow="How the measured break is attributed" right={<Badge tone="default">pp = percentage points</Badge>}>
-        <Waterfall bias={bias} />
+      <Panel title="Bias X-ray" eyebrow="Decomposition of the 2012 sensor transition step" className="waterfall-panel" right={<Badge tone="default">pp = percentage points</Badge>}>
+        <div className="waterfall-hero">
+          <Waterfall bias={bias} />
+        </div>
         <div className="component-grid">
           {bias.components.map((c) => (
             <article key={c.key} className="component-card">
               <div className="component-head">
                 <strong>{c.label}</strong>
-                <span>{pct(c.value, 1)}</span>
+                <span className="mono-num">{pct(c.value, 1)}</span>
               </div>
               <div className="component-track">
                 <i style={{ width: `${Math.min(100, (Math.abs(c.value) / Math.max(1, Math.abs(bias.rawBreakPct)))) * 100}%` }} />
@@ -86,15 +96,26 @@ export function Diagnosis() {
             </article>
           ))}
         </div>
-        <p className="panel-note">
-          The total break is measured from the record. Its split across the four mechanisms is weighted by quantities
-          measured in this same record — |ln <code>k</code>| = {bias.ratio.toFixed(2)}, the per-detection FRP ratio, the
-          share of days with no VIIRS report, and the 90% interval on <code>k</code> — so the shares move when an area's
-          own measurements move. The largest term here is{' '}
-          {bias.components.reduce((a, b) => (Math.abs(b.value) > Math.abs(a.value) ? b : a)).label.toLowerCase()}. Even so,
-          the bars are accounting, not causal identification: the residual term absorbs everything the weights cannot
-          attribute, and a correction that reports zero residual is a correction that is hiding something.
-        </p>
+        <details className="method-disclosure">
+          <summary>Read full attribution methodology & terminology</summary>
+          <div className="method-disclosure-content">
+            <p>
+              The total break is measured from the record. Its split across the four mechanisms is weighted by quantities
+              measured in this same record — |ln <code>k</code>| = {bias.ratio.toFixed(2)}, the per-detection FRP ratio, the
+              share of days with no VIIRS report, and the 90% interval on <code>k</code> — so the shares move when an area's
+              own measurements move. The largest term here is{' '}
+              {bias.components.reduce((a, b) => (Math.abs(b.value) > Math.abs(a.value) ? b : a)).label.toLowerCase()}. Even so,
+              the bars are accounting, not causal identification: the residual term absorbs everything the weights cannot
+              attribute, and a correction that reports zero residual is a correction that is hiding something.
+            </p>
+            <div className="glossary-grid">
+              <div><strong>Era bridge</strong>: Empirical multiplier derived across years where both MODIS and VIIRS flew simultaneously.</div>
+              <div><strong>VIIRS-equivalent</strong>: Standardized unit adjusting MODIS 1km observations to match VIIRS 375m spatial sensitivity.</div>
+              <div><strong>FRP (Fire Radiative Power)</strong>: Instantaneous radiant heat output in Megawatts (MW) emitted by detected fires.</div>
+              <div><strong>Residual term</strong>: Unexplained variance between observed and predicted break magnitude.</div>
+            </div>
+          </div>
+        </details>
       </Panel>
 
       <div className="grid-2">
