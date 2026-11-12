@@ -1,11 +1,11 @@
-// Main application entry point with professional UI and animations
-import { lazy, Suspense, useState } from 'react';
+// Main application entry point with professional scientific UI and navigation
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore, type ViewId } from './lib/store';
 import type { StringKey } from './lib/i18n';
 import { AlertCenter, JudgeTour, SettingsPanel, Toasts } from './components/Overlays';
-import { nf } from './lib/format';
-import { provenanceMix } from './lib/data';
+import { nf, riskColor, ordinal } from './lib/format';
+import { provenanceMix, REGIONS } from './lib/data';
 
 // Lazy-loaded pages
 const Watch = lazy(() => import('./pages/Watch').then(m => ({ default: m.Watch })));
@@ -59,7 +59,6 @@ const NAV: { id: ViewId; label: string; short: string }[] = [
 function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerOpen: (v: boolean) => void }) {
   const store = useStore();
   const high = store.alerts.filter(a => a.status.percentile >= 85).length;
-  const watching = store.watchlist.length;
   return (
     <header className="topnav">
       <button type="button" className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open main navigation">
@@ -89,15 +88,12 @@ function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerO
       </nav>
       <div className="nav-right">
         <span className={`nav-live ${store.live ? 'on' : ''}`} title={`NASA FIRMS live window — real‑time through ${store.today}`}>
-          <i /> <span>{store.live ? 'LIVE REAL‑TIME' : 'SYNC'}</span>
+          <i /> <span>{store.live ? 'LIVE' : 'SYNC'}</span>
         </span>
         <button type="button" className="nav-alert" onClick={() => store.setAlertsOpen(true)} aria-label={`Open alert center, ${high} areas above the 85th percentile`}>
           <span className="alert-bell" aria-hidden>◉</span>
           <span className="nav-label">{store.t('alerts')}</span>
           {high > 0 && <span className="alert-count">{high}</span>}
-        </button>
-        <button type="button" className="nav-tour" onClick={() => store.setTourOpen(true)}>
-          <span aria-hidden>✦</span> <span className="nav-label">{store.t('tour')}</span>
         </button>
         <button type="button" className="lang-btn" onClick={() => store.setSettings({ lang: store.settings.lang === 'en' ? 'es' : 'en' })} aria-label="Toggle language">
           {store.settings.lang.toUpperCase()}
@@ -106,9 +102,64 @@ function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerO
           <span aria-hidden>⚙</span>
         </button>
       </div>
-      <div className="nav-underline" aria-hidden />
-      <span className="nav-watch-count" aria-hidden>{watching}/7 watched</span>
     </header>
+  );
+}
+
+function ActiveRegionBar() {
+  const store = useStore();
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const r = store.region;
+  const status = store.status;
+
+  return (
+    <aside className="context-bar" aria-label="Selected region context">
+      <div className="context-bar-inner">
+        <div className="context-target">
+          <span className="context-label">ACTIVE AREA</span>
+          <strong className="context-name">{r.name}</strong>
+          <span className="context-meta">{r.country} · {r.biome} · {nf(r.areaKm2)} km²</span>
+        </div>
+        <div className="context-status">
+          <span className="context-band-pill" style={{ borderColor: riskColor(status.band), color: riskColor(status.band) }}>
+            <span className="dot" style={{ background: riskColor(status.band) }} />
+            {status.band.toUpperCase()} · {ordinal(Math.round(status.percentile))} PERCENTILE
+          </span>
+          <button
+            type="button"
+            className="context-switch-btn"
+            onClick={() => setPickerOpen(!pickerOpen)}
+            aria-expanded={pickerOpen}
+          >
+            <span>Change area</span> <span aria-hidden>{pickerOpen ? '▲' : '▼'}</span>
+          </button>
+        </div>
+      </div>
+      {pickerOpen && (
+        <div className="context-picker">
+          <div className="context-picker-head">
+            <span>Select Pilot Region or Switch Area</span>
+            <button type="button" className="context-picker-close" onClick={() => setPickerOpen(false)} aria-label="Close selector">✕</button>
+          </div>
+          <div className="context-picker-chips">
+            {REGIONS.map((reg) => (
+              <button
+                key={reg.id}
+                type="button"
+                className={`context-chip ${reg.id === store.regionId ? 'active' : ''}`}
+                onClick={() => {
+                  store.selectRegion(reg.id);
+                  setPickerOpen(false);
+                }}
+              >
+                <strong>{reg.shortName}</strong>
+                <small>{reg.country} · {reg.biome}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </aside>
   );
 }
 
@@ -132,6 +183,7 @@ function Footer() {
           <button type="button" onClick={() => store.setView('outlook')}>Outlook</button>
           <button type="button" onClick={() => store.setView('brief')}>Brief</button>
           <button type="button" onClick={() => store.setView('method')}>Method</button>
+          <button type="button" onClick={() => store.setTourOpen(true)} style={{ color: 'var(--accent)' }}>About & Tour</button>
         </div>
         <div className="footer-meta">
           <span>Live detections worldwide: {nf(store.live?.meta.counts.kept ?? 0)}</span>
@@ -151,32 +203,58 @@ function Footer() {
 
 function DataLoadState({ onRetry }: { onRetry: () => void }) {
   const store = useStore();
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="boot-page" role="status" aria-live="polite">
-      <span className="boot-mark" aria-hidden>◈</span>
       <div className="boot-panel">
-        <div>
-          {store.loadError ? (
-            <>
-              <strong>Live data unavailable</strong>
-              <p>{store.loadError}</p>
+        {store.loadError ? (
+          <div className="boot-error-card">
+            <span className="boot-status-badge">ERROR</span>
+            <h2>Telemetry service unavailable</h2>
+            <p>{store.loadError}</p>
+            <div className="boot-actions">
               <button type="button" className="btn btn-primary" onClick={onRetry}>
-                Retry loading
+                Retry connection
               </button>
-              <p className="boot-note">The page shell stays interactive — you can open Settings or the guided tour while data reloads.</p>
-            </>
-          ) : (
-            <>
-              <strong>Acquiring the live FIRMS window</strong>
-              <p>The record is calibrated to that window, so nothing numeric is rendered before it arrives. The keyed archive and the MERRA-2 driver load with it.</p>
-              <div className="boot-progress" aria-hidden>
-                <span className="boot-progress-bar" />
-              </div>
-            </>
-          )}
-        </div>
+              <button type="button" className="btn btn-ghost" onClick={() => store.setSettingsOpen(true)}>
+                Open settings
+              </button>
+            </div>
+            <p className="boot-note">
+              The application shell remains available. Offline estimates and static references can still be accessed.
+            </p>
+          </div>
+        ) : (
+          <div className="boot-loading-card">
+            <div className="boot-spinner-wrap">
+              <div className="boot-spinner" />
+            </div>
+            <h2>Acquiring live FIRMS orbital window</h2>
+            <p className="boot-lead">
+              Waking the server, this can take up to a minute.
+            </p>
+            <p className="boot-sub">
+              Continuum synchronizes 26 years of MODIS/VIIRS historical calibration with today&apos;s real-time satellite overpasses.
+            </p>
+            <div className="boot-progress-track">
+              <div
+                className="boot-progress-fill"
+                style={{ width: `${Math.min(95, Math.max(10, seconds * 3))}%` }}
+              />
+            </div>
+            <div className="boot-timer">
+              <span>Time elapsed: {seconds}s</span>
+              <span>Host status: {seconds > 8 ? 'Waking free-tier container…' : 'Connecting to API…'}</span>
+            </div>
+          </div>
+        )}
       </div>
-      <span className="boot-line" aria-hidden />
     </section>
   );
 }
@@ -189,6 +267,7 @@ export function App() {
     <div className={`app view-${view}`}>
       <a className="skip-link" href="#main" onClick={e => { e.preventDefault(); const main = document.getElementById('main'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Skip to content</a>
       <TopNav drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+      {view !== 'watch' && store.live && <ActiveRegionBar />}
       <div className={`nav-drawer-overlay ${drawerOpen ? 'open' : ''}`} onClick={() => setDrawerOpen(false)} />
       <nav className={`nav-drawer ${drawerOpen ? 'open' : ''}`} aria-label="Primary navigation">
         <div className="nav-drawer-head">
@@ -222,6 +301,7 @@ export function App() {
           <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('outlook'); setDrawerOpen(false); }}>Outlook</button>
           <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('brief'); setDrawerOpen(false); }}>Brief</button>
           <button type="button" className="btn btn-small btn-ghost" onClick={() => { store.setView('method'); setDrawerOpen(false); }}>Method</button>
+          <button type="button" className="link-btn" onClick={() => { store.setTourOpen(true); setDrawerOpen(false); }}>About & Judge Tour</button>
           <button type="button" className="link-btn" onClick={() => { store.setSettingsOpen(true); setDrawerOpen(false); }}>Settings</button>
         </div>
       </nav>
