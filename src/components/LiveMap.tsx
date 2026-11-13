@@ -314,7 +314,7 @@ export function LiveMap({
     }
   }, [filteredPoints, displayMode]);
 
-  // Simulated 10-minute refresh poll check
+  // Checks if the bundled static snapshot is still reachable (staleness detection only; no live data fetch)
   useEffect(() => {
     const interval = setInterval(() => {
       // Refresh check against endpoint
@@ -474,7 +474,7 @@ export function LiveMap({
       <div className="live-map-footer">
         <span>Showing {nf(filteredPoints.length)} live detections in AOI</span>
         <span className="live-map-refresh-hint">
-          Server-cached endpoint · Auto-refreshed {Math.max(1, Math.round((Date.now() - lastUpdated.getTime()) / 60000))}m ago
+          Bundled FIRMS NRT snapshot · Data loaded at page load · Reload page for latest
         </span>
       </div>
     </div>
