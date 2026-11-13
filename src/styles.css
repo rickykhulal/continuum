@@ -3527,3 +3527,127 @@ button, [role="button"], a[href], input, select, textarea {
 @media (max-width: 1024px) {
   .nav-hamburger { display: inline-flex; }
 }
+
+/* Interactive LiveMap (MapLibre GL) */
+.live-map-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.live-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.live-map-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.live-map-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text, #f0f4f8);
+}
+.live-map-subtitle {
+  font-size: 11px;
+  color: var(--muted, #94a3b8);
+  font-family: var(--font-mono, monospace);
+}
+.live-map-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-map-mode-toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+.live-map-mode-toggle button {
+  background: transparent;
+  border: none;
+  color: var(--muted, #94a3b8);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.live-map-mode-toggle button.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text, #f0f4f8);
+  font-weight: 600;
+}
+.live-map-canvas {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  background: #02060b;
+}
+.live-map-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.06));
+  border-radius: 6px;
+}
+.sensor-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sensor-filters button {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  color: var(--muted, #94a3b8);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.sensor-filters button.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--line-bright, #ff9a6a);
+  color: var(--text, #f0f4f8);
+}
+.live-map-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.live-map-slider-row label {
+  font-size: 11px;
+  color: var(--muted, #94a3b8);
+  font-family: var(--font-mono, monospace);
+}
+.live-map-slider-row input[type='range'] {
+  width: 100%;
+  accent-color: #ff9a6a;
+}
+.live-map-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted, #94a3b8);
+  font-family: var(--font-mono, monospace);
+  padding: 0 4px;
+}
+.stale-badge {
+  font-size: 10px;
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

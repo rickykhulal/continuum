@@ -35,9 +35,10 @@
     "perf": "node scripts/perf-probe.mjs"
   },
   "dependencies": {
+    "framer-motion": "^11.0.0",
+    "maplibre-gl": "^6.18.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "framer-motion": "^11.0.0",
     "satellite.js": "^5.0.0",
     "three": "^0.169.0"
   },

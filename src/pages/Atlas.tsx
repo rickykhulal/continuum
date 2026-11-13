@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { AreaBar } from '../components/AreaBar';
-import { RegionMap } from '../components/RegionMap';
+import { LiveMap } from '../components/LiveMap';
 import { Badge, Panel, PageHeader, Stat } from '../components/ui';
 import {
   CalendarFrame, CalendarHeatmap, MonthBars, TrendCompare, StatusMeter, RankBars,
@@ -289,7 +289,7 @@ export function Atlas() {
             )
           }
         >
-          <RegionMap ref={mapRef} region={region} fires={fires} day={selectedDate} dayRecord={dayRec} onSelectDay={setSelectedDate} />
+          <LiveMap region={region} fires={fires} day={selectedDate} dayRecord={dayRec} onSelectDay={setSelectedDate} />
           {selectedDate && dayRec ? (
             <div className="day-detail">
               <div className="day-kpis">
