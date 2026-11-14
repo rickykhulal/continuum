@@ -56,6 +56,12 @@ const SOURCES = [
 
 const KEY = (process.env.FIRMS_MAP_KEY || process.env.MAP_KEY || '').trim();
 
+function mib(b) {
+  return Number((b / 1024 / 1024).toFixed(1));
+}
+
+let lastPrint = 0;
+
 function get(url, redirects = 0) {
   return new Promise((resolve, reject) => {
     const req = https
@@ -64,10 +70,28 @@ function get(url, redirects = 0) {
           res.resume();
           return resolve(get(new URL(res.headers.location, url).href, redirects + 1));
         }
+        const total = Number(res.headers['content-length'] || 0);
+        let received = 0;
         const chunks = [];
-        res.on('data', (c) => chunks.push(c));
+        const label = path.basename(new URL(url).pathname);
+        res.on('data', (c) => {
+          chunks.push(c);
+          received += c.length;
+          const now = Date.now();
+          if (total > 0 && now - lastPrint > 1000) {
+            const pct = Math.round((received / total) * 100);
+            process.stdout.write(`\rDownloading ${label}: ${mib(received)} MB / ${mib(total)} MB (${pct}%)`);
+            lastPrint = now;
+          }
+        });
         res.on('error', reject);
-        res.on('end', () => resolve({ status: res.statusCode, body: Buffer.concat(chunks) }));
+        res.on('end', () => {
+          if (total > 0) {
+            const pct = Math.round((received / total) * 100);
+            process.stdout.write(`\rDownloading ${label}: ${mib(received)} MB / ${mib(total)} MB (${pct}%) complete\n`);
+          }
+          resolve({ status: res.statusCode, body: Buffer.concat(chunks) });
+        });
       })
       .on('error', reject);
     req.setTimeout(300000, () => req.destroy(new Error('read timed out')));
