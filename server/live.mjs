@@ -185,14 +185,17 @@ async function refresh() {
       if (res.status !== 200) { ok = false; continue; }
       const text = Buffer.isBuffer(res.body) ? res.body.toString('utf8') : String(res.body);
       const info = inspect(text);
-      if (!info || info.rows < 1000) { ok = false; continue; }
+      if (!info || info.rows < 1000) {
+        // Upstream feed empty or degraded (e.g. maintenance); allow remaining operational feeds
+        continue;
+      }
       const tuples = parseTuples(text, src);
-      if (!tuples) { ok = false; continue; }
+      if (!tuples) { continue; }
       perSatelliteCounts[src.key] = tuples.length;
       all.push(...tuples);
     }
 
-    if (ok && all.length > 0) {
+    if (all.length > 0) {
       all.sort((a, b) => a[5] - b[5]);
       fires = all;
       fetchedAt = clock();
