@@ -12,10 +12,10 @@
  * - Response: { fires, fetchedAt, perSatelliteCounts, stale }.
  *
  * Rules (non-negotiable):
- *   • FIRMS_MAP_KEY must be set in the environment. If missing, the endpoint
- *     returns 503 with error code 'not_configured'; the UI shows
- *     "live data not configured". We never fall back to the bundled snapshot
- *     silently.
+ *   • FIRMS_MAP_KEY is optional. When absent the server uses the FIRMS open
+ *     (keyless) CSV route, which NASA serves publicly. When present it is
+ *     appended as map_key= and acts as a fallback if the open route is refused.
+ *     We never fall back to the bundled snapshot silently.
  *   • If the upstream fails, serve the last-good result with stale=true, or
  *     return 503 offline if there is none.
  *   • The key is never written to disk, never logged, and only used as the
@@ -241,20 +241,15 @@ function restoreDiskCache() {
 // Lifecycle
 // ---------------------------------------------------------------------------
 /**
- * Start the live provider. Idempotent. Restores the disk cache, decides the
- * configuration error, and (if a key is present) does the first fetch plus a
- * 10-minute refresh timer.
+ * Start the live provider. Idempotent. Restores the disk cache, then kicks off
+ * the first fetch and a 10-minute refresh timer. FIRMS_MAP_KEY is optional:
+ * fetchSource falls back to the keyless open CSV route (which FIRMS serves
+ * publicly) when no key is present, matching the behaviour of fetch-live.mjs.
  */
 export function start() {
   if (started) return;
   started = true;
   restoreDiskCache();
-  const key = (process.env.FIRMS_MAP_KEY || process.env.MAP_KEY || '').trim();
-  if (!key) {
-    error = 'not_configured';
-    console.log('[live] FIRMS_MAP_KEY not set — live data not configured');
-    return;
-  }
   void refresh().catch((err) => console.error('[live] refresh failed:', err.message));
   timer = setInterval(() => {
     void refresh().catch((err) => console.error('[live] refresh failed:', err.message));

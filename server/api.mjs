@@ -494,6 +494,10 @@ const GET_ROUTES = {
     const result = getLiveResponse();
     return [result.status, result.body];
   },
+  '/live-fires': () => {
+    const result = getLiveResponse();
+    return [result.status, result.body];
+  },
   '/ready': () => {
     const check = manifestCheck();
     const ok = Boolean(live) && Boolean(snapshot) && check.ok;
@@ -657,7 +661,7 @@ function rateClass(pathname) {
     .replace(/^\/+/, '')
     .replace(/^(area\/|export\/|sandbox\/)/, '')
     .replace(/\//g, '-');
-  if (name === 'meta' || name === 'method-card' || name === 'health' || name === 'ready' || name === 'live-firms' || name === 'metrics' || name === 'openapi.json') return 'A';
+  if (name === 'meta' || name === 'method-card' || name === 'health' || name === 'ready' || name === 'live-firms' || name === 'live-fires' || name === 'metrics' || name === 'openapi.json') return 'A';
   const key = Object.keys(CLASS_OF).find((k) => name.startsWith(k));
   return CLASS_OF[key || ''] || 'B';
 }
