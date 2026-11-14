@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { nf } from '../lib/format';
+import { playAlertChime } from '../lib/sound';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api/v1';
 
@@ -95,6 +96,7 @@ export function Community() {
           options,
         }),
       });
+      playAlertChime();
       setDraft({ author: '', type: 'text', content: '', imageUrl: '', isAnomaly: false });
       setPollOptions(['', '']);
       await load();
@@ -148,12 +150,12 @@ export function Community() {
         eyebrow="Community Hub"
         title="Crowdsourced fire-watch"
         intro={
-          <>
-            Community discussions are user-generated and do not represent official NASA data until verified.{' '}
+          <div className="community-disclaimer">
+            Community discussions are user-generated and do not represent official NASA data until verified.
             <a href="#" className="feed-link" onClick={(e) => { e.preventDefault(); }} target="_blank" rel="noreferrer">
               Read the method
             </a>
-          </>
+          </div>
         }
         actions={
           <>

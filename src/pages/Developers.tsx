@@ -1,5 +1,5 @@
 // Developer Portal — multi-language API examples for the Continuum public API.
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useStore } from '../lib/store';
 import { PageHeader } from './Community';
 
@@ -7,7 +7,9 @@ const BASE_URL = 'https://continuum-6ofw.onrender.com/api/v1';
 
 const snippets: Record<string, string> = {
   javascript: `// Web (JavaScript / Fetch)
-fetch('${BASE_URL}/live-fires?region_id=country-kenya')
+fetch('${BASE_URL}/live-fires?region_id=country-kenya', {
+  headers: { 'x-api-key': 'YOUR_API_KEY' }
+})
   .then((r) => r.json())
   .then((data) => console.log(data))
   .catch((err) => console.error(err));`,
@@ -17,13 +19,15 @@ import requests
 
 url = '${BASE_URL}/live-fires'
 params = {'region_id': 'country-kenya'}
-resp = requests.get(url, params=params)
+headers = {'x-api-key': 'YOUR_API_KEY'}
+resp = requests.get(url, params=params, headers=headers)
 resp.raise_for_status()
 print(resp.json())`,
 
   curl: `# cURL
 curl -G '${BASE_URL}/live-fires' \\
-  -d 'region_id=country-kenya'`,
+  -d 'region_id=country-kenya' \\
+  -H 'x-api-key: YOUR_API_KEY'`,
 
   csharp: `// C# (HttpClient)
 using System.Net.Http.Json;
@@ -91,7 +95,25 @@ const endpoints = [
 export function Developers() {
   const store = useStore();
   const [activeLang, setActiveLang] = useState('javascript');
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [keyError, setKeyError] = useState<string | null>(null);
   const t = (key: string) => store.t(key as never);
+
+  const generateKey = useCallback(async () => {
+    setGenerating(true);
+    setKeyError(null);
+    try {
+      const res = await fetch(`${BASE_URL}/auth/generate-key`, { method: 'POST' });
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      const data = await res.json();
+      setApiKey(data.api_key ?? null);
+    } catch (err) {
+      setKeyError(err instanceof Error ? err.message : 'Could not generate API key.');
+    } finally {
+      setGenerating(false);
+    }
+  }, []);
 
   return (
     <section className="page developers-page" aria-label="Developer Portal">
@@ -125,6 +147,44 @@ export function Developers() {
         <span className="dev-base-label">Base URL</span>
         <code className="dev-base-url">{BASE_URL}</code>
       </div>
+
+      <section className="dev-api-key">
+        <h2 className="dev-section-title">API Key</h2>
+        <p className="dev-key-note">
+          All <span className="mono">/api/v1/*</span> routes (except <span className="mono">/health</span> and
+          <span className="mono">/openapi.json</span>) require an <span className="mono">x-api-key</span> header.
+          Generate a key below, then pass it on every request. Keys are shown once and never logged.
+        </p>
+        <div className="dev-key-card">
+          {apiKey ? (
+            <>
+              <span className="dev-key-label">Your key</span>
+              <code className="dev-key-value">{apiKey}</code>
+              <button
+                type="button"
+                className="btn btn-small btn-ghost"
+                onClick={() => navigator.clipboard.writeText(apiKey ?? '')}
+                title="Copy key"
+              >
+                Copy
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="dev-key-label">No key generated yet</span>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={generating}
+                onClick={generateKey}
+              >
+                {generating ? 'Generating…' : 'Generate API key'}
+              </button>
+            </>
+          )}
+          {keyError && <span className="dev-key-error">{keyError}</span>}
+        </div>
+      </section>
 
       <section className="dev-endpoints">
         <h2 className="dev-section-title">Endpoints</h2>

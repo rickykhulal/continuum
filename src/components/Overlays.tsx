@@ -72,6 +72,25 @@ export function AlertCenter() {
   const [selected, setSelected] = useState<string | null>(null);
   const alerts = store.alerts;
   const current = alerts.find((a) => a.region.id === selected) ?? alerts[0];
+  const [community, setCommunity] = useState<{ posts: any[]; announcements: any[] } | null>(null);
+  const [communityError, setCommunityError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch(`${import.meta.env.VITE_API_BASE || '/api/v1'}/community/feed`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`community feed ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!cancelled) setCommunity(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setCommunityError(err instanceof Error ? err.message : 'Could not load community feed.');
+      });
+    return () => { cancelled = true; };
+  }, [open]);
   const message = useMemo(() => {
     if (!current) return '';
     const r = current.region;
@@ -123,6 +142,38 @@ export function AlertCenter() {
           <div><span>Watched</span><b>{store.watchlist.length}/7</b></div>
           <div><span>Data through</span><b>{shortDate(store.today)}</b></div>
         </div>
+
+        {community && (
+          <div className="alert-community">
+            <div className="drawer-section-head">
+              <span className="eyebrow">Community feed · verified anomalies</span>
+              {communityError && <span className="badge" style={{ color: '#ff453a' }}>{communityError}</span>}
+            </div>
+            <div className="alert-list">
+              {(community.announcements || []).slice(0, 6).map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  className="alert-item"
+                  onClick={() => {
+                    const p = (community?.posts || []).find((x) => x.id === a.sourcePostId);
+                    store.toast(p ? `${p.author}: ${p.content}` : `Verified alert from ${a.author}.`);
+                  }}
+                >
+                  <span className="alert-band" style={{ background: '#ff8a3d' }} />
+                  <span className="alert-item-main">
+                    <span className="alert-item-title">{a.author}<small>community report</small></span>
+                    <span className="alert-item-meta">{shortDate(a.createdAt)} · anomaly</span>
+                  </span>
+                  <span aria-hidden>⚠</span>
+                </button>
+              ))}
+              {(community.announcements || []).length === 0 && (
+                <div className="empty">No verified community anomalies yet.</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {forecast && (
           <div className="alert-future">

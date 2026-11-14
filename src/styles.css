@@ -1528,6 +1528,45 @@ html[data-theme="light"] .watch { background: #0b0c0e; }
 }
 .dock-lag { color: var(--warm); }
 
+/* Legend overlay on the Orbital Watch globe */
+.watch-legend {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(10, 12, 16, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-soft);
+  pointer-events: auto;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 8px currentColor;
+  flex-shrink: 0;
+}
+.legend-size {
+  width: 6px; height: 6px; border-radius: 50%; background: #ff8a3d; opacity: 0.55; flex-shrink: 0;
+}
+.legend-size.large { width: 12px; height: 12px; opacity: 0.9; }
+.legend-divider {
+  height: 1px; background: var(--line); margin: 2px 0;
+}
+html[data-theme="light"] .watch-legend { background: rgba(255, 255, 255, 0.8); color: #1d2a36; border-color: rgba(0,0,0,0.12); }
+
 /* --------------------------------------------------------------- area bar */
 .area-bar {
   display: flex;
@@ -3655,6 +3694,18 @@ button, [role="button"], a[href], input, select, textarea {
 /* ---------------------------------------------------------------- Community Hub */
 .community-page { max-width: 700px; margin: 0 auto; padding: 0 16px 48px; }
 .community-error { margin: 12px 0; padding: 10px 14px; border: 1px solid var(--line); background: rgba(248, 113, 113, 0.1); color: var(--text); border-radius: var(--radius-sm); font-size: 12px; }
+.community-disclaimer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin-top: 4px;
+  max-width: 700px;
+}
+.community-disclaimer .feed-link { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.community-disclaimer .feed-link:hover { color: var(--text); }
 .announcements-banner { margin: 16px 0; border: 1px solid var(--line-strong); background: rgba(255, 176, 32, 0.08); border-radius: var(--radius); overflow: hidden; }
 .banner-inner { padding: 10px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .banner-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
@@ -3685,6 +3736,11 @@ button, [role="button"], a[href], input, select, textarea {
 .poll-total { font-family: var(--font-mono); font-size: 10px; color: var(--dim); }
 .card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; border-top: 1px solid var(--line-faint); padding-top: 8px; }
 .chip { font-family: var(--font-mono); font-size: 9px; color: #56d6a0; border: 1px solid rgba(86, 214, 160, 0.35); border-radius: 4px; padding: 2px 6px; }
+
+/* Alert Center community feed panel */
+.alert-community { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.alert-community .alert-item { gap: 8px; padding: 7px 9px; }
+.alert-community .alert-item span:last-child { color: var(--muted); font-size: 10px; }
 
 .compose-box { border: 1px solid var(--line); background: var(--panel-solid); border-radius: var(--radius); padding: 16px; margin: 20px 0; display: flex; flex-direction: column; gap: 12px; }
 .compose-inner { display: flex; flex-direction: column; gap: 10px; }

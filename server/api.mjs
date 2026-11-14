@@ -56,6 +56,32 @@ function readJson(file) {
   }
 }
 
+// API Key registry: operator-managed set of bearer-style keys for the read API.
+// Lives in data/api_keys.json so keys survive restarts but never enter the bundle.
+const KEY_DIR = path.join(process.cwd(), 'data');
+const KEY_PATH = path.join(KEY_DIR, 'api_keys.json');
+function ensureKeyStore() {
+  if (!fs.existsSync(KEY_DIR)) fs.mkdirSync(KEY_DIR, { recursive: true });
+  if (!fs.existsSync(KEY_PATH)) fs.writeFileSync(KEY_PATH, JSON.stringify({ keys: [] }, null, 2) + '\n', 'utf8');
+  return readKeyStore();
+}
+function readKeyStore() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(KEY_PATH, 'utf8'));
+    if (parsed && Array.isArray(parsed.keys)) return parsed;
+  } catch {
+    /* fall through */
+  }
+  return { keys: [] };
+}
+function writeKeyStore(store) {
+  fs.writeFileSync(KEY_PATH, JSON.stringify(store, null, 2) + '\n', 'utf8');
+}
+function normalizeKey(k) {
+  return String(k || '').trim();
+}
+const KEY_STORE = ensureKeyStore();
+
 const live = readJson(path.join(dataDir, 'live_fires.json'));
 const climate = readJson(path.join(dataDir, 'climate_daily.json'));
 A.attachClimate(climate);
@@ -214,6 +240,20 @@ function envelope(extra = {}) {
     provisional_from: manifest?.provisional_from ?? provisionalFrom(),
     ...extra,
   };
+}
+
+/** API Key authentication. `x-api-key` header required on every `/api/v1/*` route except
+ * `/health` and `/openapi.json` (liveness / docs stay public). Enforcement only kicks in once
+ * at least one key has been generated (POST /api/v1/auth/generate-key); with an empty registry
+ * the API stays open so existing clients and tests keep working. Returns the normalized key
+ * string when valid, otherwise throws a 401 so the dispatcher can refuse the request. */
+function apiKey(req) {
+  const store = readKeyStore();
+  if (!store.keys.length) return null;
+  const key = normalizeKey(req.headers['x-api-key']);
+  if (!key) throw new ApiError(401, 'UNAUTHORIZED', 'API key required.', 'Send "x-api-key: <key>" on the request. Get one at POST /api/v1/auth/generate-key.');
+  if (!store.keys.includes(key)) throw new ApiError(401, 'UNAUTHORIZED', 'Invalid API key.', 'The supplied x-api-key is not registered. Generate a fresh key with POST /api/v1/auth/generate-key.');
+  return key;
 }
 
 const cache = new Map();
@@ -453,6 +493,15 @@ const routes = {
       return { __stream: true, contentType: 'application/pdf', filename: `continuum_${region.id}_brief.pdf`, body: Buffer.from(A.buildBriefPdf(lines).data), meta: envelope({ region_id: region.id, language: lang, lines: lines.length }) };
     }
     return { __stream: true, contentType: 'text/plain; charset=utf-8', filename: `continuum_${region.id}_brief.txt`, body: lines.join('\n') + '\n', meta: envelope({ region_id: region.id, language: lang, lines: lines.length }) };
+  },
+
+  // ---------------------------------------------------------------- API Key management
+  'POST /auth/generate-key': () => {
+    const store = readKeyStore();
+    const key = crypto.randomUUID();
+    store.keys.push(key);
+    writeKeyStore(store);
+    return envelope({ api_key: key, note: 'Store this key. It is shown only once; it is never logged or recoverable.' });
   },
 
   // ---------------------------------------------------------------- Community Hub
@@ -899,6 +948,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (pathname.startsWith('/api/v1/')) {
       const sub = pathname.replace('/api/v1', '');
+      // /health and /openapi.json stay public (liveness / docs). Every other /api/v1/* route
+      // requires a valid x-api-key.
+      if (sub !== '/health' && sub !== '/openapi.json') apiKey(req);
       const get = GET_ROUTES[sub];
       if (get && (req.method === 'GET' || req.method === 'HEAD')) return callGet(get, req, res, cors);
       const handler = routes[`POST ${sub}`];

@@ -105,6 +105,27 @@ export function Watch() {
         onSatStats={onSatStats}
       />
 
+      {/* Legend overlay: explains hotspot encoding (color = spacecraft, size = FRP intensity). */}
+      <div className="watch-legend">
+        <div className="legend-item">
+          <span className="legend-dot" style={{ background: '#ffb020' }} /> MODIS Terra / Aqua
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot" style={{ background: '#ff6a3d' }} /> VIIRS S-NPP
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot" style={{ background: '#4aa8ff' }} /> NOAA-20 VIIRS
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot" style={{ background: '#a78bfa' }} /> NOAA-21 VIIRS
+        </div>
+        <div className="legend-divider" />
+        <div className="legend-item">
+          <span className="legend-size small" /> Low FRP
+          <span className="legend-size large" /> High FRP
+        </div>
+      </div>
+
       {/* Floating unboxed hero - stays strictly top-left, never overlaps globe center */}
       <div className="watch-hero-clean">
         <div className="watch-hero-eyebrow">

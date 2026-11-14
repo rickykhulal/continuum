@@ -9,6 +9,7 @@ import { whereAt, countryWindow, windowMeta_ } from '../lib/countries';
 import { SENSOR_COLORS, type Region } from '../lib/types';
 import { gibsBasemapUrl } from '../lib/basemap';
 import { useStore } from '../lib/store';
+import { playClick } from '../lib/sound';
 
 export interface GlobeHandle {
   resetLive: () => void;
@@ -794,6 +795,7 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
           return true;
         }
         if (o.userData.pick === 'earth') {
+          playClick();
           const p = hit.point;
           const [lat, lon] = vec3ToLatLon(p.x, p.y, p.z);
           const la = Number(lat.toFixed(2));
