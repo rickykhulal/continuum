@@ -3628,6 +3628,7 @@ button, [role="button"], a[href], input, select, textarea {
   overflow: hidden;
   border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
   background: #02060b;
+  min-height: 400px;
 }
 .live-map-controls {
   display: flex;

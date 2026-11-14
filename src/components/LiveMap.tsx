@@ -66,8 +66,8 @@ export function LiveMap({
         : live.status === 'stale'
           ? 'LIVE STALE'
           : live.status === 'offline'
-            ? 'LIVE OFFLINE'
-            : 'LIVE NOT CONFIGURED';
+            ? 'Live data temporarily unavailable'
+            : 'Live feed not configured';
 
   // Compute live window points for this region
   const regionPoints = useMemo(() => {
@@ -114,9 +114,10 @@ export function LiveMap({
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Use NASA GIBS EPSG:3857 Web Mercator WMTS as base layer. GoogleMapsCompatible tile grid
-    // (y from the top) matches MapLibre's default (tms: false). A broad maxzoom keeps the base
-    // visible past the native imagery levels so the map never goes black on zoom.
+    // Use NASA GIBS EPSG:3857 Web Mercator WMTS as base layer. Blue Marble Next Generation
+    // carries a fixed-date (2004-01-01) global mosaic that always has imagery, so the base
+    // map never goes black even when the live FIRMS feed is down. GoogleMapsCompatible tile
+    // grid (y from the top) matches MapLibre's default (tms: false).
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: {
@@ -125,11 +126,11 @@ export function LiveMap({
           'gibs-imagery': {
             type: 'raster',
             tiles: [
-              'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
+              'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/2004-01-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
             ],
             tileSize: 256,
             minzoom: 1,
-            maxzoom: 9,
+            maxzoom: 8,
             attribution: '© NASA Worldview / GIBS',
           },
         },
@@ -139,7 +140,7 @@ export function LiveMap({
             type: 'raster',
             source: 'gibs-imagery',
             minzoom: 0,
-            maxzoom: 9,
+            maxzoom: 8,
           },
         ],
       },
@@ -150,6 +151,11 @@ export function LiveMap({
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+
+    // Log tile/render errors so a black map is diagnosable from the browser console.
+    map.on('error', (e: any) => {
+      console.error('[LiveMap] MapLibre error:', e?.error ?? e?.message ?? e);
+    });
 
     map.on('load', () => {
       // Add AOI outline
