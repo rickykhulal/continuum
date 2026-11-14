@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T13:16:01.034Z",
+  "generated_at": "2026-11-14T15:40:27.790Z",
   "bundle_version": "2026-11-02",
   "passed": 23,
   "total": 23,
@@ -82,7 +82,7 @@
     {
       "name": "manifest checksums and sizes match files",
       "ok": true,
-      "detail": "20 files verified"
+      "detail": "16 files verified, 4 data_raw build inputs absent (run npm run live to verify them)"
     },
     {
       "name": "manifest window agrees with the snapshot",

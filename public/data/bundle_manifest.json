@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "bundle_version": "continuum-2026-11-02-18eb28f5699c",
+  "bundle_version": "continuum-2026-11-14-58d98f95f252",
   "method_version": "continuum-harmonize-v1",
-  "created_at": "2026-11-14T13:11:16.285Z",
+  "created_at": "2026-11-14T22:50:09.477Z",
   "window": {
-    "start": "2026-10-26",
-    "end": "2026-11-02"
+    "start": "2026-11-07",
+    "end": "2026-11-14"
   },
-  "data_through": "2026-11-02",
-  "provisional_from": "2026-11-03",
-  "generated_at": "2026-11-14T13:10:59.844Z",
+  "data_through": "2026-11-14",
+  "provisional_from": "2026-11-15",
+  "generated_at": "2026-11-14T22:45:28.869Z",
   "counts": {
-    "totalQuality": 966066,
-    "kept": 71882,
-    "region": 50072,
-    "globalSampled": 21810
+    "totalQuality": 821874,
+    "kept": 55608,
+    "region": 33714,
+    "globalSampled": 21894
   },
   "sensors": [
     "MODIS",
@@ -24,24 +24,24 @@
   ],
   "sensor_meta": {
     "MODIS": {
-      "first": "2026-10-26",
-      "last": "2026-11-02",
-      "count": 60574
+      "first": "2026-11-07",
+      "last": "2026-11-14",
+      "count": 78348
     },
     "VIIRS-SNPP": {
-      "first": "2026-10-26",
-      "last": "2026-11-02",
-      "count": 299758
+      "first": "9999-99-99",
+      "last": "0000-00-00",
+      "count": 0
     },
     "NOAA-20": {
-      "first": "2026-10-26",
-      "last": "2026-11-02",
-      "count": 307564
+      "first": "2026-11-07",
+      "last": "2026-11-14",
+      "count": 376621
     },
     "NOAA-21": {
-      "first": "2026-10-26",
-      "last": "2026-11-02",
-      "count": 298170
+      "first": "2026-11-07",
+      "last": "2026-11-14",
+      "count": 366905
     }
   },
   "sources": [
@@ -70,8 +70,8 @@
   "files": [
     {
       "name": "data/live_fires.json",
-      "sha256": "635b565f39e26d0d1f3694c3f543a590b0775f50a9a4dc62d7fac060bd42c906",
-      "bytes": 2724470
+      "sha256": "1c8274282692b57fb05816881af56b17c0b2829d09a3cc2b1dd30f6156852f0e",
+      "bytes": 2109752
     },
     {
       "name": "data/climate_daily.json",
@@ -85,13 +85,13 @@
     },
     {
       "name": "data/countries.json",
-      "sha256": "022c470af5d76891ce4cb0ad3ee1f0fea91b2cc00f5f97a3670f8f7d941cb374",
-      "bytes": 41185
+      "sha256": "6fea593c0d2858ce5cae120c7d2e0e870f6f95c34242e391762a463044d59bf9",
+      "bytes": 41150
     },
     {
       "name": "data/country_fires.json",
-      "sha256": "ef95486bf0c2957ec26f20fed9c54116ed6446aba09e3d81662bfc2d26c4467a",
-      "bytes": 183607
+      "sha256": "ebd313a2bd3f85dcd0a4147d8556558cbe139c26f1eb79f0a0692f45b3c757b8",
+      "bytes": 163220
     },
     {
       "name": "data/countries-50m.json",
@@ -100,8 +100,8 @@
     },
     {
       "name": "data/snapshot.json",
-      "sha256": "ad0c8ae567a82a05c6bc31133fcb5001df82fac46fc678033a482f6754b5840c",
-      "bytes": 16281
+      "sha256": "26d3ff847864db1374c15fe064414199e937f416ee88d941ace5a0f898522bd4",
+      "bytes": 16445
     },
     {
       "name": "data/land-110m.json",
@@ -110,27 +110,27 @@
     },
     {
       "name": "data_raw/J1_VIIRS_C2_Global_7d.csv",
-      "sha256": "81bac806f38ebd6e1cf152d0e933a90abd4c3ac0ac8e44222b6ed2f4640df5d9",
-      "bytes": 29352228,
-      "rows": 352550
+      "sha256": "7f777d255f302e754a8bd0583ae7a0b1fb2a1b70a5c9973df49818cac2782f40",
+      "bytes": 35811865,
+      "rows": 430390
     },
     {
       "name": "data_raw/J2_VIIRS_C2_Global_7d.csv",
-      "sha256": "4b1a6f6b20634be99db4a7cda291881d912a5f8690fb713d234a4a9f70e1669a",
-      "bytes": 29069812,
-      "rows": 349551
+      "sha256": "d201ef62398f85e521b8ba9f4522a46a5162565fe2ae40e449dd94fa8c8800f2",
+      "bytes": 35086170,
+      "rows": 421677
     },
     {
       "name": "data_raw/MODIS_C6_1_Global_7d.csv",
-      "sha256": "a2108f01601043aca01be7655c1722e3b4da35de2379f483fadbd5c9217a2a09",
-      "bytes": 4913746,
-      "rows": 63761
+      "sha256": "3ca2743775af0e4c35cfa071d824500a71a7c12255ee68da37b04dc1bcb54313",
+      "bytes": 6334198,
+      "rows": 82201
     },
     {
       "name": "data_raw/SUOMI_VIIRS_C2_Global_7d.csv",
-      "sha256": "37631e748258993380c3c94087af19b9c786dd4a12178891a1fab978a538c8e6",
-      "bytes": 28104679,
-      "rows": 346212
+      "sha256": "fe0401e40606fd90dd4cf24dff508a93539089a4aecf701e2a3c85851fe9bf40",
+      "bytes": 112,
+      "rows": 0
     },
     {
       "name": "tle/satellites.txt",

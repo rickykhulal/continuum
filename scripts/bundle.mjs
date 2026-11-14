@@ -70,14 +70,16 @@ const versionDigest = sha256(
 
 const sensorLast = Object.values(snapshot.sensorMeta || {})
   .map((s) => s?.last)
-  .filter(Boolean)
+  .filter((d) => Boolean(d) && /^\d{4}-\d{2}-\d{2}$/.test(d) && d !== '0000-00-00' && d !== '9999-99-99')
   .sort();
 const provisionalFrom = sensorLast.length
-  ? (() => {
-      const d = new Date(`${sensorLast[0]}T00:00:00Z`);
-      d.setUTCDate(d.getUTCDate() + 1);
-      return d.toISOString().slice(0, 10);
-    })()
+  ? ((first) => {
+      const y = Number(first.slice(0, 4));
+      const m = Number(first.slice(5, 7)) - 1;
+      const d = Number(first.slice(8, 10));
+      const dt = new Date(Date.UTC(y, m, d + 1));
+      return dt.toISOString().slice(0, 10);
+    })(sensorLast[0])
   : null;
 
 const manifest = {

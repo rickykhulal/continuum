@@ -760,7 +760,8 @@ function pooledCalibration(live: LiveBundle | null) {
     // (VIIRS never pulled) must not dilute the denominator with a silent zero.
     for (let date = start; live && date <= end; date = addDays(date, 1)) {
       const seen = liveSensorAvailability(live?.meta ?? null, date);
-      if (!seen.modis || !seen.viirs) continue;
+      const viirs = seen.viirs || seen.noaa20 || seen.noaa21;
+      if (!seen.modis || !viirs) continue;
       const d = byDay.get(date) ?? { m: 0, v: 0, n: 0, n21: 0 };
       sumM += d.m; sumV += d.v + d.n + d.n21;
     }
@@ -813,7 +814,8 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
     let cSumM = 0, cSumV = 0;
     for (let date = live.meta.windowStart; date <= live.meta.windowEnd; date = addDays(date, 1)) {
       const seen = liveSensorAvailability(live.meta, date);
-      if (!seen.modis || !seen.viirs) continue;
+      const viirs = seen.viirs || seen.noaa20 || seen.noaa21;
+      if (!seen.modis || !viirs) continue;
       const s = exact.perDaySensors[date] ?? {};
       cSumM += s['MODIS'] ?? 0;
       cSumV += (s['VIIRS-SNPP'] ?? 0) + (s['NOAA-20'] ?? 0) + (s['NOAA-21'] ?? 0);
@@ -831,7 +833,8 @@ export function calibrationFor(region: Region, live: LiveBundle | null): Calibra
   if (!trustCountry) {
     for (let date = live.meta.windowStart; date <= live.meta.windowEnd; date = addDays(date, 1)) {
       const seen = liveSensorAvailability(live.meta, date);
-      if (!seen.modis || !seen.viirs) continue;
+      const viirs = seen.viirs || seen.noaa20 || seen.noaa21;
+      if (!seen.modis || !viirs) continue;
       const d = obs.byDay.get(date) ?? { m: 0, v: 0, n: 0, n21: 0 };
       areaSumM += d.m; areaSumV += d.v + d.n + d.n21;
     }
