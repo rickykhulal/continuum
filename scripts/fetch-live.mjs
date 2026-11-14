@@ -20,6 +20,32 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = path.join(ROOT, 'data_raw');
 
+// `.env` is not loaded by Node. Fill missing names from the repo-root file so
+// `npm run live` sees FIRMS_MAP_KEY without a manual export. A value already
+// in the process environment wins, and the key is never logged.
+function loadDotEnv(root) {
+  let text;
+  try {
+    text = fs.readFileSync(path.join(root, '.env'), 'utf8');
+  } catch {
+    return;
+  }
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const eq = line.indexOf('=');
+    if (eq <= 0) continue;
+    const name = line.slice(0, eq).trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) continue;
+    let value = line.slice(eq + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[name] == null || process.env[name] === '') process.env[name] = value;
+  }
+}
+loadDotEnv(ROOT);
+
 // Same files, same order, same sensor ids build-data.mjs declares.
 const SOURCES = [
   { file: 'MODIS_C6_1_Global_7d.csv', label: 'MODIS C6.1 Terra+Aqua', url: 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_7d.csv' },

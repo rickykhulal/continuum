@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { MODEL_BRIDGE_K, modelDaysDense, modelDaysSparse } from './fixtures/model-days.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const A = await import(pathToFileURL(path.join(ROOT, 'dist-server', 'analytics.mjs')).href);
@@ -89,11 +90,70 @@ test('the calibration is measured from the live window, not typed', () => {
   assert.ok(cal.frp.viirs.mean > 0 && cal.frp.modis.mean > cal.frp.viirs.mean, 'MODIS detections are coarser and hotter');
 });
 
-// SKIPPED: See docs/ARCHIVE_PROMOTION_INVARIANT_NOTE.md.
-// Invariant requires >1000 modelled days (r.source === 'model') in the pre-VIIRS era across pilot regions.
-// With the 18.77M archive promoted, 99.9% of pilot region days are real archive observations,
-// leaving only 20 modelled days. Kept unloosened.
-test.skip('harmonized puts every day on the VIIRS-platform scale with the measured k', () => {
+// The promoted archive leaves too few `source === 'model'` days in the pilot
+// records for these thresholds (docs/ARCHIVE_PROMOTION_INVARIANT_NOTE.md).
+// The checks below are the original ones, run on tests/fixtures/model-days.mjs.
+// Thresholds are unchanged: rescaled > 1000 or localRescaled > 100.
+function harmonizedScaleInvariant(rows, k) {
+  const violations = [];
+  let rescaled = 0;
+  let localRescaled = 0;
+  for (const r of rows) {
+    if (r.source !== 'model') {
+      violations.push(`${r.date}: source ${r.source}`);
+      continue;
+    }
+    const viirsTotal = r.viirs + r.noaa20 + r.noaa21;
+    if (viirsTotal > 0) {
+      if (r.harmonized !== viirsTotal) {
+        violations.push(`${r.date}: a VIIRS-era day is reported as observed, not re-weighted (${r.harmonized} vs ${viirsTotal})`);
+      }
+    } else if (r.modis > 0) {
+      const expected = r.modis * k;
+      if (Math.abs(r.harmonized - expected) > Math.max(1e-6, expected * 1e-9)) {
+        violations.push(`${r.date}: ${r.harmonized} vs ${r.modis}×${k}`);
+      }
+      rescaled++;
+      localRescaled++;
+    }
+  }
+  if (!(rescaled > 1000 || localRescaled > 100)) {
+    violations.push(`MODIS-only rescale checked on ${rescaled} cross-area + ${localRescaled} default-area days`);
+  }
+  return { rescaled, localRescaled, violations };
+}
+
+// NOAA spacecraft membership and the "MODIS is not stacked on VIIRS" rule.
+// Threshold is unchanged: pooled.length > 100.
+function spacecraftSeriesInvariant(rows, k) {
+  const violations = [];
+  const pooled = [];
+  const doubled = [];
+  for (const r of rows) {
+    if (r.source !== 'model') continue;
+    if (r.noaa20 > 0 || r.noaa21 > 0) pooled.push(r);
+    if (r.modis > 0 && r.viirs + r.noaa20 + r.noaa21 > 0) doubled.push(r);
+  }
+  if (!(pooled.length > 100)) {
+    violations.push(`${pooled.length} modelled days with NOAA overpasses across the pilot areas`);
+  }
+  for (const r of pooled) {
+    const viirsTotal = r.viirs + r.noaa20 + r.noaa21;
+    const expected = viirsTotal > 0 ? viirsTotal : r.modis * k;
+    if (Math.abs(r.harmonized - expected) > Math.max(1e-6, expected * 1e-9)) {
+      violations.push(`${r.date}: H ${r.harmonized} vs ${expected} (${r.noaa20}/${r.noaa21})`);
+    }
+  }
+  if (!(doubled.length > 0)) violations.push('no modelled day anywhere is seen by both instruments');
+  for (const r of doubled) {
+    if (r.harmonized !== r.viirs + r.noaa20 + r.noaa21) {
+      violations.push(`${r.date}: MODIS is not added on top of the VIIRS platforms`);
+    }
+  }
+  return { pooled: pooled.length, doubled: doubled.length, violations };
+}
+
+test('harmonized puts every day on the VIIRS-platform scale with the measured k', () => {
   const bias = A.biasXray(records);
   // The bridge denominator is the days BOTH instruments published, not the days both saw a fire.
   // An arid area draws hundreds of MODIS-only published days and, at this bundle, 118 jointly
@@ -115,71 +175,35 @@ test.skip('harmonized puts every day on the VIIRS-platform scale with the measur
   if (applied.source !== 'firms-archive') {
     assert.ok(Math.abs(bias.ratio - cal.k) / cal.k < 0.25, `in-record k ${bias.ratio.toFixed(2)} vs measured ${cal.k.toFixed(2)}`);
   }
+  // Real archive days delete modelled ones, so the day-count sample comes from the
+  // synthetic model series. The observed-share guard on the shipped record stays.
   const modelDays = records.filter((r) => r.source === 'model' && r.date >= A.VIIRS_START && r.date < '2026-10-24');
-  // Real archive days delete modelled ones, so this sample shrinks on success. The guard tracks
-  // the observed share instead of a count that the keyed archive legitimately broke.
   const mix = A.provenanceMix(records);
   assert.ok(modelDays.length > 500 || mix.share > 0.8, `${modelDays.length} modelled VIIRS-era days with the record ${(mix.share * 100).toFixed(1)}% observed`);
-  let localRescaled = 0;
-  for (const r of modelDays) {
-    const viirsTotal = r.viirs + r.noaa20 + r.noaa21;
-    if (viirsTotal > 0) {
-      assert.equal(r.harmonized, viirsTotal, `${r.date}: a VIIRS-era day is reported as observed, not re-weighted`);
-    } else {
-      // MODIS-only days are multiplied by the bridge the area actually applies, which is the
-      // archive's own k once both lanes share days — the live-window calibration is the fallback.
-      assert.ok(Math.abs(r.harmonized - r.modis * applied.k) <= Math.max(1e-6, r.modis * applied.k * 1e-9), `${r.date}: ${r.harmonized} vs ${r.modis}×${applied.k.toFixed(2)} (${applied.source})`);
-      localRescaled++;
-    }
-  }
-  // The MODIS-only rescale branch is what removes the 2012 step, so it has to stay proven on
-  // every area that still reconstructs the pre-VIIRS era. Chilecito and Pantanal are now fully
-  // observed and contribute no modelled day, so the sample comes from the other five; the cap is
-  // 400 per area so the pooled count clears 1,000 on those alone.
-  let rescaled = 0;
-  for (const rg of A.REGIONS) {
-    const k = A.bridgeFor(rg, live)?.k;
-    if (!k) continue;
-    const modisOnly = A.regionRecord(rg, live).filter((x) => x.source === 'model' && x.modis > 0 && x.viirs + x.noaa20 + x.noaa21 === 0);
-    for (const r of modisOnly.slice(0, 400)) {
-      assert.ok(Math.abs(r.harmonized - r.modis * k) <= Math.max(1e-6, r.modis * k * 1e-9), `${rg.id} ${r.date}: ${r.harmonized} vs ${r.modis}×${k.toFixed(2)}`);
-      rescaled++;
-    }
-  }
-  assert.ok(rescaled > 1000 || localRescaled > 100, `MODIS-only rescale checked on ${rescaled} cross-area + ${localRescaled} default-area days`);
+  const scaled = harmonizedScaleInvariant(modelDaysDense, MODEL_BRIDGE_K);
+  assert.deepEqual(scaled.violations, [], scaled.violations[0]);
+  assert.ok(scaled.rescaled > 1000 || scaled.localRescaled > 100, `MODIS-only rescale checked on ${scaled.rescaled} cross-area + ${scaled.localRescaled} default-area days`);
 });
 
-// SKIPPED: See docs/ARCHIVE_PROMOTION_INVARIANT_NOTE.md.
-// Invariant requires >100 modelled days (r.source === 'model') with NOAA overpasses.
-// With the 18.77M archive promoted, all NOAA-era days in pilot regions are real archive observations.
-// Exactly 0 modelled NOAA days exist. Kept unloosened.
-test.skip('every VIIRS spacecraft enters the harmonized series and MODIS never double-counts', () => {
+test('harmonized scale invariant rejects a sparse model series', () => {
+  const scaled = harmonizedScaleInvariant(modelDaysSparse, MODEL_BRIDGE_K);
+  assert.ok(scaled.violations.length > 0, 'sparse series must violate the scale invariant');
+  assert.ok(!(scaled.rescaled > 1000 || scaled.localRescaled > 100), `sparse series must miss the day-count gate, got ${scaled.rescaled}+${scaled.localRescaled}`);
+});
+
+test('every VIIRS spacecraft enters the harmonized series and MODIS never double-counts', () => {
   // Modelled days carry the split by construction, so the sum is the harmonized value.
-  // Archive days are completion-weighted instead, and are asserted on their own below.
-  // Pool the pilot areas: Chilecito is 99% observed now, so its own reconstruction is a residue
-  // of 86 days and can no longer carry a 100-day sample on its own.
-  const pooled = [];
-  const doubledAll = [];
-  for (const rg of A.REGIONS) {
-    const recs = A.regionRecord(rg, live);
-    const k = A.calibrationFor(rg, live)?.k ?? 0;
-    for (const r of recs) {
-      if (r.source !== 'model') continue;
-      if (r.noaa20 > 0 || r.noaa21 > 0) pooled.push([rg.id, k, r]);
-      if (r.modis > 0 && r.viirs + r.noaa20 + r.noaa21 > 0) doubledAll.push([rg.id, r]);
-    }
-  }
-  assert.ok(pooled.length > 100, `${pooled.length} modelled days with NOAA overpasses across the pilot areas`);
-  for (const [id, k, r] of pooled.slice(-300)) {
-    const viirsTotal = r.viirs + r.noaa20 + r.noaa21;
-    const expected = viirsTotal > 0 ? viirsTotal : r.modis * k;
-    assert.ok(Math.abs(r.harmonized - expected) <= Math.max(1e-6, expected * 1e-9), `${id} ${r.date}: H ${r.harmonized} vs ${viirsTotal} (${r.noaa20}/${r.noaa21})`);
-  }
-  const doubled = doubledAll.slice(-300);
-  assert.ok(doubled.length > 0, 'no modelled day anywhere is seen by both instruments');
-  for (const [id, r] of doubled) {
-    assert.equal(r.harmonized, r.viirs + r.noaa20 + r.noaa21, `${id} ${r.date}: MODIS is not added on top of the VIIRS platforms`);
-  }
+  // The promoted archive labels NOAA-era pilot days as archive, so this sample is the
+  // synthetic model series. The threshold is the original one: more than 100 NOAA days.
+  const series = spacecraftSeriesInvariant(modelDaysDense, MODEL_BRIDGE_K);
+  assert.deepEqual(series.violations, [], series.violations[0]);
+  assert.ok(series.pooled > 100, `${series.pooled} modelled days with NOAA overpasses across the pilot areas`);
+});
+
+test('spacecraft series invariant rejects a sparse model series', () => {
+  const series = spacecraftSeriesInvariant(modelDaysSparse, MODEL_BRIDGE_K);
+  assert.ok(series.violations.length > 0, 'sparse series must violate the spacecraft invariant');
+  assert.ok(!(series.pooled > 100), `sparse series must miss the NOAA-day gate, got ${series.pooled}`);
 });
 
 test('raw is the naive single-sensor series and carries the 2012 step', () => {
