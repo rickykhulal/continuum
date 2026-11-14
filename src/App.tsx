@@ -15,6 +15,7 @@ const Diagnosis = lazy(() => import('./pages/Diagnosis').then(m => ({ default: m
 const Outlook = lazy(() => import('./pages/Outlook').then(m => ({ default: m.Outlook })));
 const Brief = lazy(() => import('./pages/Brief').then(m => ({ default: m.Brief })));
 const Method = lazy(() => import('./pages/Method').then(m => ({ default: m.Method })));
+const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
 
 const BOOT_TITLES: Record<ViewId, string> = {
   watch: 'Assembling the orbital watch',
@@ -23,6 +24,7 @@ const BOOT_TITLES: Record<ViewId, string> = {
   outlook: 'Building the four‑week outlook',
   brief: 'Setting the field brief',
   method: 'Laying out the method',
+  community: 'Opening the community hub',
 };
 
 function WatchBoot() {
@@ -55,6 +57,7 @@ const NAV: { id: ViewId; label: string; short: string }[] = [
   { id: 'outlook', label: 'Outlook', short: 'Outlook' },
   { id: 'brief', label: 'Brief', short: 'Brief' },
   { id: 'method', label: 'Method', short: 'Method' },
+  { id: 'community', label: 'Community Hub', short: 'Hub' },
 ];
 
 function TopNav({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerOpen: (v: boolean) => void }) {
@@ -211,6 +214,7 @@ function Footer() {
           <button type="button" onClick={() => store.setView('outlook')}>Outlook</button>
           <button type="button" onClick={() => store.setView('brief')}>Brief</button>
           <button type="button" onClick={() => store.setView('method')}>Method</button>
+          <button type="button" onClick={() => store.setView('community')}>Community Hub</button>
           <button type="button" onClick={() => store.setTourOpen(true)} style={{ color: 'var(--accent)' }}>About & Tour</button>
         </div>
         <div className="footer-meta">
@@ -360,6 +364,7 @@ export function App() {
                 {view === 'outlook' && <Outlook />}
                 {view === 'brief' && <Brief />}
                 {view === 'method' && <Method />}
+                {view === 'community' && <Community />}
               </Suspense>
             ))}
           </motion.div>

@@ -15,7 +15,7 @@ import { countryById, countryRegion, installWorldLayer, loadWorldLayer, uninstal
 import { isoDate } from '../lib/format';
 import { t as translate, type Lang, type StringKey } from '../lib/i18n';
 
-export type ViewId = 'watch' | 'atlas' | 'diagnosis' | 'outlook' | 'brief' | 'method';
+export type ViewId = 'watch' | 'atlas' | 'diagnosis' | 'outlook' | 'brief' | 'method' | 'community';
 
 export interface Settings {
   lang: Lang;

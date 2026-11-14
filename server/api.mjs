@@ -9,6 +9,13 @@ import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as A from '../dist-server/analytics.mjs';
 import { start as startLive, getResponse as getLiveResponse, stop as stopLive, resetForTest as resetLive } from './live.mjs';
+import {
+  getPosts as communityGetPosts,
+  createPost as communityCreatePost,
+  votePoll as communityVotePoll,
+  verifyAnomaly as communityVerifyAnomaly,
+  getAnnouncements as communityGetAnnouncements,
+} from './community-store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA_BUNDLE_PATH = process.env.DATA_BUNDLE_PATH || null;
@@ -447,6 +454,30 @@ const routes = {
     }
     return { __stream: true, contentType: 'text/plain; charset=utf-8', filename: `continuum_${region.id}_brief.txt`, body: lines.join('\n') + '\n', meta: envelope({ region_id: region.id, language: lang, lines: lines.length }) };
   },
+
+  // ---------------------------------------------------------------- Community Hub
+  'POST /community/posts': (body) => {
+    const post = communityCreatePost({
+      author: body?.author,
+      type: body?.type,
+      content: body?.content,
+      imageUrl: body?.imageUrl,
+      isAnomaly: body?.isAnomaly,
+      options: body?.options,
+    });
+    if (!post) throw new ApiError(422, 'PARAMETER_INVALID', 'Could not create post.', 'Provide author, type and content.');
+    return envelope({ post });
+  },
+  'POST /community/vote': (body) => {
+    const post = communityVotePoll({ postId: body?.postId, optionIndex: body?.optionIndex });
+    if (!post) throw new ApiError(422, 'PARAMETER_INVALID', 'Could not register vote.', 'Provide a valid poll postId and optionIndex.');
+    return envelope({ post });
+  },
+  'POST /community/verify': (body) => {
+    const post = communityVerifyAnomaly({ postId: body?.postId, verified: body?.verified });
+    if (!post) throw new ApiError(422, 'PARAMETER_INVALID', 'Could not verify anomaly.', 'Provide a valid anomaly postId.');
+    return envelope({ post, announcements: communityGetAnnouncements() });
+  },
 };
 
 /**
@@ -498,6 +529,13 @@ const GET_ROUTES = {
     const result = getLiveResponse();
     return [result.status, result.body];
   },
+  '/community/feed': () => [
+    200,
+    envelope({
+      posts: communityGetPosts(),
+      announcements: communityGetAnnouncements(),
+    }),
+  ],
   '/ready': () => {
     const check = manifestCheck();
     const ok = Boolean(live) && Boolean(snapshot) && check.ok;
@@ -951,6 +989,10 @@ function openapiDoc(req) {
       '/export/csv': post('/export/csv', 'B'),
       '/export/geojson': post('/export/geojson', 'B', { date: { type: 'string', format: 'date' } }),
       '/brief': post('/brief', 'B', { language: { type: 'string', enum: ['en', 'es'] }, format: { type: 'string', enum: ['text', 'pdf'] } }),
+      '/community/feed': { get: { summary: 'Community feed — posts and verified announcements', 'x-rate-class': 'B', responses: { 200: { description: 'OK' } } } },
+      '/community/posts': post('/community/posts', 'B', { author: { type: 'string' }, type: { type: 'string', enum: ['text', 'poll', 'anomaly'] }, content: { type: 'string' }, imageUrl: { type: 'string' }, options: { type: 'array', items: { type: 'string' } } }),
+      '/community/vote': post('/community/vote', 'B', { postId: { type: 'string' }, optionIndex: { type: 'integer' } }),
+      '/community/verify': post('/community/verify', 'B', { postId: { type: 'string' }, verified: { type: 'boolean' } }),
       '/meta': { get: { summary: 'Versions, coverage, pilots, limits', 'x-rate-class': 'A', responses: { 200: { description: 'OK' } } } },
       '/method-card': { get: { summary: 'Equations, limits, provenance', 'x-rate-class': 'A', responses: { 200: { description: 'OK' } } } },
       '/health': { get: { summary: 'Liveness', responses: { 200: { description: 'OK' } } } },

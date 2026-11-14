@@ -12,6 +12,7 @@ vite.config.d.ts
 # public/data/bundle_manifest.json records the sha256 of every CSV it consumed. Re-download with
 # `npm run live`; `npm run validate` then verifies those hashes instead of skipping them.
 data_raw
+data
 backups
 .qoder-shots
 .shots
