@@ -87,6 +87,10 @@ const LANGUAGES = [
 
 const endpoints = [
   { method: 'GET', path: '/health', desc: 'Liveness check — returns ok status.' },
+  { method: 'GET', path: '/atlas', desc: 'Processed burning calendar — dates, raw/harmonized counts, 90% CI.' },
+  { method: 'GET', path: '/diagnosis', desc: 'Bias X-ray — sensor overlap ratio k, 2012 break, calibration metrics.' },
+  { method: 'GET', path: '/outlook', desc: 'Analog season forecasts and fire-weather stress outlook.' },
+  { method: 'GET', path: '/brief', desc: 'Generated textual/markdown brief for a region.' },
   { method: 'GET', path: '/trend', desc: 'Harmonized historical data for a given area.' },
   { method: 'GET', path: '/live-fires', desc: 'Live fire detections for a region or area.' },
   { method: 'GET', path: '/community/feed', desc: 'Community posts and verified announcements.' },
@@ -159,15 +163,21 @@ export function Developers() {
           {apiKey ? (
             <>
               <span className="dev-key-label">Your key</span>
-              <code className="dev-key-value">{apiKey}</code>
-              <button
-                type="button"
-                className="btn btn-small btn-ghost"
-                onClick={() => navigator.clipboard.writeText(apiKey ?? '')}
-                title="Copy key"
-              >
-                Copy
-              </button>
+              <div className="dev-key-value-wrapper">
+                <code className="dev-key-value">{apiKey}</code>
+                <button
+                  type="button"
+                  className="btn btn-small btn-ghost dev-key-copy"
+                  onClick={() => {
+                    navigator.clipboard.writeText(apiKey ?? '');
+                    setKeyError(null);
+                  }}
+                  title="Copy key"
+                >
+                  Copy
+                </button>
+              </div>
+              {keyError && <span className="dev-key-error">{keyError}</span>}
             </>
           ) : (
             <>
@@ -180,14 +190,19 @@ export function Developers() {
               >
                 {generating ? 'Generating…' : 'Generate API key'}
               </button>
+              {keyError && <span className="dev-key-error">{keyError}</span>}
             </>
           )}
-          {keyError && <span className="dev-key-error">{keyError}</span>}
         </div>
       </section>
 
       <section className="dev-endpoints">
         <h2 className="dev-section-title">Endpoints</h2>
+        <p className="dev-key-note">
+          Build a full clone of Continuum. These endpoints expose our processed, harmonized data — no NASA API keys
+          or raw CSV downloading required. All routes (except /health and /openapi.json) require an
+          <span className="mono">x-api-key</span> header.
+        </p>
         <table className="dev-table">
           <thead>
             <tr>

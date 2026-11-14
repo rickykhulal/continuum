@@ -271,6 +271,60 @@ function areaContext(body) {
   return { region, records, resolution, report };
 }
 
+/** Resolve a region from GET query parameters: ?region_id=... or ?lat=&lon=(&radius_km=).
+ * Mirrors requireArea but reads from URLSearchParams instead of a JSON body. */
+function requireAreaFromQuery(url) {
+  const params = url.searchParams;
+  const regionId = params.get('region_id');
+  const lat = params.get('lat');
+  const lon = params.get('lon');
+  const radius = params.get('radius_km');
+  if (regionId) {
+    const known = A.lookupRegion(regionId);
+    if (!known) {
+      throw new ApiError(
+        422,
+        'OUT_OF_COVERAGE',
+        `No area "${regionId}".`,
+        `Known areas: the ${A.REGIONS.length} pilot ids, any country as "country-<id>" (${WORLD_COUNTRIES} of them — see GET /meta), or lat/lon for anywhere else on Earth.`,
+      );
+    }
+    return { region: known, resolution: known.id.startsWith('country-') ? 'country border (Natural Earth 50m)' : 'pilot region', report: { areaKm2: known.areaKm2, vertices: 0 } };
+  }
+  if (lat !== null && lon !== null) {
+    const la = Number(lat);
+    const lo = Number(lon);
+    if (!Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) {
+      throw new ApiError(422, 'INVALID_GEOMETRY', 'Latitude must be within ±90 and longitude within ±180.', 'Correct the coordinates.');
+    }
+    const rad = Math.max(20, Math.min(800, Number(radius) || 140));
+    return {
+      region: A.customRegion(la, lo, rad, 'custom'),
+      resolution: 'circle',
+      report: { areaKm2: Math.PI * rad * rad, vertices: 0 },
+    };
+  }
+  throw new ApiError(422, 'PARAMETER_INVALID', 'Provide ?region_id= or ?lat=&lon=.', 'See docs/api.md for request examples.');
+}
+
+function pickRangeFromQuery(url, records) {
+  const last = records[records.length - 1]?.date ?? START_DATE;
+  const start = url.searchParams.get('start') ?? START_DATE;
+  const end = url.searchParams.get('end') ?? last;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end)) {
+    throw new ApiError(422, 'DATE_RANGE_INVALID', 'Dates must be ISO 8601 (YYYY-MM-DD).', 'Example: 2024-01-01.');
+  }
+  if (start > end) throw new ApiError(422, 'DATE_RANGE_INVALID', 'start is after end.', 'Swap the dates.');
+  if (end < START_DATE || start > last) {
+    throw new ApiError(422, 'DATE_RANGE_INVALID', `Data covers ${START_DATE} to ${last}.`, 'Choose a range inside the record.');
+  }
+  return [start, end];
+}
+
+function recordsFromRegion(region, records) {
+  return cached(`${region.id}:${region.center}:${region.radiusKm ?? ''}`, () => A.regionRecord(region, live));
+}
+
 function geoFeatures(region, fires, date) {
   const points = A.livePointsForRegion(region, fires ?? liveFires, date);
   return {
@@ -590,6 +644,79 @@ const GET_ROUTES = {
       announcements: communityGetAnnouncements(),
     }),
   ],
+  '/atlas': (req) => {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const { region, resolution, report } = requireAreaFromQuery(url);
+    const records = recordsFromRegion(region, live);
+    const { start, end } = pickRangeFromQuery(url, records);
+    const values = A.recordsInRange(records, start, end).map((r) => ({
+      date: r.date,
+      year: r.year,
+      month: r.month,
+      doy: r.doy,
+      value: Number(A.dailyValue(r, 'hotspots', 'harmonized').toFixed(3)),
+      lower: Number(r.lo.toFixed(3)),
+      upper: Number(r.hi.toFixed(3)),
+      harmonized: Number(r.harmonized.toFixed(3)),
+      raw: Number(r.raw.toFixed(3)),
+      trust: r.trust,
+      provisional: r.provisional,
+      source: r.source,
+    }));
+    return [200, envelope({ region_id: region.id, name: region.name, area_resolution: resolution, area_km2: Math.round(region.areaKm2), start, end, values })];
+  },
+  '/diagnosis': (req) => {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const { region } = requireAreaFromQuery(url);
+    const records = recordsFromRegion(region, live);
+    const bias = A.biasXray(records);
+    const cal = A.calibrationFor(region, live);
+    return [200, envelope({ region_id: region.id, name: region.name, bias: { ratio: bias.ratio, ratioLo: bias.ratioLo, ratioHi: bias.ratioHi, rawBreakPct: bias.rawBreakPct, correctedBreakPct: bias.correctedBreakPct, breakBasis: bias.breakBasis, seam: bias.seam, reductionPct: bias.reductionPct }, calibration: cal ? { k: cal.k, kSource: cal.kSource, levelSource: cal.levelSource, levelPerDay: cal.levelPerDay, windowDays: cal.windowDays, overlapDays: cal.overlapDays, sumModis: cal.sumModis, sumViirs: cal.sumViirs, frp: cal.frp, viirsShares: cal.viirsShares } : null })];
+  },
+  '/outlook': (req) => {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const { region } = requireAreaFromQuery(url);
+    const records = recordsFromRegion(region, live);
+    const today = records[records.length - 1]?.date ?? START_DATE;
+    const twin = A.twinAnalogs(records, today, 8);
+    return [200, envelope({ region_id: region.id, name: region.name, today, weeks: twin.weeks, backtestHitRate: twin.backtestHitRate, sampleYears: twin.sampleYears, referenceYear: twin.referenceYear, analogs: twin.analogs.map((a) => ({ year: a.year, similarity: a.similarity, correlation: a.correlation, next4WeeksAnomalyPct: a.next4WeeksAnomalyPct })), analogDeparture: A.analogDeparture(twin) })];
+  },
+  '/brief': (req) => {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const { region } = requireAreaFromQuery(url);
+    const records = recordsFromRegion(region, live);
+    const { start, end } = pickRangeFromQuery(url, records);
+    const sel = A.recordsInRange(records, start, end);
+    const status = A.statusFor(region, records, end);
+    const bias = A.biasXray(records);
+    const lang = url.searchParams.get('language') === 'es' ? 'es' : 'en';
+    const lines =
+      lang === 'es'
+        ? [
+            'CONTINUUM — FICHA DE ÁREA',
+            `Área: ${region.name} (${region.country}) · ${Math.round(region.areaKm2).toLocaleString('es')} km²`,
+            `Ventana: ${start} → ${end} · datos hasta ${envelope().data_through}`,
+            `Actividad armonizada: ${sel.reduce((s, r) => s + r.harmonized, 0).toFixed(0)} hotspot-equivalentes`,
+            `Estado actual: ${status.percentile.toFixed(0)}º percentil — banda ${status.band}. ${status.sentence}`,
+            `Calibración entre sensores: ${bias.k.toFixed(2)}× (IC 90% ${bias.ratioLo ? bias.ratioLo.toFixed(2) : '—'}–${bias.ratioHi ? bias.ratioHi.toFixed(2) : '—'})`,
+            'Aviso: la serie 2000→hoy es una reconstrucción etiquetada, no una redescarga del archivo FIRMS.',
+          ]
+        : [
+            'CONTINUUM — AREA BRIEF',
+            `Area: ${region.name} (${region.country}) · ${Math.round(region.areaKm2).toLocaleString('en-US')} km2`,
+            `Window: ${start} -> ${end} · data through ${envelope().data_through}`,
+            `Harmonized activity: ${sel.reduce((s, r) => s + r.harmonized, 0).toFixed(0)} hotspot-equivalents`,
+            `Current status: ${status.percentile.toFixed(0)}th percentile, band ${status.band}. ${status.sentence}`,
+            `Sensor calibration: ${bias.ratio.toFixed(2)}x (90% CI ${bias.ratioLo ? bias.ratioLo.toFixed(2) : '—'}-${bias.ratioHi ? bias.ratioHi.toFixed(2) : '—'})`,
+            (() => {
+              const mix = A.provenanceMix(records);
+              return mix.archived > 0
+                ? `Notice: ${mix.archived} of ${mix.days} record days (${mix.first} to ${mix.last}) are real FIRMS archive detections pulled with a MAP KEY and ${mix.live} come from the live window; the other ${mix.model} are a labelled reconstruction, not an archive re-download.`
+                : 'Notice: the 2000->today series is a labelled reconstruction, not a FIRMS archive re-download.';
+            })(),
+          ];
+    return [200, envelope({ region_id: region.id, name: region.name, language: lang, start, end, lines, brief: lines.join('\n') })];
+  },
   '/ready': () => {
     const check = manifestCheck();
     const ok = Boolean(live) && Boolean(snapshot) && check.ok;
@@ -998,7 +1125,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 function callGet(handler, req, res, cors) {
-  const [status, payload] = handler();
+  const [status, payload] = handler(req);
   return sendJson(res, status, payload, { ...securityHeaders(req), ...cors });
 }
 
@@ -1047,6 +1174,10 @@ function openapiDoc(req) {
       '/export/geojson': post('/export/geojson', 'B', { date: { type: 'string', format: 'date' } }),
       '/brief': post('/brief', 'B', { language: { type: 'string', enum: ['en', 'es'] }, format: { type: 'string', enum: ['text', 'pdf'] } }),
       '/community/feed': { get: { summary: 'Community feed — posts and verified announcements', 'x-rate-class': 'B', responses: { 200: { description: 'OK' } } } },
+      '/atlas': { get: { summary: 'Processed burning calendar for an area (dates, raw/harmonized counts, 90% CI)', 'x-rate-class': 'B', parameters: [{ name: 'region_id', in: 'query', required: false, schema: { type: 'string' }, description: 'Pilot id or country-<id>' }, { name: 'lat', in: 'query', required: false, schema: { type: 'number' } }, { name: 'lon', in: 'query', required: false, schema: { type: 'number' } }, { name: 'start', in: 'query', required: false, schema: { type: 'string', format: 'date' } }, { name: 'end', in: 'query', required: false, schema: { type: 'string', format: 'date' } }], responses: { 200: { description: 'OK' } } } },
+      '/diagnosis': { get: { summary: 'Bias X-ray — sensor overlap ratio k, 2012 break, calibration metrics', 'x-rate-class': 'B', parameters: [{ name: 'region_id', in: 'query', required: false, schema: { type: 'string' } }, { name: 'lat', in: 'query', required: false, schema: { type: 'number' } }, { name: 'lon', in: 'query', required: false, schema: { type: 'number' } }], responses: { 200: { description: 'OK' } } } },
+      '/outlook': { get: { summary: 'Analog season forecasts and fire-weather stress outlook', 'x-rate-class': 'B', parameters: [{ name: 'region_id', in: 'query', required: false, schema: { type: 'string' } }, { name: 'lat', in: 'query', required: false, schema: { type: 'number' } }, { name: 'lon', in: 'query', required: false, schema: { type: 'number' } }], responses: { 200: { description: 'OK' } } } },
+      '/brief': { get: { summary: 'Generated textual/markdown brief for a region', 'x-rate-class': 'B', parameters: [{ name: 'region_id', in: 'query', required: false, schema: { type: 'string' } }, { name: 'lat', in: 'query', required: false, schema: { type: 'number' } }, { name: 'lon', in: 'query', required: false, schema: { type: 'number' } }, { name: 'start', in: 'query', required: false, schema: { type: 'string', format: 'date' } }, { name: 'end', in: 'query', required: false, schema: { type: 'string', format: 'date' } }, { name: 'language', in: 'query', required: false, schema: { type: 'string', enum: ['en', 'es'] } }], responses: { 200: { description: 'OK' } } } },
       '/community/posts': post('/community/posts', 'B', { author: { type: 'string' }, type: { type: 'string', enum: ['text', 'poll', 'anomaly'] }, content: { type: 'string' }, imageUrl: { type: 'string' }, options: { type: 'array', items: { type: 'string' } } }),
       '/community/vote': post('/community/vote', 'B', { postId: { type: 'string' }, optionIndex: { type: 'integer' } }),
       '/community/verify': post('/community/verify', 'B', { postId: { type: 'string' }, verified: { type: 'boolean' } }),

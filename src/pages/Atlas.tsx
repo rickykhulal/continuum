@@ -289,7 +289,7 @@ export function Atlas() {
             )
           }
         >
-          <LiveMap region={region} fires={fires} day={selectedDate} dayRecord={dayRec} onSelectDay={setSelectedDate} />
+          <LiveMap region={region} fires={fires} day={selectedDate} dayRecord={dayRec} onSelectDay={setSelectedDate} windowStart={windowStart} windowEnd={today} />
           {selectedDate && dayRec ? (
             <div className="day-detail">
               <div className="day-kpis">

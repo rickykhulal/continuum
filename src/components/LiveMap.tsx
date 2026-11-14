@@ -22,6 +22,9 @@ interface LiveMapProps {
   dayRecord?: DailyRecord | null;
   onSelectDay?: (date: string | null) => void;
   maxHeight?: number;
+  /** Dynamic live-window bounds shown in the map header (from/to state of the date picker). */
+  windowStart?: string | null;
+  windowEnd?: string | null;
 }
 
 export function LiveMap({
@@ -31,6 +34,8 @@ export function LiveMap({
   dayRecord,
   onSelectDay,
   maxHeight = 460,
+  windowStart,
+  windowEnd,
 }: LiveMapProps) {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -109,7 +114,9 @@ export function LiveMap({
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Use NASA GIBS EPSG:4326 / EPSG:3857 Web Mercator WMTS as base layer
+    // Use NASA GIBS EPSG:3857 Web Mercator WMTS as base layer. GoogleMapsCompatible tile grid
+    // (y from the top) matches MapLibre's default (tms: false). A broad maxzoom keeps the base
+    // visible past the native imagery levels so the map never goes black on zoom.
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: {
@@ -121,8 +128,9 @@ export function LiveMap({
               'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
             ],
             tileSize: 256,
+            minzoom: 1,
+            maxzoom: 9,
             attribution: '© NASA Worldview / GIBS',
-            maxzoom: 8,
           },
         },
         layers: [
@@ -136,7 +144,7 @@ export function LiveMap({
         ],
       },
       center: [region.center[1], region.center[0]],
-      zoom: 4,
+      zoom: 3,
       attributionControl: false,
     });
 
@@ -368,7 +376,9 @@ export function LiveMap({
       <div className="live-map-header">
         <div className="live-map-meta">
           <span className="live-map-title">Interactive Live Footprint</span>
-          <span className="live-map-subtitle">NASA GIBS Base · FIRMS NRT 7-Day Window</span>
+          <span className="live-map-subtitle">
+            NASA GIBS Base · {windowStart && windowEnd ? `${shortDate(windowStart)} – ${shortDate(windowEnd)}` : 'FIRMS NRT 7-Day Window'}
+          </span>
         </div>
         <div className="live-map-actions">
           <div className="live-map-mode-toggle" role="group" aria-label="Display mode">

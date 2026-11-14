@@ -45,6 +45,8 @@ export {
   statusFor,
   seasonClock,
   twinAnalogs,
+  analogDeparture,
+  analogDepartureSummary,
   biasXray,
   runSandbox,
   livePointsForRegion,
