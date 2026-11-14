@@ -19,6 +19,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = path.join(ROOT, 'data_raw');
+if (!fs.existsSync(RAW)) {
+  fs.mkdirSync(RAW, { recursive: true });
+}
 
 // `.env` is not loaded by Node. Fill missing names from the repo-root file so
 // `npm run live` sees FIRMS_MAP_KEY without a manual export. A value already
