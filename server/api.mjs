@@ -8,6 +8,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as A from '../dist-server/analytics.mjs';
+import { start as startLive, getResponse as getLiveResponse, stop as stopLive, resetForTest as resetLive } from './live.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA_BUNDLE_PATH = process.env.DATA_BUNDLE_PATH || null;
@@ -16,6 +17,9 @@ const webDir = path.join(root, 'dist');
 const PORT = Number(process.env.PORT || 8787);
 const MAX_AREA_KM2 = Number(process.env.API_MAX_AREA_KM2 || 250000);
 const BODY_LIMIT = Math.round(Number(process.env.API_MAX_UPLOAD_MB || 2) * 1024 * 1024);
+
+startLive();
+
 const CORS = (process.env.API_CORS_ORIGINS || '')
   .split(',')
   .map((s) => s.trim())
@@ -484,6 +488,12 @@ function worldLayerIndex() {
 // GET endpoints return [status, payload]; the dispatcher adds headers.
 const GET_ROUTES = {
   '/health': () => [200, envelope({ status: 'ok' })],
+  '/live-firms': () => {
+    // Synchronous handler: liveFirmsHandlerSync() is async-only, so we serve
+    // the cached result (refreshed on a 10-minute timer by server/live.mjs).
+    const result = getLiveResponse();
+    return [result.status, result.body];
+  },
   '/ready': () => {
     const check = manifestCheck();
     const ok = Boolean(live) && Boolean(snapshot) && check.ok;
@@ -647,7 +657,7 @@ function rateClass(pathname) {
     .replace(/^\/+/, '')
     .replace(/^(area\/|export\/|sandbox\/)/, '')
     .replace(/\//g, '-');
-  if (name === 'meta' || name === 'method-card' || name === 'health' || name === 'ready' || name === 'metrics' || name === 'openapi.json') return 'A';
+  if (name === 'meta' || name === 'method-card' || name === 'health' || name === 'ready' || name === 'live-firms' || name === 'metrics' || name === 'openapi.json') return 'A';
   const key = Object.keys(CLASS_OF).find((k) => name.startsWith(k));
   return CLASS_OF[key || ''] || 'B';
 }
@@ -970,4 +980,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
 }
 
-export { server, ApiError, manifestCheck };
+export { server, ApiError, manifestCheck, startLive, stopLive };

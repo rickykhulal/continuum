@@ -3,11 +3,22 @@ import { useStore } from '../lib/store';
 import { AreaBar } from '../components/AreaBar';
 import { Badge, Panel, PageHeader } from '../components/ui';
 import { CalendarHeatmap, StatusMeter } from '../components/charts';
-import { biasXray, monthComparison, recordsInRange, statusFor, twinAnalogs, seasonClock } from '../lib/data';
+import { analogDepartureSummary, biasXray, monthComparison, recordsInRange, statusFor, twinAnalogs, seasonClock } from '../lib/data';
 import { MONTHS_LONG, longDate, nf, pct, riskColor, ordinal } from '../lib/format';
 import { exportCSV } from '../lib/export';
 import { downloadPdf } from '../lib/pdf';
-import { mean } from '../lib/random';
+
+/** Shared wording for the rendered brief and its copied/text/PDF advisory. */
+export function briefAnalogSummary(twin: Parameters<typeof analogDepartureSummary>[0]) {
+  const statistics = analogDepartureSummary(twin);
+  const medianText = statistics.median == null ? 'unavailable' : pct(statistics.median);
+  const meanText = statistics.mean == null ? 'unavailable' : pct(statistics.mean);
+  return {
+    ...statistics, medianText, meanText,
+    headline: `Median next-four-week departure ${medianText}.`,
+    supplementary: `Supplementary mean next-four-week departure ${meanText} across ${statistics.sampleSize} available analog seasons.`,
+  };
+}
 
 function cleanName(s: string): string {
   return s.replace(/[^a-z0-9\-]+/gi, '-').replace(/-+/g, '-').toLowerCase();
@@ -25,7 +36,7 @@ export function Brief() {
   const liveRecs = useMemo(() => recordsInRange(records, live?.meta.windowStart ?? today, today), [records, live, today]);
   const liveSum = liveRecs.reduce((s, r) => s + r.harmonized, 0);
   const liveDays = liveRecs.filter((r) => r.harmonized > 0).length;
-  const next4 = mean(twin.analogs.map((a) => a.next4WeeksAnomalyPct));
+  const next4 = briefAnalogSummary(twin);
   const bandColor = status.band === 'normal' ? '#1b7a4c' : riskColor(status.band);
   const area = store.region.shortName;
 
@@ -43,7 +54,7 @@ export function Brief() {
       '',
       `LIVE WINDOW: ${liveRecs[0]?.date ?? '—'} to ${today}; ${nf(liveSum)} VIIRS-equivalent detections across ${liveDays} active days.`,
       `Sensor calibration: MODIS → VIIRS ratio ${bias.ratio.toFixed(2)}× (90% CI ${bias.ratioLo.toFixed(2)}–${bias.ratioHi.toFixed(2)}); the 2012 break in the raw record is ${bias.rawBreakPct.toFixed(0)}%, reduced to ${bias.correctedBreakPct.toFixed(0)}% after harmonization.`,
-      `Analog seasons: ${twin.analogs.map((a) => `${a.year} (${Math.round(a.similarity)}%)`).join(', ')}. Median next-four-week departure ${pct(next4)}. Leave-one-out hit rate ${Math.round(twin.backtestHitRate)}%.`,
+      `Analog seasons: ${twin.analogs.map((a) => `${a.year} (${Math.round(a.similarity)}%)`).join(', ')}. ${next4.headline} ${next4.supplementary} Leave-one-out hit rate ${Math.round(twin.backtestHitRate)}%.`,
       `Season: typical window ${clock.startLabel}–${clock.endLabel}, peak ${clock.peakLabel}; current phase ${clock.phase}, running ${clock.direction} of climatology (${Math.round(clock.yearShare)}% of expected to date).`,
       '',
       'WHAT WOULD CHANGE THE CALL:',
@@ -153,7 +164,7 @@ export function Brief() {
             <div><span>Historical median</span><b>{nf(status.baselineMedian)}</b></div>
             <div><span>Ratio to median</span><b>{status.ratioToMedian ? `${status.ratioToMedian.toFixed(2)}×` : '—'}</b></div>
             <div><span>Live window</span><b>{nf(liveSum)}</b></div>
-            <div><span>Analog next 4 wk</span><b style={{ color: next4 >= 0 ? '#ff8a3d' : '#56d6a0' }}>{pct(next4)}</b></div>
+            <div><span>Analog median next 4 wk</span><b style={{ color: next4.median == null ? undefined : next4.median >= 0 ? '#ff8a3d' : '#56d6a0' }}>{next4.medianText}</b></div>
             <div><span>Weather source</span><b>NASA POWER</b></div>
           </div>
         </div>
@@ -170,7 +181,7 @@ export function Brief() {
           </p>
           <p>
             Analog seasons {twin.analogs.map((a) => a.year).join(', ')} are the closest matches to the last eight weeks.
-            Their median next-four-week departure is {pct(next4)}, with a leave-one-out hit rate of {Math.round(twin.backtestHitRate)}%
+            {' '}{next4.headline} {next4.supplementary} The leave-one-out hit rate is {Math.round(twin.backtestHitRate)}%
             over {twin.sampleYears} seasons. The typical burning window is {clock.startLabel}–{clock.endLabel}, peaking {clock.peakLabel};
             the current season is in its {clock.phase} phase, running {clock.direction} of climatology
             ({Math.round(clock.yearShare)}% of expected activity to date).

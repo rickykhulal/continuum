@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { useLiveFirms } from '../lib/liveClient';
+import { ALLOW_MOCK_LIVE } from '../lib/liveClient';
 import * as maplibregl from 'maplibre-gl';
 import type { MapGeoJSONFeature } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -34,6 +36,9 @@ export function LiveMap({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [selectedSensor, setSelectedSensor] = useState<number | 'all'>('all');
   const [displayMode, setDisplayMode] = useState<'detections' | 'pixels'>('detections');
+  const [frpScaling, setFrpScaling] = useState<boolean>(false);
+  const [pitch, setPitch] = useState<number>(0);
+  const [bearing, setBearing] = useState<number>(0);
   const [popupInfo, setPopupInfo] = useState<{
     lngLat: [number, number];
     satellite: string;
@@ -41,9 +46,23 @@ export function LiveMap({
     confidence: string;
     frp: number;
   } | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [isStale, setIsStale] = useState<boolean>(false);
   const [dayOffset, setDayOffset] = useState<number>(7); // 7 = all 7 days
+
+  // Transport state of the live endpoint. Provenance and freshness stay on the
+  // payload; this hook only reports how the request itself went.
+  const live = useLiveFirms();
+
+  const liveStatusLabel =
+    live.status === 'loading'
+      ? null
+      : live.status === 'live'
+        ? 'LIVE'
+        : live.status === 'stale'
+          ? 'LIVE STALE'
+          : live.status === 'offline'
+            ? 'LIVE OFFLINE'
+            : 'LIVE NOT CONFIGURED';
 
   // Compute live window points for this region
   const regionPoints = useMemo(() => {
@@ -180,7 +199,9 @@ export function LiveMap({
         type: 'circle',
         source: 'fires-source',
         paint: {
-          'circle-radius': displayMode === 'pixels' ? 3 : 4.5,
+          'circle-radius': frpScaling
+            ? ['interpolate', ['linear'], ['get', 'frp'], 0, 3, 30, 7, 100, 13, 300, 20]
+            : displayMode === 'pixels' ? 3 : 4.5,
           'circle-color': [
             'match',
             ['get', 'sensor'],
@@ -190,6 +211,7 @@ export function LiveMap({
             3, SENSOR_COLORS[3],
             '#ff8a3d',
           ],
+          'circle-blur': frpScaling ? 0.35 : 0,
           'circle-opacity': displayMode === 'pixels' ? 0.45 : 0.85,
           'circle-stroke-width': displayMode === 'pixels' ? 0 : 1,
           'circle-stroke-color': '#ffffff',
@@ -308,24 +330,22 @@ export function LiveMap({
 
     // Update layer paint properties if mode changed
     if (map.getLayer('fires-layer')) {
-      map.setPaintProperty('fires-layer', 'circle-radius', displayMode === 'pixels' ? 3 : 4.5);
+      map.setPaintProperty('fires-layer', 'circle-radius', frpScaling
+        ? ['interpolate', ['linear'], ['get', 'frp'], 0, 3, 30, 7, 100, 13, 300, 20]
+        : (displayMode === 'pixels' ? 3 : 4.5));
+      map.setPaintProperty('fires-layer', 'circle-blur', frpScaling ? 0.35 : 0);
       map.setPaintProperty('fires-layer', 'circle-opacity', displayMode === 'pixels' ? 0.45 : 0.85);
-      map.setPaintProperty('fires-layer', 'circle-stroke-width', displayMode === 'pixels' ? 0 : 1);
+      map.setPaintProperty('fires-layer', 'circle-stroke-width', (displayMode === 'pixels' || frpScaling) ? 0 : 1);
     }
-  }, [filteredPoints, displayMode]);
+  }, [filteredPoints, displayMode, frpScaling]);
 
   // Checks if the bundled static snapshot is still reachable (staleness detection only; no live data fetch)
   useEffect(() => {
     const interval = setInterval(() => {
-      // Refresh check against endpoint
+      // Refresh check against the bundled snapshot, not the live endpoint
       fetch(`${import.meta.env.BASE_URL || './'}data/live_fires.json`)
         .then((res) => {
-          if (res.ok) {
-            setLastUpdated(new Date());
-            setIsStale(false);
-          } else {
-            setIsStale(true);
-          }
+          setIsStale(!res.ok);
         })
         .catch(() => {
           setIsStale(true);
@@ -367,7 +387,30 @@ export function LiveMap({
               Pixels
             </button>
           </div>
+          <div className="live-map-view-controls" role="group" aria-label="View controls">
+            <button type="button" className={frpScaling ? 'active' : ''} onClick={() => setFrpScaling((s) => !s)}>FRP</button>
+            <button type="button" className={pitch ? 'active' : ''} onClick={() => {
+              const nextPitch = pitch ? 0 : 45;
+              setPitch(nextPitch);
+              mapRef.current?.easeTo({ pitch: nextPitch, duration: 500 });
+            }}>Tilt</button>
+            <button type="button" className={bearing ? 'active' : ''} onClick={() => {
+              const nextBearing = bearing ? 0 : 45;
+              setBearing(nextBearing);
+              mapRef.current?.easeTo({ bearing: nextBearing, duration: 500 });
+            }}>Rotate</button>
+            <button type="button" onClick={() => {
+              setPitch(0); setBearing(0);
+              mapRef.current?.easeTo({ pitch: 0, bearing: 0, duration: 500 });
+            }}>Reset</button>
+          </div>
           {isStale && <span className="stale-badge">Telemetry Stale</span>}
+          {ALLOW_MOCK_LIVE && <span className="demo-data-badge">DEMO DATA</span>}
+          {!ALLOW_MOCK_LIVE && liveStatusLabel && (
+            <span className="live-status-badge" data-status={live.status} title={live.error ?? undefined}>
+              {liveStatusLabel}
+            </span>
+          )}
         </div>
       </div>
 

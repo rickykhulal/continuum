@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T14:16:26.789Z",
+  "generated_at": "2026-11-14T13:16:01.034Z",
   "bundle_version": "2026-11-02",
   "passed": 23,
   "total": 23,
@@ -77,7 +77,7 @@
     {
       "name": "manifest has bundle_version and data_through",
       "ok": true,
-      "detail": "v=continuum-2026-11-02-920de0617606 through=2026-11-02"
+      "detail": "v=continuum-2026-11-02-18eb28f5699c through=2026-11-02"
     },
     {
       "name": "manifest checksums and sizes match files",
@@ -112,7 +112,7 @@
     {
       "name": "archive observations reach the record unchanged",
       "ok": true,
-      "detail": "21809 archive dates carried into the record; 21863 populated archive dates inspected, with the rolling window overlaid separately"
+      "detail": "53765 archive dates carried into the record; 53819 populated archive dates inspected, with the rolling window overlaid separately"
     },
     {
       "name": "dist/ serves exactly the verified bundle",

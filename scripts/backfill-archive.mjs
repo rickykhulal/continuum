@@ -16,11 +16,22 @@
  * environment is empty. It is never written to the output, the log, or the repository.
  *
  * Resume: data_raw/firms_archive/state.json keeps one sequential cursor per
- * (source, region) lane plus the list of permanently failed windows.
+ * (source, region) lane plus the list of permanently failed windows. Staging and
+ * checkpoint are flushed as numbered batches through scripts/lib/archive-persistence.mjs,
+ * so a crash between the two renames can be completed forward instead of double-counted.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  LockBusyError,
+  RecoveryError,
+  acquireWriterLock,
+  batchOf,
+  commitArchiveFlush,
+  recoverArchivePair,
+} from './lib/archive-persistence.mjs';
+import { DAY, SOURCES, START, dayIndex, iso, windows } from './lib/archive-plan.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = path.join(ROOT, 'data_raw', 'firms_archive');
@@ -38,8 +49,6 @@ function argOut() {
 // One cursor per output, so a staged rebuild never resumes against a published bundle's coverage.
 const STATE = path.join(RAW, `state${OUT.includes(path.join('public', 'data')) ? '' : '-' + path.basename(OUT, '.json')}.json`);
 const BASE = 'https://firms.modaps.eosdis.nasa.gov';
-const DAY = 86400000;
-const START = '2000-11-01';
 
 function readKey() {
   const fromEnv = process.env.FIRMS_MAP_KEY || process.env.MAP_KEY || '';
@@ -60,25 +69,20 @@ if (!KEY) {
  * One writer per output. aggregate() increments day cells that rehydrate() already loaded from
  * the file, so two processes on the same output both double-count what the other fetched and
  * lose what the other fetched after their own load — the cursor then claims windows whose rows
- * are gone, and a lost window silently becomes an observed zero. A stale lock from a dead
- * process is taken over.
+ * are gone, and a lost window silently becomes an observed zero. The lock is created
+ * exclusively; a lock from a dead process is taken over.
  */
 const LOCK = `${OUT}.lock`;
-if (fs.existsSync(LOCK)) {
-  const owner = Number(fs.readFileSync(LOCK, 'utf8'));
-  let alive = false;
-  if (owner && owner !== process.pid) {
-    try { process.kill(owner, 0); alive = true; } catch { alive = false; }
-  }
-  if (alive) {
-    console.error(`backfill: PID ${owner} already writes ${path.relative(ROOT, OUT)} — refusing to race it.`);
+let releaseLock;
+try {
+  releaseLock = acquireWriterLock(LOCK, { log: (m) => console.log(m) });
+} catch (err) {
+  if (err instanceof LockBusyError) {
+    console.error(`backfill: ${err.message}`);
     process.exit(3);
   }
-  console.log(`[lock] replacing stale lock from dead PID ${owner}`);
+  throw err;
 }
-fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(LOCK, String(process.pid));
-const releaseLock = () => { try { if (Number(fs.readFileSync(LOCK, 'utf8')) === process.pid) fs.unlinkSync(LOCK); } catch {} };
 process.on('exit', releaseLock);
 
 const arg = (name, dflt) => {
@@ -151,34 +155,8 @@ async function waitForBudget() {
   }
 }
 
-/** Priority order: the harmonised unit first, then the MODIS baseline, then the other
- *  VIIRS spacecraft, then the near-real-time tail that closes the gap between the
- *  standard-processing products (which lag ~5 months) and the live 7-day window. */
-const SOURCES = [
-  { id: 'VIIRS_SNPP_SP', sensor: 'v', min: '2012-01-20', max: '2026-07-31' },
-  { id: 'MODIS_SP', sensor: 'm', min: '2000-11-01', max: '2026-08-31' },
-  { id: 'VIIRS_NOAA20_SP', sensor: 'n', min: '2018-04-01', max: '2026-07-31' },
-  { id: 'VIIRS_NOAA21_SP', sensor: 'n21', min: '2023-03-01', max: '2026-07-31' },
-  { id: 'VIIRS_SNPP_NRT', sensor: 'v', min: '2026-08-01', max: '2026-11-02' },
-  { id: 'MODIS_NRT', sensor: 'm', min: '2026-09-01', max: '2026-11-02' },
-  { id: 'VIIRS_NOAA20_NRT', sensor: 'n', min: '2026-08-01', max: '2026-11-02' },
-  { id: 'VIIRS_NOAA21_NRT', sensor: 'n21', min: '2026-08-01', max: '2026-11-02' },
-];
-
+/** FIRMS source order lives in scripts/lib/archive-plan.mjs so promotion can judge the same plan. */
 const regions = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'regions.json'), 'utf8'));
-
-const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
-const dayIndex = (date) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${START}T00:00:00Z`)) / DAY);
-
-/** Every 5-day window that touches [min, max], as request dates. */
-function windows(min, max) {
-  const out = [];
-  for (let t = Date.parse(`${min}T00:00:00Z`); t <= Date.parse(`${max}T00:00:00Z`); t += 5 * DAY) {
-    out.push(iso(t));
-    if (out.length > 4000) break;
-  }
-  return out;
-}
 
 /** FIRMS writes the same column name with different vocabularies per product line.
  *  NRT and SP both report confidence, but SP VIIRS uses the short codes. */
@@ -223,7 +201,23 @@ function aggregate(text, kind, bbox, acc) {
   return used;
 }
 
-const state = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : { lanes: {}, rows: 0, requests: 0 };
+/**
+ * The checkpoint and staging are read through recoverArchivePair: a crash that renamed staging
+ * but not the checkpoint is completed from the checkpoint temp written before the rename, and
+ * any state that cannot be reconciled stops the run without fetching a window.
+ */
+let state;
+try {
+  const recovered = recoverArchivePair(OUT, STATE, { log: (m) => console.log(m) });
+  state = recovered.state ?? { lanes: {}, rows: 0, requests: 0 };
+} catch (err) {
+  if (err instanceof RecoveryError) {
+    console.error(`backfill: ${err.code} — ${err.message}`);
+    console.error('backfill: refusing to guess; no window was fetched. See docs/CONTINUUM_PHASE_D_BACKFILL_CRASH_CONSISTENCY_2026-11-14.md');
+    process.exit(4);
+  }
+  throw err;
+}
 /** observations[regionId][sensor] = Map<dayIndex, {n, frp}> */
 const observations = new Map(regions.map((r) => [r.id, new Map(SOURCES.map((s) => [s.sensor, new Map()]))]));
 
@@ -285,6 +279,7 @@ function serialize() {
     start: START,
     method: 'NASA FIRMS Area API (keyed), 5-day windows, Standard Processing + near-real-time tail',
     sources: SOURCES.map((s) => ({ id: s.id, sensor: s.sensor, min: s.min, max: s.max })),
+    batch: batchOf(state),
     requests: state.requests,
     rows: state.rows,
     regions: {},
@@ -310,11 +305,11 @@ function flush(force = false) {
   if (!force && flushCount < FLUSH_EVERY) return;
   flushCount = 0;
   fs.mkdirSync(RAW, { recursive: true });
-  const tmp = `${OUT}.tmp`;
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
-  fs.writeFileSync(tmp, JSON.stringify(serialize()));
-  fs.renameSync(tmp, OUT);
-  fs.writeFileSync(STATE, JSON.stringify(state));
+  // Batch is the commit marker shared by staging and checkpoint: recovery only ever
+  // completes the pair forward by exactly one batch, so a flush cannot be applied twice.
+  state.batch = batchOf(state) + 1;
+  commitArchiveFlush(OUT, STATE, serialize(), state);
 }
 
 /**

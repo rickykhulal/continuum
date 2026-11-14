@@ -517,6 +517,66 @@ function liveBridge(byDay: Map<string, DayObservation>, meta: LiveMeta, weights:
 
 const MIN_AREA_OVERLAP_MODIS = 30;
 
+const VIIRS_REFERENCE_HOUR = 13.5; // Reference local time of 13:30 as specified in the PRD
+
+/** Compute the daily fire probability cycle from overlap days.
+ *  Returns a function p(hour) that gives the relative detection probability
+ *  for a given hour of day (in UTC, 0-23). The function is normalized so
+ *  that its integral over 24 hours equals 1.
+ */
+function dailyCycleFromOverlap(dates: string[], mods: number[], viirs: number[]): (hour: number) => number {
+  // Compute hour of day (in UTC) for each fire date
+  // We use the fire's unix timestamp to get the UTC hour
+  const hourCounts = new Map<number, number>();
+  const n = Math.min(mods.length, viirs.length);
+  for (let i = 0; i < n; i++) {
+    if (mods[i] <= 0 && viirs[i] <= 0) continue; // no detection either side
+    const d = new Date(dates[i]);
+    const h = d.getUTCHours() + d.getUTCMinutes() / 60 + d.getUTCSeconds() / 3600;
+    hourCounts.set(h, (hourCounts.get(h) ?? 0) + 1);
+  }
+
+  // If we have too few points, fall back to uniform distribution
+  if (hourCounts.size < 6) {
+    return () => 1 / 24; // uniform
+  }
+
+  // Build a smooth daily cycle using kernel smoothing (simple approach: bin and normalize)
+  const bins = 24;
+  const binCounts = new Array(bins).fill(0);
+  hourCounts.forEach((count, hour) => {
+    const bin = Math.min(bins - 1, Math.floor(hour));
+    binCounts[bin] += count;
+  });
+
+  // Apply a simple smoothing: each bin influences its neighbors
+  const smoothed = new Array(bins).fill(0);
+  for (let i = 0; i < bins; i++) {
+    let sum = 0;
+    let weightSum = 0;
+    for (let j = -2; j <= 2; j++) {
+      const idx = (i + j + bins) % bins;
+      const w = Math.max(0, 1 - Math.abs(j) / 3); // triangular kernel
+      sum += binCounts[idx] * w;
+      weightSum += w;
+    }
+    smoothed[i] = weightSum > 0 ? sum / weightSum : 0;
+  }
+
+  // Normalize so the "area" under the 24-hour curve is 1
+  const total = smoothed.reduce((a, b) => a + b, 0) || 1;
+  const normalized = smoothed.map((v) => v / total);
+
+  // Return a function that interpolates between bins
+  return (hour: number) => {
+    const bin = hour % 1;
+    const idx = Math.floor(hour) % bins;
+    const below = normalized[idx];
+    const above = normalized[(idx + 1) % bins];
+    return below * (1 - bin) + above * bin;
+  };
+}
+
 function logStats(values: number[]): { mean: number; logSd: number; n: number } {
   const logs = values.map((v) => Math.log(Math.max(0.05, v)));
   const n = logs.length;
@@ -1621,7 +1681,20 @@ function medianOf(values: number[]): number {
 /** Robust next-four-week analogue departure. Three analogue seasons can include one extreme year,
  *  so the median is the headline number in every view; per-analogue values stay visible in the Twin. */
 export function analogDeparture(twin: TwinResult): number {
-  return medianOf(twin.analogs.map((a) => a.next4WeeksAnomalyPct));
+  return analogDepartureSummary(twin).median ?? NaN;
+}
+
+/** Median headline and separately labelled supplementary mean; missing values are not zeros. */
+export function analogDepartureSummary(twin: Pick<TwinResult, 'analogs'>): {
+  median: number | null; mean: number | null; sampleSize: number; excludedCount: number;
+} {
+  const values = twin.analogs.map((a) => a.next4WeeksAnomalyPct).filter(Number.isFinite).sort((a, b) => a - b);
+  return {
+    median: values.length ? quantile(values, 0.5) : null,
+    mean: values.length ? mean(values) : null,
+    sampleSize: values.length,
+    excludedCount: twin.analogs.length - values.length,
+  };
 }
 
 export function biasXray(records: DailyRecord[]): BiasResult {
@@ -1813,6 +1886,264 @@ export function runSandbox(
     recoveryError,
     rawBiasPct: (sumA / sumT - 1) * 100,
     residualBiasPct,
+  };
+}
+
+/** Explicit inputs for numerical evaluation; never inferred from the reconstructed record. */
+export interface ScientificEvaluationInput {
+  kind: 'independent-validation' | 'calibration' | 'model-fit' | 'backtest' | 'synthetic-check';
+  regionId: string;
+  metric: Metric;
+  mode: Mode;
+  units: string;
+  period: { from: string; to: string };
+  referenceSource: { id: string; version: string; description: string; kind: 'observations' | 'synthetic-fixture' };
+  predictionSource: { id: string; version: string; description: string };
+  methodology: { description: string; holdoutStatement: string | null; minimumSamples: number; minimumCoverage: number };
+  pairs: { date: string; prediction: number | null; reference: number | null }[];
+}
+
+export interface ScientificEvaluationResult {
+  status: 'not_performed' | 'insufficient_data' | 'insufficient_coverage' | 'completed';
+  kind: ScientificEvaluationInput['kind'] | null;
+  performed: boolean;
+  // A calculation cannot authenticate a caller's provenance or prove holdout independence.
+  independence: 'unassessed' | 'not_independent' | 'declared_by_caller';
+  scientificAcceptance: 'not_assessed';
+  sampleSize: number;
+  inputRows: number;
+  rejectedRows: number;
+  period: { from: string; to: string } | null;
+  coverage: { expectedDays: number | null; pairedDays: number; fraction: number | null };
+  referenceDataSource: ScientificEvaluationInput['referenceSource'] | null;
+  predictionDataSource: ScientificEvaluationInput['predictionSource'] | null;
+  methodology: ScientificEvaluationInput['methodology'] | null;
+  units: string;
+  metrics: { meanError: number; meanAbsoluteError: number; rootMeanSquaredError: number } | null;
+  errors: { date: string; error: number }[] | null;
+  errorDefinition: string;
+  confidenceInterval: null;
+  intervalCoverage: null;
+  limitations: string[];
+}
+
+function scientificDate(value: unknown): number | null {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const time = Date.parse(value + 'T00:00:00Z');
+  return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === value ? time : null;
+}
+
+function scientificUnits(metric: Metric, mode: Mode): string {
+  if (metric === 'firedays') return 'fire-day indicator (0 or 1)';
+  if (metric === 'frp') return 'MW (daily sum of sampled detection FRP)';
+  return mode === 'raw' ? 'sensor detections/day' : 'VIIRS-equivalent detections/day';
+}
+
+function evaluateScientificPairs(
+  input: ScientificEvaluationInput | undefined,
+  regionId: string,
+  today: string,
+  metric: Metric,
+  mode: Mode,
+): ScientificEvaluationResult {
+  const units = scientificUnits(metric, mode);
+  const result: ScientificEvaluationResult = {
+    status: 'not_performed', kind: input?.kind ?? null, performed: false,
+    independence: 'unassessed', scientificAcceptance: 'not_assessed',
+    sampleSize: 0, inputRows: Array.isArray(input?.pairs) ? input.pairs.length : 0, rejectedRows: 0,
+    period: null, coverage: { expectedDays: null, pairedDays: 0, fraction: null },
+    referenceDataSource: null, predictionDataSource: null,
+    methodology: null, units, metrics: null, errors: null,
+    errorDefinition: 'error = prediction - reference; meanError = mean(error); MAE = mean(abs(error)); RMSE = sqrt(mean(error^2)).',
+    confidenceInterval: null, intervalCoverage: null,
+    limitations: [
+      'Numerical evaluation is not scientific acceptance or proof of independent validation.',
+      'Provenance and holdout isolation require external review; this function cannot authenticate them.',
+      'Coverage is paired UTC calendar days divided by requested calendar days, not spatial or sensor coverage.',
+      'No confidence interval or predictive-interval coverage is estimated by this report.',
+    ],
+  };
+  if (!input) {
+    result.limitations.push('Validation not performed: no explicit prediction/reference evidence was supplied.');
+    return result;
+  }
+  result.status = 'insufficient_data';
+  const from = scientificDate(input.period?.from);
+  const to = scientificDate(input.period?.to);
+  const asOf = scientificDate(today);
+  const problems: string[] = [];
+  if (from == null || to == null || asOf == null || from > to || to > asOf) {
+    problems.push('A valid UTC date-only period ending on or before the assessment date is required.');
+  } else {
+    result.period = { ...input.period };
+    result.coverage.expectedDays = (to - from) / 86400000 + 1;
+  }
+  const textPresent = (value: unknown) => typeof value === 'string' && value.trim().length > 0;
+  if (!['independent-validation', 'calibration', 'model-fit', 'backtest', 'synthetic-check'].includes(input.kind)) {
+    problems.push('An explicit evaluation kind is required.');
+  }
+  if (input.regionId !== regionId || input.metric !== metric || input.mode !== mode || input.units !== units) {
+    problems.push('Evidence region, metric, mode and units must match the requested report.');
+  }
+  for (const source of [input.referenceSource, input.predictionSource]) {
+    if (!source || ![source.id, source.version, source.description].every(textPresent)) {
+      problems.push('Both reference and prediction sources need an identifier, version and provenance description.');
+    }
+  }
+  if (!['observations', 'synthetic-fixture'].includes(input.referenceSource?.kind)) {
+    problems.push('Reference data must explicitly identify observations or a synthetic fixture.');
+  }
+  if ((input.kind === 'synthetic-check') !== (input.referenceSource?.kind === 'synthetic-fixture')) {
+    problems.push('Synthetic reference data must be evaluated and labelled only as a synthetic check.');
+  }
+  const method = input.methodology;
+  if (!method || !textPresent(method.description)
+    || !Number.isInteger(method.minimumSamples) || method.minimumSamples < 1
+    || !Number.isFinite(method.minimumCoverage) || method.minimumCoverage < 0 || method.minimumCoverage > 1) {
+    problems.push('A method and predeclared positive sample minimum and coverage fraction in [0,1] are required.');
+  }
+  if (input.kind === 'independent-validation' && !textPresent(method?.holdoutStatement)) {
+    problems.push('Independent validation requires an explicit statement of reference exclusion from training and calibration.');
+  }
+  if (!Array.isArray(input.pairs)) problems.push('Dated prediction/reference pairs are required.');
+  if (problems.length) {
+    result.limitations.push(...problems);
+    return result;
+  }
+  result.referenceDataSource = { ...input.referenceSource };
+  result.predictionDataSource = { ...input.predictionSource };
+  result.methodology = { ...method };
+  result.independence = input.kind === 'independent-validation' ? 'declared_by_caller' : 'not_independent';
+  if (input.kind === 'synthetic-check') result.limitations.push('TEST ONLY synthetic fixture; these results are not observation-based validation.');
+
+  // Reject every row for an ambiguous date rather than choosing a duplicate arbitrarily.
+  const occurrences = new Map<string, number>();
+  for (const row of input.pairs) occurrences.set(row.date, (occurrences.get(row.date) ?? 0) + 1);
+  const errors: { date: string; error: number }[] = [];
+  for (const row of input.pairs) {
+    const date = scientificDate(row.date);
+    const validValues = typeof row.prediction === 'number' && Number.isFinite(row.prediction) && row.prediction >= 0
+      && typeof row.reference === 'number' && Number.isFinite(row.reference) && row.reference >= 0;
+    const validFireDays = metric !== 'firedays' || ((row.reference === 0 || row.reference === 1)
+      && (row.prediction === 0 || row.prediction === 1));
+    if (date == null || date < from! || date > to! || occurrences.get(row.date) !== 1 || !validValues || !validFireDays) {
+      result.rejectedRows++;
+      continue;
+    }
+    errors.push({ date: row.date, error: row.prediction! - row.reference! });
+  }
+  errors.sort((a, b) => a.date.localeCompare(b.date));
+  const n = errors.length;
+  result.sampleSize = n;
+  result.coverage.pairedDays = n;
+  result.coverage.fraction = n / result.coverage.expectedDays!;
+  if (!n) {
+    result.limitations.push('Insufficient data: no unique, finite, compatible prediction/reference pairs in the requested period.');
+    return result;
+  }
+  // Scaling avoids squaring large errors directly; zero-reference days remain eligible.
+  const scale = errors.reduce((m, row) => Math.max(m, Math.abs(row.error)), 0);
+  result.metrics = {
+    meanError: errors.reduce((sum, row) => sum + row.error / n, 0),
+    meanAbsoluteError: errors.reduce((sum, row) => sum + Math.abs(row.error) / n, 0),
+    rootMeanSquaredError: scale ? scale * Math.sqrt(errors.reduce((sum, row) => sum + (row.error / scale) ** 2 / n, 0)) : 0,
+  };
+  result.errors = errors;
+  result.performed = true;
+  result.status = n >= method.minimumSamples && result.coverage.fraction >= method.minimumCoverage
+    ? 'completed' : 'insufficient_coverage';
+  if (result.status === 'insufficient_coverage') {
+    result.limitations.push('Errors were calculated, but the predeclared sample-size or calendar-coverage criterion was not met.');
+  }
+  return result;
+}
+
+function scientificRecordCoverage(records: DailyRecord[], today: string, metric: Metric, mode: Mode) {
+  const asOf = scientificDate(today);
+  const dates = new Map<string, DailyRecord[]>();
+  let excludedRows = 0;
+  for (const row of records) {
+    const date = scientificDate(row.date);
+    // Validate the underlying count before converting it to a fire-day indicator;
+    // otherwise NaN > 0 would silently turn an invalid observation into a zero.
+    const value = metric === 'frp' ? row.frp : mode === 'raw' ? row.raw : row.harmonized;
+    if (asOf == null || date == null || date > asOf || !Number.isFinite(value) || value < 0) {
+      excludedRows++;
+      continue;
+    }
+    const group = dates.get(row.date) ?? [];
+    group.push(row);
+    dates.set(row.date, group);
+  }
+  const usable: DailyRecord[] = [];
+  for (const group of dates.values()) {
+    if (group.length === 1) usable.push(group[0]);
+    else excludedRows += group.length;
+  }
+  usable.sort((a, b) => a.date.localeCompare(b.date));
+  const first = usable[0]?.date ?? null;
+  const expectedDays = first && asOf != null ? (asOf - scientificDate(first)!) / 86400000 + 1 : null;
+  return {
+    period: first ? { from: first, to: today } : null,
+    inputRows: records.length, availableDays: usable.length, excludedRows, expectedDays,
+    missingDays: expectedDays == null ? null : expectedDays - usable.length,
+    calendarCoverage: expectedDays == null ? null : usable.length / expectedDays,
+    observationSourceDays: usable.filter((r) => r.source === 'archive' || r.source === 'live').length,
+    modelOrBlendDays: usable.filter((r) => r.source === 'model' || r.source === 'blend').length,
+    limitation: 'Record availability is not independent validation or complete sensor coverage; source labels are reported as supplied.',
+  };
+}
+
+/**
+ * Report calibration provenance and explicit numerical evaluation separately.
+ * No held-out reference is inferred from archive/live/model records. The optional
+ * evidence must document its sources, period, units, method and coverage policy.
+ * Completed means the supplied pairs were evaluated and met that stated policy;
+ * it does not certify provenance, model validity or release acceptance.
+ */
+export function generateValidationReport(
+  records: DailyRecord[],
+  region: Region,
+  today: string,
+  live: LiveBundle | null,
+  metric: Metric = 'hotspots',
+  mode: Mode = 'harmonized',
+  evidence?: ScientificEvaluationInput,
+) {
+  const bridge = bridgeFor(region, live);
+  const available = Number.isFinite(bridge.k) && bridge.k > 0
+    && Number.isInteger(bridge.days) && bridge.days > 0;
+  return {
+    schemaVersion: 'continuum-science-validation-2' as const,
+    validationDate: today,
+    regionId: region.id,
+    regionName: region.shortName,
+    metric, mode, units: scientificUnits(metric, mode),
+    dailyCycle: {
+      status: 'deferred' as const,
+      correctedK: null,
+      reason: 'No approved exposure-aware daily-cycle method or adequate hourly inclusion-probability data is available. No correction is applied.',
+    },
+    bridgeRatio: {
+      kind: 'calibration' as const,
+      status: available ? 'available' as const : 'insufficient_data' as const,
+      k: available ? bridge.k : null,
+      days: Number.isInteger(bridge.days) && bridge.days >= 0 ? bridge.days : 0,
+      source: bridge.source,
+      sourceVersion: bridge.source === 'firms-archive' ? archiveStamp() : live?.meta.generatedAt ?? null,
+      ratioLo: null, ratioHi: null,
+      units: 'VIIRS-equivalent detections per MODIS detection',
+      description: 'Existing uncorrected bridge calibration; this is not independent validation. No validated confidence interval is available.',
+    },
+    recordCoverage: scientificRecordCoverage(records, today, metric, mode),
+    validation: evaluateScientificPairs(evidence, region.id, today, metric, mode),
+    limitations: [
+      'Daily-cycle correction is deferred; raw archive calibration and its provenance are retained.',
+      'Model fit, calibration, backtesting and independent validation are different evaluation kinds.',
+      'Calibration uses the attached data and is not refitted within historical validation folds.',
+      'No sensitivity analysis, historical ranking, sandbox recovery or causal decomposition is presented as independent validation.',
+      'No confidence intervals are fabricated from calibration ratios or copied from unrelated diagnostic bands.',
+    ],
   };
 }
 

@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "bundle_version": "continuum-2026-11-02-920de0617606",
+  "bundle_version": "continuum-2026-11-02-18eb28f5699c",
   "method_version": "continuum-harmonize-v1",
-  "created_at": "2026-11-12T02:26:57.940Z",
+  "created_at": "2026-11-14T13:11:16.285Z",
   "window": {
     "start": "2026-10-26",
     "end": "2026-11-02"
   },
   "data_through": "2026-11-02",
   "provisional_from": "2026-11-03",
-  "generated_at": "2026-11-02T15:18:25.202Z",
+  "generated_at": "2026-11-14T13:10:59.844Z",
   "counts": {
     "totalQuality": 966066,
     "kept": 71882,
@@ -70,7 +70,7 @@
   "files": [
     {
       "name": "data/live_fires.json",
-      "sha256": "8b56ce0dcca4952b350488f16e8edba4ec5fd6a33b113756adf93e1b2e49f32f",
+      "sha256": "635b565f39e26d0d1f3694c3f543a590b0775f50a9a4dc62d7fac060bd42c906",
       "bytes": 2724470
     },
     {
@@ -80,17 +80,17 @@
     },
     {
       "name": "data/archive_daily.json",
-      "sha256": "8e7ef41f334c88cb15d5104685b732bb13dd0bec7beba76e0195976f54b7138d",
-      "bytes": 465842
+      "sha256": "fbfb375e0f6b3a16d27bba19d6d42d5aaff4b893ddff7255f3de543be58da807",
+      "bytes": 1650052
     },
     {
       "name": "data/countries.json",
-      "sha256": "3f3689a409895eb20a3e17c34fb9a2c734ea5d695b5f089e465b5f0a2bce5cdf",
+      "sha256": "022c470af5d76891ce4cb0ad3ee1f0fea91b2cc00f5f97a3670f8f7d941cb374",
       "bytes": 41185
     },
     {
       "name": "data/country_fires.json",
-      "sha256": "9ed34615c248eb04398e6e0e21609b8b2aa7a86d805fa9d92579e767c27d2eb3",
+      "sha256": "ef95486bf0c2957ec26f20fed9c54116ed6446aba09e3d81662bfc2d26c4467a",
       "bytes": 183607
     },
     {
@@ -100,7 +100,7 @@
     },
     {
       "name": "data/snapshot.json",
-      "sha256": "2b67dcf1803a5d9e1843fb7a85a32f36ab3d6f9ea42497383c23e82bcb6602bd",
+      "sha256": "ad0c8ae567a82a05c6bc31133fcb5001df82fac46fc678033a482f6754b5840c",
       "bytes": 16281
     },
     {

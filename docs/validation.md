@@ -1100,3 +1100,26 @@ free tier, CDN behaviour. `docs/runbooks.md` §6.1 records the deploy sequence a
 parts; `docs/production-readiness.md` §2 keeps Performance, Reliability and Observability open for
 exactly that reason.
 
+
+## 2026-11-13 current-working-tree audit
+
+Full findings: [Project audit](project-audit-2026-11-13.md). Earlier success entries describe earlier trees and do not certify the current working copy. Audit baseline: HEAD `b81a57d` plus existing live-feed edits; further edits to `src/lib/data.ts` and `src/lib/archive.ts` arrived during consolidation and are **not verified** by the earlier runs. No application source edits were made by this audit.
+
+| Command | Current output | Status |
+| --- | --- | --- |
+| `npm ci` | exit 0; 106 added, 107 audited | **verified** |
+| `npm run build` | exit 1; TS1144 at `src/lib/liveClient.ts(136,3)` | **verified** failure |
+| `node --check server/live.mjs` | duplicate `resetForTest`, reported at line 344 | **verified** failure |
+| `npm test` | exit 1; 108 passed, 15 failed, 9 cancelled, 3 skipped of 135 | **partial**; API startup fails |
+| `npm run validate` | exit 0; 23/23, 20 manifest entries, 66,486 pilot rows | **verified** for checked stored-bundle contracts |
+| `npm run smoke` | exit 1; 0/1, API startup failure | **verified** failure |
+| `npm run secret-scan` | exit 0; clean, 166 files, 15 existing bundle assets | **verified** within scanner scope |
+| `npm audit --omit=dev --audit-level=high` | zero vulnerabilities | **verified** |
+| `npm audit --audit-level=high` | exit 1; one moderate, one high development advisory | **verified** outstanding findings |
+| preview + `npm run e2e` | 80 true / 102 recorded assertions, 22 false, fatal null `.focus()`; erroneous exit 0 | **partial**; pre-existing dist only, current build failed |
+
+Release blockers include shifted acquisition timestamps (`alignLiveToRealtime`, country equivalent), disconnected runtime data/store/API updates, unsafe whole-feed argument spread, geographic/cache errors and incorrect recent-year means. Read-only analytics probe: an Oct 26 acquisition became Nov 6 (+950,400 seconds); latest-five mean returned 60 instead of 42; 20/140 km areas shared an API cache key; polygon hole area was added. See the audit appendix for the command input and findings.
+
+Stored data remains through November 2 on `continuum-2026-11-02-920de0617606`; the later bundle creation date is not fresher data. Measured pilot observation coverage is 30,895/66,486 area-days (46.47%), with remaining days reconstructed. Current API/browser functionality and scientific accuracy are not certified by the passing file-integrity check. Current-source e2e is **not verified**; target deployment/load/rollback/alerts are **not verified**, with host-bound execution **blocked** where a host/engine is required.
+
+Machine reports updated: `validation-report.json`, `api-smoke-report.json`, `e2e-report.json`. Preview was stopped. No new NASA fire download, archive promotion, dependency upgrade or deployment was performed.
