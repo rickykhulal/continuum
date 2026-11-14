@@ -223,7 +223,7 @@ export function Community() {
   );
 }
 
-function PageHeader({ eyebrow, title, intro, actions }: { eyebrow?: string; title: string; intro?: React.ReactNode; actions?: React.ReactNode }) {
+export function PageHeader({ eyebrow, title, intro, actions }: { eyebrow?: string; title: string; intro?: React.ReactNode; actions?: React.ReactNode }) {
   return (
     <header className="page-head">
       {eyebrow && <span className="page-eyebrow">{eyebrow}</span>}

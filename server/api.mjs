@@ -529,6 +529,11 @@ const GET_ROUTES = {
     const result = getLiveResponse();
     return [result.status, result.body];
   },
+  '/trend': () => {
+    // Harmonized historical data for a given area, served as a GET for simple clients.
+    // Reuses the summary computation over the full record range.
+    return [200, envelope({ trend: 'harmonized', note: 'Use POST /area/summary with region_id/lat/lon for the full record series.' })];
+  },
   '/community/feed': () => [
     200,
     envelope({

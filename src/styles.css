@@ -3700,3 +3700,113 @@ button, [role="button"], a[href], input, select, textarea {
 .poll-options { display: flex; gap: 6px; flex-wrap: wrap; }
 .btn-small.btn-ghost { padding: 6px 10px; font-size: 12px; }
 
+/* -------------------------------------------------------------------- Developer Portal */
+.developers-page { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
+.dev-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-3);
+}
+.dev-base-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.dev-base-url {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  word-break: break-all;
+}
+.dev-section-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 28px 0 14px;
+}
+.dev-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.dev-table th, .dev-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line-faint);
+  color: var(--text-soft);
+}
+.dev-table thead th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  border-bottom: 1px solid var(--line);
+}
+.dev-table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+.dev-method {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  color: var(--accent);
+  background: rgba(255, 138, 61, 0.1);
+}
+.dev-snippets { margin-top: 6px; }
+.dev-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-3);
+  padding: 4px;
+}
+.dev-tab {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.dev-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
+.dev-tab.active {
+  color: var(--text);
+  background: var(--bg-2);
+  border-color: var(--line-strong);
+  font-weight: 600;
+}
+.dev-code {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #0b0c0e;
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+

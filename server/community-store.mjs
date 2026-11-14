@@ -4,23 +4,24 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const root = path.resolve(process.cwd(), '..');
-const DATA_DIR = path.join(root, 'data');
-const STORE_PATH = path.join(DATA_DIR, 'community.json');
+// Resolve against the working directory so a non-root container user (e.g. Render
+// running as `render`) can create /app/data without an absolute-root permission error.
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DB_PATH = path.join(DATA_DIR, 'community.json');
 
 const EMPTY = { posts: [], polls: [], announcements: [] };
 
 function ensureStore() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(STORE_PATH)) {
-    fs.writeFileSync(STORE_PATH, JSON.stringify(EMPTY, null, 2) + '\n', 'utf8');
+  if (!fs.existsSync(DB_PATH)) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(EMPTY, null, 2) + '\n', 'utf8');
   }
   return read();
 }
 
 function read() {
   try {
-    const raw = fs.readFileSync(STORE_PATH, 'utf8');
+    const raw = fs.readFileSync(DB_PATH, 'utf8');
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return { ...EMPTY };
     return {
@@ -34,7 +35,7 @@ function read() {
 }
 
 function write(data) {
-  fs.writeFileSync(STORE_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8');
 }
 
 function nextId(data) {

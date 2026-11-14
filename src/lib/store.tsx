@@ -15,7 +15,7 @@ import { countryById, countryRegion, installWorldLayer, loadWorldLayer, uninstal
 import { isoDate } from '../lib/format';
 import { t as translate, type Lang, type StringKey } from '../lib/i18n';
 
-export type ViewId = 'watch' | 'atlas' | 'diagnosis' | 'outlook' | 'brief' | 'method' | 'community';
+export type ViewId = 'watch' | 'atlas' | 'diagnosis' | 'outlook' | 'brief' | 'method' | 'community' | 'developers';
 
 export interface Settings {
   lang: Lang;
@@ -137,7 +137,7 @@ function parseHash(): HashState {
   const raw = location.hash.replace(/^#\/?/, '');
   if (!raw) return fallback;
   const [path, query] = raw.split('?');
-  const view = (['watch', 'atlas', 'diagnosis', 'outlook', 'brief', 'method'] as ViewId[]).includes(path as ViewId)
+  const view = (['watch', 'atlas', 'diagnosis', 'outlook', 'brief', 'method', 'developers'] as ViewId[]).includes(path as ViewId)
     ? (path as ViewId)
     : fallback.view;
   const params = new URLSearchParams(query ?? '');
