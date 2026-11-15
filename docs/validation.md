@@ -1317,3 +1317,5 @@ by `git rev-list --left-right --count main...origin/main` returned `0 0` again.
 | `npm run smoke` | exit 0; 49/49 | **verified** |
 | `SECRET_SCAN_ROOT=<temporary checkout of the staged release plus dist/dist-server>`; `npm run secret-scan` | exit 0; 211 files / 17.5 MB; clean | **verified** for release scope |
 | GET Render `/` before push | HTTP 200; old entry `index-BykkYhYB.js` | **verified** for old deployment; new release **not verified** yet |
+| `git commit -m "Final Polish: Draggable Laika, clean attribution, real Wind API integration, and Alert Center overhaul"`; `git push origin main` | exit 0; `8a33e4e..254a683` published to main | **verified** |
+| GET Render `/`, `/assets/index-kHhWYiPO.js`, `/api/v1/health`, `/api/v1/ready` after push | all HTTP 200 at 2026-11-15T07:06:01Z; asset SHA-256 matches the local build; readiness integrity `{ok:true,bad:[],files:20}` | **verified**; `docs/render-final-polish-report.json` |

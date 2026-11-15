@@ -1,0 +1,24 @@
+{
+  "origin": "https://continuum-6ofw.onrender.com",
+  "commit": "254a6839dba3cf1c8fdd86778176076e5923bff9",
+  "expected_asset": "/assets/index-kHhWYiPO.js",
+  "expected_sha256": "276fc7aaab38bc01463c249b04292eaddabdca8c8738f05d5a196e1b161c9853",
+  "attempts": [
+    {
+      "checked_at": "2026-11-15T07:06:01.363Z",
+      "root_status": 200,
+      "asset": "/assets/index-kHhWYiPO.js",
+      "asset_status": 200,
+      "asset_sha256": "276fc7aaab38bc01463c249b04292eaddabdca8c8738f05d5a196e1b161c9853",
+      "asset_matches_build": true,
+      "health_status": 200,
+      "ready_status": 200,
+      "integrity": {
+        "ok": true,
+        "bad": [],
+        "files": 20
+      }
+    }
+  ],
+  "verified": true
+}
