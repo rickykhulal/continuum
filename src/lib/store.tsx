@@ -253,7 +253,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const region = useMemo(() => (custom && custom.id === regionId ? custom : REGIONS.find((r) => r.id === regionId) ?? REGIONS[0]), [regionId, custom]);
 
-  const today = live?.meta.windowEnd ?? isoDate(new Date());
+  const today = live ? live.meta.windowEnd : isoDate(new Date());
   const earliest = '2000-11-01';
   const [range, setRangeState] = useState<[string, string]>([initial.from ?? earliest, initial.to ?? isoDate(new Date())]);
 

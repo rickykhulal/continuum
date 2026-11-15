@@ -53,6 +53,19 @@ export function LiveMap({
   } | null>(null);
   const [isStale, setIsStale] = useState<boolean>(false);
   const [dayOffset, setDayOffset] = useState<number>(7); // 7 = all 7 days
+  const [localFires, setLocalFires] = useState<LiveFire[]>([]);
+
+  // Bulletproof fallback: if the global store fails to load the bundled snapshot,
+  // pull it directly from the public folder so the map never shows 0 detections.
+  useEffect(() => {
+    fetch('/data/live_fires.json')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Direct fetch loaded fires:", data.fires?.length);
+        setLocalFires(data.fires || []);
+      })
+      .catch((err) => console.error("Direct fetch failed:", err));
+  }, []);
 
   // Transport state of the live endpoint. Provenance and freshness stay on the
   // payload; this hook only reports how the request itself went.
@@ -71,10 +84,12 @@ export function LiveMap({
               : 'Live data temporarily unavailable'
             : 'Live feed not configured';
 
-  // Compute live window points for this region
+  // Compute live window points for this region. Fall back to the directly fetched
+  // bundle if the store-provided fires array is empty (e.g. deployed site fetch failure).
+  const effectiveFires = fires.length > 0 ? fires : localFires;
   const regionPoints = useMemo(() => {
-    return livePointsForRegion(region, fires);
-  }, [region, fires]);
+    return livePointsForRegion(region, effectiveFires);
+  }, [region, effectiveFires]);
 
   // Timestamps span for slider
   const { minTime, maxTime } = useMemo(() => {
@@ -465,17 +480,16 @@ export function LiveMap({
             position: 'absolute',
             top: 10,
             left: 10,
-            zIndex: 30,
-            background: 'rgba(0, 0, 0, 0.5)',
-            padding: '5px 8px',
-            color: '#fff',
-            fontSize: '11px',
+            zIndex: 9999,
+            background: 'red',
+            color: 'white',
+            padding: '10px',
+            fontSize: '12px',
             fontFamily: 'monospace',
-            borderRadius: '4px',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            border: '2px solid #fff',
           }}
         >
-          Loaded Fires: {fires.length} | Region Points: {regionPoints.length}
+          Loaded Fires: {fires.length} | Local Fires: {localFires.length} | Region Points: {regionPoints.length}
         </div>
         {historicalDay && (
           <div
