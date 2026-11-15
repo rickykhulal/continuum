@@ -3887,6 +3887,7 @@ button, [role="button"], a[href], input, select, textarea {
 }
 .dev-key-value-wrapper {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
@@ -3900,9 +3901,8 @@ button, [role="button"], a[href], input, select, textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 10px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  white-space: normal;
   margin: 0;
 }
 .dev-key-copy {
@@ -3915,3 +3915,6 @@ button, [role="button"], a[href], input, select, textarea {
 }
 
 
+@media print {
+  .pet-companion { display: none !important; }
+}

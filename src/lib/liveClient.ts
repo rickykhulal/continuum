@@ -25,6 +25,7 @@
  */
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { apiFetch } from './api';
 
 /** Shape of one live fire entry – matches the LiveFire tuple type used in the bundle. */
 export type LiveFire = [number, number, number, number, number, number]; // [lat, lon, frp, sensorId, confidence, unixSeconds]
@@ -196,7 +197,7 @@ export function useLiveFirms(
     let httpStatus = 0;
     let body: (Partial<LiveFirmsResponse> & LiveFirmsErrorBody) | null = null;
     try {
-      const res = await fetch('/api/v1/live-firms', {
+      const res = await apiFetch('/live-firms', {
         method: 'GET',
         headers: { Accept: 'application/json' },
         // NOTE: In production the API server must be running (npm run api).

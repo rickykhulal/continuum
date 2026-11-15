@@ -58,7 +58,7 @@ function readJson(file) {
 
 // API Key registry: operator-managed set of bearer-style keys for the read API.
 // Lives in data/api_keys.json so keys survive restarts but never enter the bundle.
-const KEY_DIR = path.join(process.cwd(), 'data');
+const KEY_DIR = path.resolve(process.env.APP_DATA_PATH || path.join(process.cwd(), 'data'));
 const KEY_PATH = path.join(KEY_DIR, 'api_keys.json');
 function ensureKeyStore() {
   if (!fs.existsSync(KEY_DIR)) fs.mkdirSync(KEY_DIR, { recursive: true });
@@ -808,7 +808,7 @@ function securityHeaders(req) {
     // blob: in img-src is not slack — the PNG export rasterizes an SVG blob through new Image(),
     // and without it the CSP silently kills the download while the rest of the app looks fine.
     'Content-Security-Policy':
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; connect-src 'self' https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; connect-src 'self' blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
     'Permissions-Policy': 'geolocation=(), camera=(), microphone=()',
   };
   if (proto === 'https') h['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains';
@@ -922,7 +922,7 @@ const CORS_HEADERS = (origin) => {
   if (!origin) return {};
   // Default-deny: cross-origin access only for origins the operator listed in API_CORS_ORIGINS.
   if (!CORS.length || (!CORS.includes(origin) && !CORS.includes('*'))) return {};
-  return { 'Access-Control-Allow-Origin': CORS.includes('*') ? '*' : origin, Vary: 'Origin', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+  return { 'Access-Control-Allow-Origin': CORS.includes('*') ? '*' : origin, Vary: 'Origin', 'Access-Control-Allow-Headers': 'Content-Type, X-API-Key', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
 };
 
 // ---------------------------------------------------------------- metrics
@@ -1076,9 +1076,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (pathname.startsWith('/api/v1/')) {
       const sub = pathname.replace('/api/v1', '');
-      // /health and /openapi.json stay public (liveness / docs). Every other /api/v1/* route
-      // requires a valid x-api-key.
-      if (sub !== '/health' && sub !== '/openapi.json') apiKey(req);
+      // Key issuance must remain reachable after the first registration. Data
+      // endpoints still enforce keys; embedded GLB images only need blob fetches.
+      if (sub !== '/health' && sub !== '/openapi.json' && sub !== '/auth/generate-key') apiKey(req);
       const get = GET_ROUTES[sub];
       if (get && (req.method === 'GET' || req.method === 'HEAD')) return callGet(get, req, res, cors);
       const handler = routes[`POST ${sub}`];

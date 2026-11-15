@@ -112,7 +112,7 @@ export function Brief() {
             <button type="button" className="btn btn-ghost btn-small" onClick={copy}>Copy advisory</button>
             <button type="button" className="btn btn-ghost btn-small" onClick={downloadText}>Download .txt</button>
             <button type="button" className="btn btn-ghost btn-small" onClick={downloadPdfFile}>Download PDF</button>
-            <button type="button" className="btn btn-primary btn-small" onClick={() => window.print()}>Print / PDF</button>
+            <button type="button" className="btn btn-primary btn-small" onClick={() => window.print()}>Print Brief</button>
             <button
               type="button"
               className="btn btn-ghost btn-small"
@@ -121,7 +121,7 @@ export function Brief() {
                 store.toast(`CSV ready — ${nf(out.rows)} rows.`);
               }}
             >
-              CSV
+              Export CSV
             </button>
           </>
         }

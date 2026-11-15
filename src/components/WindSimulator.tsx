@@ -21,11 +21,11 @@ const styles = {
   panel: {
     position: 'fixed',
     right: 16,
-    bottom: 16,
+    top: 80,
     zIndex: 1000,
     boxSizing: 'border-box',
     width: 'min(420px, calc(100vw - 32px))',
-    maxHeight: 'calc(100dvh - 32px)',
+    maxHeight: 'calc(100dvh - 96px)',
     overflowY: 'auto',
     padding: 24,
     border: '1px solid var(--line-strong, rgba(255, 255, 255, 0.16))',

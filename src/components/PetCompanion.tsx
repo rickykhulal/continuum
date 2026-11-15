@@ -1,6 +1,9 @@
-import { Component, Suspense, useState, useEffect, type ReactNode } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Bounds, Float, useGLTF, OrbitControls } from '@react-three/drei';
+import { Component, Suspense, useState, useEffect, useRef, type ReactNode } from 'react';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { Bounds, OrbitControls } from '@react-three/drei';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { Group } from 'three';
+import { useStore } from '../lib/store';
 
 const FACTS = [
   "Woof! Satellites track fires from space.",
@@ -17,9 +20,14 @@ interface PetCompanionProps {
   size?: number;
 }
 
-function PetModel({ onClick }: { onClick: () => void }) {
-  const { scene } = useGLTF(`${import.meta.env.BASE_URL || './'}models/pet1.glb`, false);
-  return <primitive object={scene} onClick={onClick} />;
+function PetModel({ onClick, reduceMotion }: { onClick: () => void; reduceMotion: boolean }) {
+  // This uncompressed GLB needs no WASM decoder, which keeps the strict script CSP.
+  const { scene } = useLoader(GLTFLoader, `${import.meta.env.BASE_URL || './'}models/pet1.glb`);
+  const floating = useRef<Group>(null);
+  useFrame(({ clock }) => {
+    if (floating.current) floating.current.position.y = reduceMotion ? 0 : Math.sin(clock.elapsedTime) * 0.2;
+  });
+  return <group ref={floating}><primitive object={scene} onClick={onClick} /></group>;
 }
 
 class PetSceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -35,6 +43,7 @@ class PetSceneBoundary extends Component<{ children: ReactNode }, { failed: bool
 }
 
 export function PetCompanion({ size = 150 }: PetCompanionProps) {
+  const { settings } = useStore();
   const [talking, setTalking] = useState(false);
   const [fact, setFact] = useState('');
 
@@ -59,35 +68,30 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
       aria-label="Laika companion"
       style={{
         position: 'fixed',
-        bottom: 24,
-        right: 24,
-        width: `min(${size}px, calc(100vw - 48px))`,
-        zIndex: 40,
-        pointerEvents: 'auto',
-        borderRadius: 12,
+        bottom: 20,
+        right: 20,
+        width: `min(${size}px, calc(100vw - 40px))`,
+        zIndex: 9999,
+        pointerEvents: 'none',
         overflow: 'visible',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
-        background: 'rgba(10, 12, 16, 0.6)',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
-      <div role="img" aria-label="3D model of Laika the space dog" style={{ height: size, overflow: 'hidden', borderRadius: 12 }}>
+      <div role="img" aria-label="3D model of Laika the space dog" style={{ height: size, pointerEvents: 'auto' }}>
         <PetSceneBoundary>
           <Canvas
             dpr={[1, 1.5]}
             camera={{ position: [0, 0, 3], fov: 40 }}
+            gl={{ alpha: true }}
             fallback={<div style={{ fontSize: 64, textAlign: 'center' }}>🐶</div>}
             style={{ width: '100%', height: '100%', display: 'block', background: 'transparent' }}
           >
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[2, 4, 3]} intensity={1.5} />
+            <ambientLight intensity={1.5} />
+            <directionalLight position={[10, 10, 10]} intensity={2} />
+            <spotLight position={[-10, 10, 10]} intensity={1} />
             <OrbitControls makeDefault enablePan={false} enableZoom={false} />
             <Suspense fallback={null}>
-              <Bounds fit clip observe margin={1.2} maxDuration={0}>
-                <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.08}>
-                  <PetModel onClick={handleClick} />
-                </Float>
+              <Bounds fit clip observe margin={1.4} maxDuration={0}>
+                <PetModel onClick={handleClick} reduceMotion={settings.reduceMotion} />
               </Bounds>
             </Suspense>
           </Canvas>
@@ -97,7 +101,7 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
         type="button"
         onClick={handleClick}
         aria-label="Ask Laika for a fire science fact"
-        style={{ width: '100%', minHeight: 36, border: 0, background: 'transparent', color: 'var(--text, #f4f4f6)', cursor: 'pointer' }}
+        style={{ width: '100%', minHeight: 36, border: 0, background: 'transparent', color: 'var(--text, #f4f4f6)', cursor: 'pointer', pointerEvents: 'auto', textShadow: '0 1px 4px #000' }}
       >
         Chat with Laika
       </button>
@@ -106,7 +110,7 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
         target="_blank"
         rel="noopener noreferrer"
         title="Laika the Explorer by beagleknight · CC BY 4.0"
-        style={{ display: 'block', padding: '0 6px 8px', textAlign: 'center', fontSize: 10, color: 'var(--muted, #9fa2a8)' }}
+        style={{ display: 'block', padding: '0 6px 8px', textAlign: 'center', fontSize: 10, color: 'var(--muted, #9fa2a8)', pointerEvents: 'auto', textShadow: '0 1px 4px #000' }}
       >
         Model: beagleknight
       </a>

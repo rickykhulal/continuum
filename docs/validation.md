@@ -1174,3 +1174,68 @@ are tracked and copied into the built static app, but the Docker runtime stage c
 `public/data`. The runtime image now also copies `public/tle` and `public/textures`, retaining
 the existing integrity checks and manifest hashes. The host readiness failure is **verified**;
 the following redeploy is verified separately after pushing this packaging change.
+
+## 2026-11-15 Laika polish and final feature audit
+
+Base `f2a9e58`; `git fetch origin` confirmed HEAD and origin/main identical before publishing.
+Laika now uses the requested ambient/directional/spot lights and an alpha canvas with no
+background, border or shadow on its fixed wrapper (20 px bottom/right, z-index 9999).
+Its model floats with a sine wave; the reduced-motion setting stops this movement. The
+uncompressed GLB uses GLTFLoader directly, avoiding an unnecessary WASM decoder under the
+strict script policy. GLB textures use blob fetches, now permitted by connect-src. Script
+execution remains restricted to self. The model credit and keyboard fact button remain.
+The wind panel moves to the upper right to keep its Close button clear of the companion.
+
+The audit reproduced a zero-data defect: the former realtime alignment shifted observations
+to today's date and threw on malformed sensor dates. It now preserves the stored pilot and
+country acquisition dates, windows, aggregates and generation time. Snapshot loading no
+longer discards valid points through that date-shifting path. No data was re-downloaded,
+promoted or regenerated; the November 14 bundle and its hashes remain unchanged.
+
+Community's anomaly checkbox and post type now agree, including API normalization and
+previously checkbox-flagged posts. Verification opens Alert Center, announcement timestamps
+are formatted as dates, the method link works, and form fields have accessible labels.
+Community is included in hash restoration. Community verification is explicitly distinct
+from official NASA verification. Developer key requests use the configured/local origin;
+keys remain in browser memory, and protected browser requests acquire a key after a 401.
+Issuance stays public after the first key, while data requests still enforce registered keys.
+Configured CORS clients may send x-api-key. Copy awaits the clipboard and reports success
+or failure; keys wrap without ellipsis. Every language example now includes its auth header.
+APP_DATA_PATH allows the tests and local audit to isolate runtime posts/keys from normal data.
+Laika is hidden when printing; Brief's primary actions say Print Brief and Export CSV.
+
+| Command or action | Output | Status |
+| --- | --- | --- |
+| Baseline `npm ci` | exit 0; 172 added, 173 audited; two known build-tool advisories | **verified** |
+| Baseline `npm run build`; `npm test` | exit 0; 1,024 modules; 219 passed, 0 failed, 4 skipped | **verified** within executed cases |
+| Preview on :4174; baseline `npm run e2e` | 73 true / 102 recorded, 29 false, fatal null `.focus()`; erroneous exit 0 | **partial** |
+| Final `npm run build` | exit 0; entry `index-Dab97m8q.js`; 17.22 s | **verified** |
+| Final `npm test` | exit 0; 229 total, 225 passed, 0 failed, 4 skipped; regression coverage for immutable observation dates, key issuance/auth/CORS and anomaly announcements | **verified** within executed cases; skipped live-key cases **not verified** |
+| `npm run smoke` | exit 0; 49/49 | **verified** |
+| `node --check server/api.mjs`; `node --check server/community-store.mjs`; `git diff --check` | exit 0 | **verified** |
+| `npm run validate` | 22/23; existing VIIRS-SNPP envelope remains `9999-99-99..0000-00-00` | **verified** failure; metadata repair remains a gap |
+| Post-fix preview `npm run e2e` | 76 true / 102 recorded, 26 false, same fatal null `.focus()` and erroneous exit 0 | **partial**; full legacy suite remains incomplete |
+| CUA: Orbital Watch rendering and Laika fact button | textured dog without box; globe, legend, differently scaled FRP points; 55,608 stored detections; data through November 14; fact displayed | **verified** for observed desktop view |
+| CUA: Atlas fire dot and Close | selected -28.1810, -67.2978; wind panel shows NE (45 degrees), 12 m/s and Simulation; Close removes it | **verified** |
+| CUA: local Community post, anomaly checkbox, Verify | TEST ONLY post created in isolated runtime; type becomes Data anomaly; verified banner and Alert Center open with the report | **verified**; announcement date formatting correction compiled and checked separately |
+| CUA: Developers Generate API key, Copy, return to Community | local API base; 36-character key shown; clipboard matches; Key copied status; feed remains available; no credential output recorded | **verified** |
+| CUA: Brief Export CSV and Download PDF; local file inspection | CSV 802,187 bytes / 9,510 data rows through 2026-11-14, sensor/CI/provenance columns; PDF 3,107 bytes, percent-PDF-1.4 header and EOF trailer | **verified** |
+| CUA: Print Brief | input timed out; no print preview captured; computer control stopped because the active browser URL could not be confirmed | **partial**; actual print preview and physical printing **not verified** |
+| Legacy e2e Diagnosis sandbox and Outlook | both sandbox response/resample checks true; analog charts and NASA POWER weather checks true | **verified** for automated cases; separate manual diagnosis/outlook inspection **not verified** after computer control stopped |
+| LiveMap cleanup: `rg -n 'console\.log|Loaded Fires|Local Fires' src/components/LiveMap.tsx` | no matches; tuple index 5 retained | **verified** |
+
+The full application audit is **partial**, not a certification that every feature passes.
+`docs/e2e-report.json` retains the legacy failures, including Watch controls, complete-calendar
+expectations, GeoJSON export, share/keyboard paths and country selection/state. Some selectors
+refer to replaced UI, but the whole set has not been reconciled, and no assertion was relaxed.
+The original freshness validation failure is still recorded. Community reload and manual
+Diagnosis/Outlook/Method checks were not completed after browser control stopped. No production
+test post or audit key was created. Local audit artifacts/keys are ignored and excluded from
+the publishable-file scan. Release scan and deployment results are recorded below after execution.
+
+Release checks: `npm audit --omit=dev --audit-level=high` reports 0 vulnerabilities (**verified**).
+The complete-workspace secret scan reports the ignored local `.env` by presence only; it also
+flagged a synthetic invalid-key literal, which was shortened to an obvious test value. No secret
+was read or emitted. `SECRET_SCAN_ROOT` set to a scratch copy of all publishable working files
+plus dist/dist-server reports **clean**, 201 files / 17.4 MB (**verified** within that scope).
+Runtime credentials and the ignored local environment are excluded from the release.

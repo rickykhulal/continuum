@@ -2,7 +2,6 @@ import type { Region } from './types';
 import type { Topology } from './geo';
 import { normalizeLon } from './geo';
 import { registerCountryRegions, setCountryWindowLookup } from './data';
-import { isoDate, addDays, daysBetween } from './format';
 
 const BASE = import.meta.env.BASE_URL || './';
 
@@ -69,52 +68,10 @@ const json = async (url: string) => {
 };
 
 /**
- * Aligns the country-level live FIRMS window to the current real-time date in November.
+ * Compatibility entry point: country observations retain their published dates.
  */
 export function alignCountryFiresToRealtime(firesFile: FireWindow, targetDate?: string): FireWindow {
-  if (!firesFile?.meta?.window?.end) return firesFile;
-  const today = targetDate || isoDate(new Date());
-  if (firesFile.meta.window.end >= today) return firesFile;
-
-  const daysDiff = daysBetween(firesFile.meta.window.end, today);
-  if (daysDiff <= 0) return firesFile;
-
-  const newStart = addDays(firesFile.meta.window.start, daysDiff);
-  const newEnd = today;
-
-  const newDays = (firesFile.days || []).map((d) => addDays(d, daysDiff));
-
-  const newCountries = (firesFile.countries || []).map((c) => {
-    const newPerDay: Record<string, number> = {};
-    for (const [d, v] of Object.entries(c.perDay || {})) {
-      newPerDay[addDays(d, daysDiff)] = v;
-    }
-    const newPerDaySensors: Record<string, Record<string, number>> = {};
-    for (const [d, v] of Object.entries(c.perDaySensors || {})) {
-      newPerDaySensors[addDays(d, daysDiff)] = v;
-    }
-    const newPerDayFrp: Record<string, number> = {};
-    for (const [d, v] of Object.entries(c.perDayFrp || {})) {
-      newPerDayFrp[addDays(d, daysDiff)] = v;
-    }
-    return {
-      ...c,
-      windowStart: newStart,
-      windowEnd: newEnd,
-      perDay: newPerDay,
-      perDaySensors: newPerDaySensors,
-      perDayFrp: newPerDayFrp,
-    };
-  });
-
-  return {
-    meta: {
-      ...firesFile.meta,
-      window: { start: newStart, end: newEnd },
-    },
-    days: newDays,
-    countries: newCountries,
-  };
+  return firesFile;
 }
 
 /** Loads the gazetteer and the per-country live-window tally. One call, cached, safe to race. */

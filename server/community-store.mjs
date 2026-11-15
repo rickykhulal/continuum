@@ -6,7 +6,7 @@ import path from 'node:path';
 
 // Resolve against the working directory so a non-root container user (e.g. Render
 // running as `render`) can create /app/data without an absolute-root permission error.
-const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = path.resolve(process.env.APP_DATA_PATH || path.join(process.cwd(), 'data'));
 const DB_PATH = path.join(DATA_DIR, 'community.json');
 
 const EMPTY = { posts: [], polls: [], announcements: [] };
@@ -62,7 +62,7 @@ export function createPost({ author, type, content, imageUrl, isAnomaly, options
   const post = {
     id,
     author: String(author ?? 'anonymous'),
-    type: type === 'poll' || type === 'anomaly' ? type : 'text',
+    type: type === 'anomaly' || isAnomaly ? 'anomaly' : type === 'poll' ? 'poll' : 'text',
     content: String(content ?? ''),
     imageUrl: imageUrl ? String(imageUrl) : '',
     isAnomaly: type === 'anomaly' ? true : Boolean(isAnomaly),
@@ -96,7 +96,7 @@ export function votePoll({ postId, optionIndex }) {
 export function verifyAnomaly({ postId, verified }) {
   const data = read();
   const post = data.posts.find((p) => p.id === String(postId));
-  if (!post || post.type !== 'anomaly') return null;
+  if (!post || (post.type !== 'anomaly' && !post.isAnomaly)) return null;
   post.verified = Boolean(verified);
   if (post.verified) {
     const exists = data.announcements.some((a) => a.sourcePostId === post.id);

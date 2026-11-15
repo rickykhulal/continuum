@@ -2,8 +2,9 @@
 import { useCallback, useState } from 'react';
 import { useStore } from '../lib/store';
 import { PageHeader } from './Community';
+import { API_BASE, generateApiKey } from '../lib/api';
 
-const BASE_URL = 'https://continuum-6ofw.onrender.com/api/v1';
+const BASE_URL = new URL(API_BASE, window.location.origin).href.replace(/\/$/, '');
 
 const snippets: Record<string, string> = {
   javascript: `// Web (JavaScript / Fetch)
@@ -30,10 +31,13 @@ curl -G '${BASE_URL}/live-fires' \\
   -H 'x-api-key: YOUR_API_KEY'`,
 
   csharp: `// C# (HttpClient)
+using System;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 var client = new HttpClient();
+client.DefaultRequestHeaders.Add("x-api-key", "YOUR_API_KEY");
 var url = "${BASE_URL}/live-fires?region_id=country-kenya";
 var data = await client.GetFromJsonAsync<JsonElement>(url);
 Console.WriteLine(data);`,
@@ -43,6 +47,7 @@ Console.WriteLine(data);`,
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, '${BASE_URL}/live-fires?region_id=country-kenya');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['x-api-key: YOUR_API_KEY']);
 $response = curl_exec($ch);
 curl_close($ch);
 echo $response;`,
@@ -62,10 +67,13 @@ int main() {
   if (!curl) return 1;
   std::string url = "${BASE_URL}/live-fires?region_id=country-kenya";
   std::string readBuffer;
+  struct curl_slist* headers = curl_slist_append(nullptr, "x-api-key: YOUR_API_KEY");
+  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCb);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
   CURLcode res = curl_easy_perform(curl);
+  curl_slist_free_all(headers);
   if (res != CURLE_OK) {
     std::cerr << curl_easy_strerror(res) << std::endl;
     return 1;
@@ -102,16 +110,15 @@ export function Developers() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [keyError, setKeyError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const t = (key: string) => store.t(key as never);
 
   const generateKey = useCallback(async () => {
     setGenerating(true);
     setKeyError(null);
     try {
-      const res = await fetch(`${BASE_URL}/auth/generate-key`, { method: 'POST' });
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      const data = await res.json();
-      setApiKey(data.api_key ?? null);
+      setApiKey(await generateApiKey());
+      setCopied(false);
     } catch (err) {
       setKeyError(err instanceof Error ? err.message : 'Could not generate API key.');
     } finally {
@@ -155,8 +162,8 @@ export function Developers() {
       <section className="dev-api-key">
         <h2 className="dev-section-title">API Key</h2>
         <p className="dev-key-note">
-          All <span className="mono">/api/v1/*</span> routes (except <span className="mono">/health</span> and
-          <span className="mono">/openapi.json</span>) require an <span className="mono">x-api-key</span> header.
+          Data routes use an <span className="mono">x-api-key</span> header once keys are registered.
+          Health, the OpenAPI spec and key generation remain public.
           Generate a key below, then pass it on every request. Keys are shown once and never logged.
         </p>
         <div className="dev-key-card">
@@ -168,16 +175,23 @@ export function Developers() {
                 <button
                   type="button"
                   className="btn btn-small btn-ghost dev-key-copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(apiKey ?? '');
-                    setKeyError(null);
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(apiKey);
+                      setKeyError(null);
+                      setCopied(true);
+                    } catch {
+                      setCopied(false);
+                      setKeyError('Clipboard unavailable. Select and copy the key manually.');
+                    }
                   }}
                   title="Copy key"
                 >
-                  Copy
+                  {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              {keyError && <span className="dev-key-error">{keyError}</span>}
+              {copied && <span role="status">Key copied.</span>}
+              {keyError && <span role="alert" className="dev-key-error">{keyError}</span>}
             </>
           ) : (
             <>
@@ -200,7 +214,7 @@ export function Developers() {
         <h2 className="dev-section-title">Endpoints</h2>
         <p className="dev-key-note">
           Build a full clone of Continuum. These endpoints expose our processed, harmonized data — no NASA API keys
-          or raw CSV downloading required. All routes (except /health and /openapi.json) require an
+          or raw CSV downloading required. Data routes use an
           <span className="mono">x-api-key</span> header.
         </p>
         <table className="dev-table">

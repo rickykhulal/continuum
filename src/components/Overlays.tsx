@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
+import { apiFetch } from '../lib/api';
 import { analogDeparture, biasXray, getRecord, recordsInRange, twinAnalogs } from '../lib/data';
 import { Badge } from './ui';
 import { MONTHS_LONG, nf, pct, riskColor, shortDate, ordinal } from '../lib/format';
@@ -78,7 +79,7 @@ export function AlertCenter() {
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    fetch(`${import.meta.env.VITE_API_BASE || '/api/v1'}/community/feed`)
+    apiFetch('/community/feed')
       .then((r) => {
         if (!r.ok) throw new Error(`community feed ${r.status}`);
         return r.json();
@@ -163,7 +164,7 @@ export function AlertCenter() {
                   <span className="alert-band" style={{ background: '#ff8a3d' }} />
                   <span className="alert-item-main">
                     <span className="alert-item-title">{a.author}<small>community report</small></span>
-                    <span className="alert-item-meta">{shortDate(a.createdAt)} · anomaly</span>
+                    <span className="alert-item-meta">{shortDate(a.createdAt.slice(0, 10))} · anomaly</span>
                   </span>
                   <span aria-hidden>⚠</span>
                 </button>

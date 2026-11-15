@@ -219,66 +219,12 @@ export function weatherCoverage(regionId: string, from: string, to: string): { d
 }
 
 /**
- * Aligns a static LiveBundle to the current wall-clock date in real-time.
- * If the current date is after the snapshot's windowEnd, we advance the rolling
- * 7-day window forward so that windowEnd = today, windowStart = today - 6 days.
- * Fire detections and regional daily aggregations are temporally shifted to span
- * the active live rolling window up to the current minute/hour of today.
+ * Retained for callers of the former realtime alignment API. A stored snapshot
+ * keeps its acquisition dates and published window, even when it is stale.
+ * Fresh observations must come from an upstream refresh, never a clock shift.
  */
 export function alignLiveToRealtime(bundle: LiveBundle, targetDate?: string): LiveBundle {
-  if (!bundle?.meta?.windowEnd) return bundle;
-  const today = targetDate || isoDate(new Date());
-  if (bundle.meta.windowEnd >= today) return bundle;
-
-  const daysDiff = daysBetween(bundle.meta.windowEnd, today);
-  if (daysDiff <= 0) return bundle;
-
-  const secondsOffset = daysDiff * 86400;
-  const newWindowEnd = today;
-  const newWindowStart = addDays(bundle.meta.windowStart, daysDiff);
-
-  const newSensorMeta: Record<string, { first: string; last: string; count: number }> = {};
-  for (const [s, sm] of Object.entries(bundle.meta.sensorMeta || {})) {
-    newSensorMeta[s] = {
-      first: addDays(sm.first, daysDiff),
-      last: addDays(sm.last, daysDiff),
-      count: sm.count,
-    };
-  }
-
-  const newRegionDays: Record<string, Record<string, any>> = {};
-  for (const [regId, days] of Object.entries(bundle.meta.regionDays || {})) {
-    newRegionDays[regId] = {};
-    for (const [d, counts] of Object.entries(days)) {
-      const newD = addDays(d, daysDiff);
-      newRegionDays[regId][newD] = {
-        ...counts,
-        firstT: (counts.firstT ?? 0) + secondsOffset,
-        lastT: (counts.lastT ?? 0) + secondsOffset,
-      };
-    }
-  }
-
-  const newFires: LiveFire[] = (bundle.fires || []).map((f) => [
-    f[0],
-    f[1],
-    f[2],
-    f[3],
-    f[4],
-    f[5] + secondsOffset,
-  ] as LiveFire);
-
-  return {
-    meta: {
-      ...bundle.meta,
-      generatedAt: new Date().toISOString(),
-      windowStart: newWindowStart,
-      windowEnd: newWindowEnd,
-      sensorMeta: newSensorMeta,
-      regionDays: newRegionDays,
-    },
-    fires: newFires,
-  };
+  return bundle;
 }
 
 export function refreshLiveBundle(targetDate?: string): Promise<LiveBundle> {

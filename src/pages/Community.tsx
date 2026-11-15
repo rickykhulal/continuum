@@ -3,17 +3,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { nf } from '../lib/format';
 import { playAlertChime } from '../lib/sound';
-
-const API_BASE = import.meta.env.VITE_API_BASE || '/api/v1';
+import { apiFetch } from '../lib/api';
 
 async function apiJson(path: string, init?: RequestInit) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
+  const res = await apiFetch(path, {
     ...init,
+    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(text || `API ${res.status}`);
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error?.message || `API ${res.status}`);
   }
   return res.json();
 }
@@ -126,6 +125,7 @@ export function Community() {
         body: JSON.stringify({ postId, verified }),
       });
       await load();
+      if (verified) store.setAlertsOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not update verification.');
     }
@@ -151,8 +151,8 @@ export function Community() {
         title="Crowdsourced fire-watch"
         intro={
           <div className="community-disclaimer">
-            Community discussions are user-generated and do not represent official NASA data until verified.
-            <a href="#" className="feed-link" onClick={(e) => { e.preventDefault(); }} target="_blank" rel="noreferrer">
+            Community reports are user-generated. Community verification does not make them official NASA data.
+            <a href="#/method" className="feed-link" onClick={(e) => { e.preventDefault(); store.setView('method'); }}>
               Read the method
             </a>
           </div>
@@ -171,8 +171,8 @@ export function Community() {
         setDraft={setDraft}
         setPollOptions={setPollOptions}
         isAnomaly={draft.isAnomaly}
-        setIsAnomaly={(v) => setDraft({ ...draft, isAnomaly: v })}
-        setType={(v) => setDraft({ ...draft, type: v })}
+        setIsAnomaly={(v) => setDraft({ ...draft, isAnomaly: v, type: v ? 'anomaly' : 'text' })}
+        setType={(v) => setDraft({ ...draft, type: v, isAnomaly: v === 'anomaly' })}
         setContent={(v) => setDraft({ ...draft, content: v })}
         setAuthor={(v) => setDraft({ ...draft, author: v })}
         setImageUrl={(v) => setDraft({ ...draft, imageUrl: v })}
@@ -230,7 +230,7 @@ export function PageHeader({ eyebrow, title, intro, actions }: { eyebrow?: strin
     <header className="page-head">
       {eyebrow && <span className="page-eyebrow">{eyebrow}</span>}
       <h1 className="page-title">{title}</h1>
-      {intro && <p className="page-intro">{intro}</p>}
+      {intro && <div className="page-intro">{intro}</div>}
       {actions && <div className="page-actions">{actions}</div>}
     </header>
   );
@@ -285,6 +285,7 @@ function ComposeBox({
     <form className="compose-box" onSubmit={onSubmit}>
       <div className="compose-inner">
         <textarea
+          aria-label="Post content"
           className="compose-text"
           value={draft.content}
           onChange={(e) => setContent(e.target.value)}
@@ -294,6 +295,7 @@ function ComposeBox({
         />
         <div className="compose-row">
           <input
+            aria-label="Author name"
             className="compose-input"
             value={draft.author}
             onChange={(e) => setAuthor(e.target.value)}
@@ -301,6 +303,7 @@ function ComposeBox({
             maxLength={40}
           />
           <input
+            aria-label="Image URL"
             className="compose-input"
             value={draft.imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
@@ -316,6 +319,7 @@ function ComposeBox({
             <div className="poll-options">
               {pollOptions.map((opt, i) => (
                 <input
+                  aria-label={`Poll option ${i + 1}`}
                   key={i}
                   className="compose-input"
                   value={opt}
@@ -332,7 +336,7 @@ function ComposeBox({
               </button>
             </div>
           )}
-          <select className="compose-select" value={draft.type as string} onChange={(e) => setType((e.target.value as 'text' | 'poll' | 'anomaly'))}>
+          <select aria-label="Post type" className="compose-select" value={draft.type as string} onChange={(e) => setType((e.target.value as 'text' | 'poll' | 'anomaly'))}>
             <option value="text">Text post</option>
             <option value="poll">Poll</option>
             <option value="anomaly">Data anomaly</option>

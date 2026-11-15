@@ -137,7 +137,7 @@ function parseHash(): HashState {
   const raw = location.hash.replace(/^#\/?/, '');
   if (!raw) return fallback;
   const [path, query] = raw.split('?');
-  const view = (['watch', 'atlas', 'diagnosis', 'outlook', 'brief', 'method', 'developers'] as ViewId[]).includes(path as ViewId)
+  const view = (['watch', 'atlas', 'diagnosis', 'outlook', 'brief', 'method', 'community', 'developers'] as ViewId[]).includes(path as ViewId)
     ? (path as ViewId)
     : fallback.view;
   const params = new URLSearchParams(query ?? '');
