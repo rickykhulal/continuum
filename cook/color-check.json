@@ -1,0 +1,30 @@
+{
+  "status": "verified within named opaque palette pairs; not a full accessibility audit",
+  "method": "WCAG relative luminance",
+  "pairs": [
+    {
+      "name": "body text",
+      "foreground": "#f1f5fc",
+      "background": "#080e19",
+      "ratio": 17.67
+    },
+    {
+      "name": "panel supporting text",
+      "foreground": "#a5b4ca",
+      "background": "#101927",
+      "ratio": 8.38
+    },
+    {
+      "name": "panel dim text",
+      "foreground": "#8a9ab1",
+      "background": "#101927",
+      "ratio": 6.16
+    },
+    {
+      "name": "primary action",
+      "foreground": "#0b0c0e",
+      "background": "#ff8a3d",
+      "ratio": 8.34
+    }
+  ]
+}

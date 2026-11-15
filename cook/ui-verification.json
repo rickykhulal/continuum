@@ -1,0 +1,103 @@
+{
+  "status": "partial browser sweep; verified observations below",
+  "origin": "http://127.0.0.1:5173",
+  "observations": [
+    {
+      "advancedClosed": true,
+      "calendar": {
+        "bottom": 1037.625030517578,
+        "height": 307.8500061035156,
+        "left": 64.80000305175781,
+        "right": 1365.6000518798828,
+        "top": 729.7750244140625,
+        "width": 1300.800048828125,
+        "x": 64.80000305175781,
+        "y": 729.7750244140625
+      },
+      "header": "Chilecito & Famatina Valley",
+      "name": "desktop Atlas",
+      "scrollWidth": 1430,
+      "width": 1430
+    },
+    {
+      "header": "Nepal Terai & Middle Hills",
+      "metrics": "Current activityNORMAL32nd percentile · November MTDNovember vs history-73%1,448 now · median 5,422Live window1,127VIIRS-eq · 8 active days · 7 Nov–14 NovRecord depth26 yr9,510 daily records · 8 prov.",
+      "name": "pilot selection"
+    },
+    {
+      "canvasCount": 1,
+      "map": {
+        "bottom": 916.1125183105468,
+        "height": 498,
+        "left": 65.5999984741211,
+        "right": 873.5999984741211,
+        "top": 418.1125183105469,
+        "width": 808,
+        "x": 65.5999984741211,
+        "y": 418.1125183105469
+      },
+      "name": "live MapLibre map after zoom",
+      "provenance": "Interactive Live FootprintNASA GIBS Base · 7 Nov – 14 NovDetectionsPixelsFRPTiltRotateResetLIVENASA GIBS · Blue MarbleAll Sensors (52)MODIS (1)VIIRS (0)NOAA-20 (30)NOAA-21 (21)7-Day Window Filter: Day 7 of 8Showing 52 live detections in AOIBundled FIRMS NRT snapshot · Data loaded at page load · Reload page for latest"
+    },
+    {
+      "detail": "TerraNASA · 2000 – presentThe original fire record. Coarse 1 km pixels, twice-daily overpass; its long archive is the backbone of the 2000–2012 history.Altitude695 kmSwath2,330 kmResolution1000 mOverpass10:30Chilecito: outside (14,562 km)Analyze nadir area →",
+      "globeCanvas": true,
+      "name": "globe satellite controls",
+      "satellites": 5,
+      "selected": "TerraMODIS · 1000m · 45.1°, 172.3°"
+    },
+    {
+      "name": "Laika keyboard movement preserved",
+      "before": {
+        "left": 1270,
+        "top": 630
+      },
+      "after": {
+        "left": 1250,
+        "top": 630
+      },
+      "moved20px": true
+    },
+    {
+      "controls": {
+        "bottom": 810.0000228881836,
+        "height": 117.5999984741211,
+        "left": 12,
+        "right": 378.3999938964844,
+        "top": 692.4000244140625,
+        "width": 366.3999938964844,
+        "x": 12,
+        "y": 692.4000244140625
+      },
+      "hero": {
+        "bottom": 372.6000061035156,
+        "height": 292.6000061035156,
+        "left": 16,
+        "right": 374.3999938964844,
+        "top": 80,
+        "width": 358.3999938964844,
+        "x": 16,
+        "y": 80
+      },
+      "legend": {
+        "bottom": 469.7000045776367,
+        "height": 87.0999984741211,
+        "left": 16,
+        "right": 374.3999938964844,
+        "top": 382.6000061035156,
+        "width": 358.3999938964844,
+        "x": 16,
+        "y": 382.6000061035156
+      },
+      "name": "mobile Watch layout",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "heading": "Chilecito & Famatina Valley",
+      "name": "mobile Atlas",
+      "scrollWidth": 381,
+      "width": 381
+    }
+  ]
+}

@@ -1,0 +1,512 @@
+{
+  "fatal": "TypeError: Cannot read properties of null (reading 'focus')\n    at <anonymous>:7:13\n    at <anonymous>:14:19",
+  "results": [
+    {
+      "name": "Watch renders hero + live window",
+      "pass": false,
+      "detail": "{\"sats\":0}"
+    },
+    {
+      "name": "Five spacecraft listed",
+      "pass": false,
+      "detail": "0"
+    },
+    {
+      "name": "Real SGP4 badge present",
+      "pass": false
+    },
+    {
+      "name": "NOAA-21 selection updates detail",
+      "pass": false
+    },
+    {
+      "name": "Simulation clock advances (rAF live)",
+      "pass": false,
+      "detail": "{}"
+    },
+    {
+      "name": "Speed selector switches to 600x",
+      "pass": false,
+      "detail": "{\"active\":[]}"
+    },
+    {
+      "name": "Time offset slider seeks the globe back a day",
+      "pass": false,
+      "detail": "{\"sliderAt\":\"-24\",\"value\":\"0\",\"expected\":\"14 November 2026\"}"
+    },
+    {
+      "name": "Region chip switches AOI to Pantanal",
+      "pass": false,
+      "detail": "{\"hash\":\"#/watch?r=chilecito&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-14&span=8\"}"
+    },
+    {
+      "name": "Alert center opens with measured high-FRP detections",
+      "pass": true,
+      "detail": "{\"open\":true,\"count\":27,\"msg\":\"CONTINUUM FIRE REPORT — AMAZON ARC\\n2026-11-14 · Live feed unavailable · bundled FIRMS snapshot\\n105 detections with FRP ≥ 50 MW.\\nPeak FRP: 993.2 MW. Summed detection FRP: 16246.7 MW.\\nMeasured window: 2026-11-07 to 2026-11-14. Counts are satellite detections, not separate fires.\\nNASA FIRMS NRT observations; provisional. Research context, not an official warning.\",\"dispatchButtons\":[\"Copy report\",\"Download report\",\"Open Atlas →\"]}"
+    },
+    {
+      "name": "Detection report carries observed date, FRP and provenance",
+      "pass": true,
+      "detail": "CONTINUUM FIRE REPORT — AMAZON ARC\n2026-11-14 · Live feed unavailable · bundled FIRMS snapshot\n105 detections with FRP ≥ 50 MW.\nPeak FRP: 993.2 MW. Summed detection FRP: 16246.7 MW.\nMeasured window: 2026-11-07 to 2026-11-14. Counts are satellite detections, not separate fires.\nNASA FIRMS NRT observations; provisional. Research context, not an official warning."
+    },
+    {
+      "name": "Detection report copies to clipboard",
+      "pass": true,
+      "detail": "{\"toast\":\"Detection report copied.\",\"clip\":\"CONTINUUM FIRE REPORT — AMAZON ARC\\r\\n2026-11-14 · Live feed unavailable · bundled FIRMS sna\"}"
+    },
+    {
+      "name": "Detection report downloads as .txt",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_fire_amazon_2026-11-14.txt\",\"size\":368,\"path\":\"<temporary downloads>/continuum_fire_amazon_2026-11-14.txt\"}"
+    },
+    {
+      "name": "Calendar renders every day of the record",
+      "pass": false,
+      "detail": "2875"
+    },
+    {
+      "name": "Metric + mode controls expose 3 metrics and 2 modes",
+      "pass": true,
+      "detail": "{\"cells\":2875,\"metricBtns\":[{\"t\":\"Hotspots\",\"on\":\"true\"},{\"t\":\"Fire-days\",\"on\":\"false\"},{\"t\":\"FRP\",\"on\":\"false\"}],\"modeBtns\":[{\"t\":\"Harmonized\",\"on\":\"true\"},{\"t\":\"Raw\",\"on\":\"false\"}],\"month\":\"11\"}"
+    },
+    {
+      "name": "Metric/mode toggles switch to Fire-days + Raw",
+      "pass": true,
+      "detail": "{\"metricOn\":[\"Fire-days\"],\"modeOn\":[\"Raw\"]}"
+    },
+    {
+      "name": "Compare mode renders raw/harmonized split",
+      "pass": true,
+      "detail": "{\"label\":\"Split on\",\"split\":true}"
+    },
+    {
+      "name": "Month selector recomputes the comparison",
+      "pass": true,
+      "detail": "{\"month\":\"8\",\"stats\":\"Current24Median195-yr mean2810-yr mean26Rank76th\"}"
+    },
+    {
+      "name": "Calendar frame reads the record by day, week, month, quarter and year",
+      "pass": true,
+      "detail": "[\"Days\",\"Weeks\",\"Months\",\"3 mo\",\"Years\"]"
+    },
+    {
+      "name": "Calendar frame exposes span, focus year and comparison gap",
+      "pass": true,
+      "detail": "[\"Span\",\"Focus year\",\"Compare\"]"
+    },
+    {
+      "name": "Frame resolution re-reads the same record",
+      "pass": true,
+      "detail": "2875 day cells → 0 year cells → 2875 restored"
+    },
+    {
+      "name": "Calendar frame settings ride in the shareable URL",
+      "pass": true,
+      "detail": "{\"res\":\"year\",\"span\":\"8\",\"fy\":\"2023\",\"gap\":\"10\"}"
+    },
+    {
+      "name": "Pasting the frame link restores the same reading frame",
+      "pass": true,
+      "detail": "{\"pressed\":\"Years\",\"fy\":\"2023\",\"gap\":\"10\"}"
+    },
+    {
+      "name": "Default frame settings drop out of the URL again",
+      "pass": true,
+      "detail": "#/atlas?r=chilecito&m=firedays&mode=raw&from=2000-11-01&to=2026-11-14&span=8"
+    },
+    {
+      "name": "Day inspector opens with four sensor rows",
+      "pass": true,
+      "detail": "[\"MODIS01 km pixels · 2000–present\",\"VIIRS—375 m pixels · 2012–present\",\"NOAA-200375 m pixels · 2018–present\",\"NOAA-210375 m pixels · 2022–present\"]"
+    },
+    {
+      "name": "Latest day is a live observation",
+      "pass": true,
+      "detail": "LIVE OBSERVATIONlow trustprovisionallive"
+    },
+    {
+      "name": "Hover readout carries value, 90% interval, per-sensor mix and trust label",
+      "pass": true,
+      "detail": "{\"harmonizedRead\":\"16 September 202613.0VIIRS-eq· 90% CI 7.0–19.0 VIIRS-eq· MODIS 3 · S-NPP VIIRS 4 · NOAA-20 4 · NOAA-21 5high trust\",\"firedaysRead\":\"16 September 20261.0fire-day· MODIS 3 · S-NPP VIIRS 4 · NOAA-20 4 · NOAA-21 5high trust\",\"found\":true}"
+    },
+    {
+      "name": "Interval is not shown in units it does not describe",
+      "pass": true,
+      "detail": "{\"harmonizedRead\":\"16 September 202613.0VIIRS-eq· 90% CI 7.0–19.0 VIIRS-eq· MODIS 3 · S-NPP VIIRS 4 · NOAA-20 4 · NOAA-21 5high trust\",\"firedaysRead\":\"16 September 20261.0fire-day· MODIS 3 · S-NPP VIIRS 4 · NOAA-20 4 · NOAA-21 5high trust\",\"found\":true}"
+    },
+    {
+      "name": "CSV export downloads the daily record",
+      "pass": true,
+      "detail": "{\"csvClick\":true,\"csvFile\":{\"file\":\"continuum_chilecito_2000-11-01_2026-11-14.csv\",\"size\":802187,\"path\":\"<temporary downloads>/continuum_chilecito_2000-11-01_2026-11-14.csv\"}}"
+    },
+    {
+      "name": "GeoJSON export downloads live hotspots",
+      "pass": false,
+      "detail": "{\"geoClick\":true,\"geoFile\":{\"file\":\"continuum_chilecito_2026-11-07_2026-11-14.geojson\",\"size\":19572,\"path\":\"<temporary downloads>/continuum_chilecito_2026-11-07_2026-11-14.geojson\"}}"
+    },
+    {
+      "name": "Hotspot CSV downloads one row per detected point, named instrument and all",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_chilecito_hotspots_2026-11-07_2026-11-14.csv\",\"size\":4364,\"rows\":52}"
+    },
+    {
+      "name": "The hotspot CSV and the hotspot GeoJSON carry the same detections",
+      "pass": true,
+      "detail": "{\"geoFeatures\":52,\"csvRows\":52}"
+    },
+    {
+      "name": "PNG calendar export downloads",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_chilecito_calendar_2026-11-14.png\",\"size\":150681,\"path\":\"<temporary downloads>/continuum_chilecito_calendar_2026-11-14.png\"}"
+    },
+    {
+      "name": "Share view produces a deep link",
+      "pass": true,
+      "detail": "View link copied — http://localhost:4174/#/atlas?r=chilecito&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-14&span=8"
+    },
+    {
+      "name": "Draw-area editor validates and resolves a rectangle (FR-01)",
+      "pass": true,
+      "detail": "3,293 km²97 vertices≈46 detections/year-29.25°, -68.18° r=32 kmvalidAnalyze this shape"
+    },
+    {
+      "name": "Draw-area reports a data-volume estimate with its basis (FR-05)",
+      "pass": true,
+      "detail": "Drawn areas are resolved to the equal-area circle the record builder uses, so the numbers match the same code path as the coordinate form. Pointer and keyboard build the identical shape: the pen is the second corner (or the next vertex). Density is 0.0000 detections/km²/day, measured from 1 live detections over 8 days in this area."
+    },
+    {
+      "name": "Drawn shape becomes the analysed AOI",
+      "pass": true,
+      "detail": "{\"toast\":\"Analysed the drawn rectangle: 3,293 km² resolved to a 32 km radius AOI.\",\"aoi\":\"3,293 km² · Temperate\"}"
+    },
+    {
+      "name": "Charts expose table alternatives (FR-33)",
+      "pass": true,
+      "detail": "{\"count\":5,\"rows\":8,\"cells\":[\"20197948818142927221816180\",\"2020141410111419252928212118224\"],\"charts\":3,\"covered\":3}"
+    },
+    {
+      "name": "Every plotted chart on the page has a sibling data table (FR-33)",
+      "pass": true,
+      "detail": "{\"count\":5,\"rows\":8,\"cells\":[\"20197948818142927221816180\",\"2020141410111419252928212118224\"],\"charts\":3,\"covered\":3}"
+    },
+    {
+      "name": "Sandbox responds to overpass/pixel changes",
+      "pass": true,
+      "detail": "{\"before\":\"Apparent bias-63.0%Residual bias+0.2%7-day recovery error9.8%Simulated days1,049Truth sourcereference record\",\"after\":\"Apparent bias-75.5%Residual bias+0.7%7-day recovery error14.6%Simulated days1,049Truth sourcereference record\"}"
+    },
+    {
+      "name": "Sandbox resample changes the residual",
+      "pass": true,
+      "detail": "Apparent bias-75.8%Residual bias-0.5%7-day recovery error13.2%Simulated days1,049Truth sourcereferen"
+    },
+    {
+      "name": "Outlook lists analog seasons and charts",
+      "pass": true,
+      "detail": "{\"analogs\":3,\"clock\":\"JanFebMarAprMayJunJulAugSepOctNovDecPEAK14 Augoff-season · behind76% of expected activity so farView dataSeason clockValueTypical start7 AugTypical peak14 AugTy\",\"charts\":4,\"weatherBadges\":[\"NASA POWER\",\"NASA POWER\"]}"
+    },
+    {
+      "name": "Outlook uses live NASA POWER weather",
+      "pass": true,
+      "detail": "[\"NASA POWER\",\"NASA POWER\"]"
+    },
+    {
+      "name": "Brief shows four sensor rows",
+      "pass": true,
+      "detail": "MODIS1VIIRS S-NPP0NOAA-2030NOAA-2121Active days7/8Calibration12.88×"
+    },
+    {
+      "name": "Advisory copies with real calibration text",
+      "pass": true,
+      "detail": "{\"toast\":\"Advisory copied to the clipboard.\",\"clip\":\"CONTINUUM — BURNING ACTIVITY ADVISORY\\r\\nGenerated 2026-11-15 · research prototype · NOT an official NASA product\\r\\n\\r\\nAREA: Chilecito & Famatina Valley (Argentina)\\r\\nCENTRE: -29.16°, -67.50° · 19,400 km²\\r\\nRECORD: 2000-11-01 to 2026-11-14 · 9,510 harmonized daily values\\r\\n\\r\\nSTATUS: HIGH — 96th percentile for the first 14 days of November.\\r\\nCurrent 13 vs. historical median 5 (2.60×).\\r\\n\\r\\nLIVE WINDOW: 2026-11-07 to 2026-11-14; 51 VIIRS-equivalent detections across 7 active days.\\r\\nSensor calibration: MODIS → VIIRS ratio 12.88× (90% CI 12.49–13.28); the 2012 break in the raw record is 136%, reduced to -45% after harmonization.\\r\\nAnalog seasons: 2020 (60%), 2019 (59%), 2025 (47%). Median next-four-week departure +299%. Supplementary mean next-four-week departure +236% across 3 available analog seasons. Leave-one-out hit rate 65%.\\r\\nSeason: typical window 7 Aug–20 Oct, peak 14 Aug; current phase off-season, running behind of climatology (76% of expected to date).\\r\\n\\r\\nWHAT WOULD CHANGE THE CALL:\\r\\n• A shift in the live window outside the 12.5–13.3 calibration interval would widen the uncertainty and lower trust.\\r\\n• Cloud cover or missed overpasses can hide fire; absence of detections is not absence of fire.\\r\\n• This advisory ranks activity against the same area's own history. It does not model ignition, spread or suppression.\\r\\n\\r\\nMETHOD VERSION 0.1.0 · reference record calibrated to the live FIRMS window, not the official NASA archive.\\r\\nCaveat: The latest days are provisional. Supports situational awareness; not a warning, dispatch or evacuation service.\"}"
+    },
+    {
+      "name": "Advisory downloads as .txt",
+      "pass": true,
+      "detail": "{\"file\":\"continuum_advisory_chilecito_2026-11-14.txt\",\"size\":1567,\"path\":\"<temporary downloads>/continuum_advisory_chilecito_2026-11-14.txt\"}"
+    },
+    {
+      "name": "Advisory file carries live sensors + calibration",
+      "pass": true,
+      "detail": "CONTINUUM — BURNING ACTIVITY ADVISORY\nGenerated 2026-11-15 · research prototype · NOT an official NASA product\n\nAREA: Chilecito & Famatina Valley (Argentina)\nCE"
+    },
+    {
+      "name": "FR-27 PDF brief downloads as a valid one-page PDF",
+      "pass": true,
+      "detail": "{\"pdfClick\":true,\"size\":3104,\"pdfHead\":\"%PDF-1.4\\n\"}"
+    },
+    {
+      "name": "Method states bundled TLE epoch honestly",
+      "pass": true,
+      "detail": "CelesTrak TLEsTerra · Aqua · Suomi NPP · NOAA-20 · NOAA-21; epoch 2026-303; SGP4 propagation.Bundled elements shipped with the build — CelesTrak rejects browser traffic (HTTP 403), so the maintainer refreshes them with scripts/fetch-tle.mjs before a release."
+    },
+    {
+      "name": "Method no longer claims runtime CelesTrak refresh",
+      "pass": true,
+      "detail": "false"
+    },
+    {
+      "name": "Method names all four FIRMS sensors",
+      "pass": true,
+      "detail": "NASA FIRMSMODIS C6.1 (Terra, Aqua) · VIIRS C2 (Suomi NPP, NOAA-20, NOAA-21) · qualifying detections, confidence, FRP, UTC acquisition time.Live 7-day rolling public CSVs. History needs a MAP_KEY."
+    },
+    {
+      "name": "Method discloses reconstruction boundary",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "Judge tour advances through every step",
+      "pass": false,
+      "detail": "{\"steps\":[null]}"
+    },
+    {
+      "name": "Share link restores region + view",
+      "pass": false,
+      "detail": "{\"hash\":\"#/atlas?r=chilecito&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-14&span=8\",\"heading\":\"Chilecito & Famatina Valley\"}"
+    },
+    {
+      "name": "Keyboard block starts from a cleared day selection on the shared region",
+      "pass": false,
+      "detail": "{\"title\":\"Live footprint\",\"hash\":\"#/atlas?r=chilecito&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-14&span=8\"}"
+    },
+    {
+      "name": "Calendar grid is focusable and announces the keyboard contract",
+      "pass": true,
+      "detail": "{\"focused\":true,\"role\":\"application\",\"label\":\"Burning calendar, 2019 to 2026. Arrow keys move the cursor, Enter opens a day.\",\"date\":\"14 November 2026\"}"
+    },
+    {
+      "name": "Calendar cursor cannot walk into future days",
+      "pass": true,
+      "detail": "{\"today\":\"14 November 2026\",\"after\":\"14 November 2026\"}"
+    },
+    {
+      "name": "Arrow keys move the calendar cursor between days",
+      "pass": true,
+      "detail": "{\"today\":\"14 November 2026\",\"back\":\"12 November 2026\",\"forward\":\"13 November 2026\"}"
+    },
+    {
+      "name": "Enter opens the day under the cursor",
+      "pass": true,
+      "detail": "{\"title\":\"13 November 2026\",\"rows\":4}"
+    },
+    {
+      "name": "Space activates a focused toggle",
+      "pass": true,
+      "detail": "{\"kbToggle\":{\"focused\":true,\"label\":\"Raw\"},\"kbToggled\":{\"on\":[\"Raw\"]}}"
+    },
+    {
+      "name": "Enter expands a table alternative from the focused summary",
+      "pass": true,
+      "detail": "{\"kbTable\":{\"focused\":true,\"label\":\"View data\",\"wasOpen\":false},\"kbTableAfter\":{\"open\":true,\"rows\":8,\"focus\":\"SUMMARY\"}}"
+    },
+    {
+      "name": "Skip link moves focus to main without resetting the hash-routed view",
+      "pass": false,
+      "detail": "{\"kbSkip\":{\"focused\":true,\"href\":\"#main\",\"target\":true,\"tabIndex\":\"-1\"},\"kbSkipAfter\":{\"hash\":\"#/atlas?r=chilecito&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-14&span=8\",\"focusedMain\":true,\"metric\":\"Burning calendar\"}}"
+    },
+    {
+      "name": "Area canvas is focusable and states its keyboard contract",
+      "pass": true,
+      "detail": "{\"focused\":true,\"role\":\"application\",\"label\":\"Area editor, rectangle mode, 0 square kilometres. Arrow keys move the pen, Shift plus arrow moves four steps, Enter or Space places, C closes a polygon, Backspace undoes, Escape clears, F fits the view, R resets it.\",\"described\":\"draw-status\",\"status\":\"Keyboard: arrow keys move the pen, Shift plus arrow moves four steps, Enter or Space places, C closes a polygon, Backspace undoes, Escape clears, F fits and R resets the view.\",\"readout\":\"0 km²0 vertices≈0 detections/yearAnalyze this shape\"}"
+    },
+    {
+      "name": "No shape exists before the first keystroke",
+      "pass": true,
+      "detail": "0 km²0 vertices≈0 detections/yearAnalyze this shape"
+    },
+    {
+      "name": "Enter sets the first corner and announces it",
+      "pass": true,
+      "detail": "{\"status\":\"First corner set at -29.16°, -67.50°. Arrow keys drag the opposite corner.\",\"readout\":\"0 km²0 vertices≈0 detections/yearAnalyze this shape\"}"
+    },
+    {
+      "name": "Shift plus arrows drag the opposite corner into a valid area",
+      "pass": true,
+      "detail": "{\"area\":3,\"kdRect\":{\"readout\":\"3,766 km²97 vertices≈34,927 detections/year-29.66°, -66.80° r=35 kmvalidAnalyze this shape\",\"status\":\"First corner set at -29.16°, -67.50°. Arrow keys drag the opposite corner.\",\"disabled\":false}}"
+    },
+    {
+      "name": "Enter activates Analyze on the focused button",
+      "pass": true,
+      "detail": "{\"kdFocusAnalyze\":{\"focused\":true,\"disabled\":false},\"toast\":\"Analysed the drawn rectangle: 3,766 km² resolved to a 35 km radius AOI.\"}"
+    },
+    {
+      "name": "The drawn shape survives the region change it causes",
+      "pass": true,
+      "detail": "{\"kept\":3,\"readout\":\"3,766 km²97 vertices≈34,927 detections/year-29.66°, -66.80° r=35 kmvalidAnalyze this shape\"}"
+    },
+    {
+      "name": "Data-volume estimate is measured on the drawn area and is unchanged by Analyze",
+      "pass": true,
+      "detail": "{\"before\":34927,\"after\":34927}"
+    },
+    {
+      "name": "Polygon mode is announced through the canvas label",
+      "pass": true,
+      "detail": "{\"mode\":\"Area editor, polygon mode, 0 square kilometres. Arrow keys move the pen, Shift plus arrow moves four steps, Enter or Space places, C closes a polygon, Backspace undoes, Escape clears, F fits the view, R resets it.\",\"status\":\"Analysed: 3,766 km² resolved to a 35 km radius AOI.\"}"
+    },
+    {
+      "name": "Enter places polygon vertices at the pen",
+      "pass": true,
+      "detail": "{\"status\":\"4 vertices placed. Press C to close the shape, Backspace to undo, Escape to clear.\",\"dots\":4,\"draft\":true}"
+    },
+    {
+      "name": "Backspace undoes the last vertex",
+      "pass": true,
+      "detail": "{\"status\":\"3 vertices remain.\",\"dots\":3}"
+    },
+    {
+      "name": "C closes the polygon so it becomes analysable",
+      "pass": true,
+      "detail": "{\"area\":1,\"kdClosed\":{\"status\":\"Polygon closed with 4 vertices — area and estimate are ready.\",\"readout\":\"1,407 km²5 vertices≈13,051 detections/year-29.85°, -66.63° r=21 kmvalidAnalyze this shape\",\"disabled\":false}}"
+    },
+    {
+      "name": "Keyboard-drawn polygon resolves to an AOI like a pointer shape",
+      "pass": true,
+      "detail": "{\"toast\":\"Analysed the drawn polygon: 1,407 km² resolved to a 21 km radius AOI.\",\"hash\":\"#/atlas?r=aoi-s29p85-w66p63&m=firedays&mode=harmonized&from=2000-11-01&to=2026-11-14&lat=-29.8476&lon=-66.6251&rad=21&n=Drawn+polygon&span=8\",\"status\":\"Analysed: 1,407 km² resolved to a 21 km radius AOI.\"}"
+    },
+    {
+      "name": "Every focusable control has an accessible name on all six views",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Every form control is labelled",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "No positive tabindex anywhere",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Heading levels never skip a rank",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Images name themselves or are marked decorative",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Every role=img graphic carries an accessible name",
+      "pass": true,
+      "detail": "{\"count\":0,\"first\":null}"
+    },
+    {
+      "name": "Landmarks: exactly one main and a nav per view",
+      "pass": true,
+      "detail": "[[\"watch\",{\"main\":1,\"nav\":3}],[\"atlas\",{\"main\":1,\"nav\":3}],[\"diagnosis\",{\"main\":1,\"nav\":3}],[\"outlook\",{\"main\":1,\"nav\":3}],[\"brief\",{\"main\":1,\"nav\":3}],[\"method\",{\"main\":1,\"nav\":3}]]"
+    },
+    {
+      "name": "Document declares a language on all six views",
+      "pass": true,
+      "detail": "[[\"watch\",\"en\"],[\"atlas\",\"en\"],[\"diagnosis\",\"en\"],[\"outlook\",\"en\"],[\"brief\",\"en\"],[\"method\",\"en\"]]"
+    },
+    {
+      "name": "Views that update asynchronously expose a polite live region",
+      "pass": true,
+      "detail": "[[\"watch\",1],[\"atlas\",2],[\"outlook\",1]]"
+    },
+    {
+      "name": "Mobile: the document does not scroll sideways",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "Mobile: every top-nav target is at least 44 px tall",
+      "pass": true,
+      "detail": "[{\"label\":\"CONTINUUMFIRE RECO\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"Orbital WatchWatch\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"AtlasAtlas\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"DiagnosisDiagnose\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"OutlookOutlook\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"BriefBrief\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"MethodMethod\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"Community HubHub\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"DevelopersDev\",\"icon\":false,\"w\":44,\"h\":44},{\"label\":\"◉Alert center\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"🔇\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"⚙\",\"icon\":true,\"w\":44,\"h\":44}]"
+    },
+    {
+      "name": "Mobile: icon-only nav targets are also 44 px wide",
+      "pass": true,
+      "detail": "[{\"label\":\"CONTINUUMFIRE RECO\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"◉Alert center\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"🔇\",\"icon\":true,\"w\":44,\"h\":44},{\"label\":\"⚙\",\"icon\":true,\"w\":44,\"h\":44}]"
+    },
+    {
+      "name": "Mobile: simulation speed chips are tappable",
+      "pass": false,
+      "detail": "[]"
+    },
+    {
+      "name": "Mobile: hero copy is present, not collapsed",
+      "pass": false,
+      "detail": "0"
+    },
+    {
+      "name": "Mobile: Atlas fits the viewport without sideways scroll",
+      "pass": true,
+      "detail": "{\"overflow\":0,\"frame\":true,\"inFrame\":true}"
+    },
+    {
+      "name": "Mobile: the calendar frame controls stay inside their panel",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "No HTTP 4xx/5xx responses",
+      "pass": false,
+      "detail": "[\"404 http://localhost:4174/api/v1/live-firms\",\"404 http://localhost:4174/api/v1/live-firms\",\"404 http://localhost:4174/api/v1/live-firms\",\"404 http://localhost:4174/api/v1/live-firms\"]"
+    },
+    {
+      "name": "No failed network loads",
+      "pass": false,
+      "detail": "[\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/18.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/18.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/149/77.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/150/81.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/150/77.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/148/81.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/148/77.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/18.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/149/77.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/150/77.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/148/77.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/18.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/18.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/76/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/80.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/79.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/81.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/150/82.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/149/82.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/78.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/82.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/148/82.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/76/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/76/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/80.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/8/151/81.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/19/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/8.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/19.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/38/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/18.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/37/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/73/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/39.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/40.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/74/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/38.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/7/75/41.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/7/3.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/7/4.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/7/5.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/9/7.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/7/6.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/8/7.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/4/7/7.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/18/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/16/10.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/16/11.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/9.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/5/17/12.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/36/22.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/35/23.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/34/23.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/35/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/35/22.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/34/21.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/34/22.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/35/20.jpeg\",\"net::ERR_ABORTED Fetch https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/6/34/20.jpeg\"]"
+    },
+    {
+      "name": "No runtime console errors",
+      "pass": false,
+      "detail": "[\"Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:4174/api/v1/live-firms\",\"Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:4174/api/v1/live-firms\",\"Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:4174/api/v1/live-firms\",\"Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:4174/api/v1/live-firms\"]"
+    },
+    {
+      "name": "No runtime CelesTrak requests",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "NASA POWER live request succeeds",
+      "pass": true,
+      "detail": "[200,200]"
+    },
+    {
+      "name": "World search reaches a country with no pilot region",
+      "pass": false,
+      "detail": "{\"ok\":false}"
+    },
+    {
+      "name": "Selecting a country makes it the analysed area",
+      "pass": false,
+      "detail": "{\"hash\":\"#/watch?r=chilecito&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-14&span=8\"}"
+    },
+    {
+      "name": "The country label states measured detections, not a model",
+      "pass": false
+    },
+    {
+      "name": "A click on the pole names the continent, not open ocean",
+      "pass": false,
+      "detail": "{\"centre\":{\"x\":711,\"y\":430},\"toast\":\"Near Antigua and Barbuda selected — the point is ~70 km off its border: a 150 km AOI, measured against Antigua and Barbuda's own window.\"}"
+    },
+    {
+      "name": "A #country deep link restores that country as the area",
+      "pass": true,
+      "detail": "{\"heading\":\"Kenya — country wide\",\"hash\":\"#/atlas?r=country-kenya&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-14&c=kenya&span=8\",\"live\":null,\"liveSub\":null}"
+    },
+    {
+      "name": "A country outside a pilot bbox still reports a measured window",
+      "pass": false,
+      "detail": "{\"heading\":\"Kenya — country wide\",\"hash\":\"#/atlas?r=country-kenya&m=hotspots&mode=harmonized&from=2000-11-01&to=2026-11-14&c=kenya&span=8\",\"live\":null,\"liveSub\":null}"
+    },
+    {
+      "name": "Kenya's live figure is its measured border count, not the bundle's stride sample",
+      "pass": false,
+      "detail": "{\"expected\":112,\"heading\":\"Kenya — country wide\",\"value\":null,\"sub\":null}"
+    },
+    {
+      "name": "A country with no detections prints its measured zero, not a pilot average",
+      "pass": false,
+      "detail": "{\"heading\":\"Antarctica — country wide\",\"value\":null,\"sub\":null}"
+    }
+  ]
+}

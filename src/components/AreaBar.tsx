@@ -122,40 +122,49 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
         )}
       </div>
 
-      <div className="area-coords">
-        <label className="field">
-          <span className="field-label">Latitude</span>
-          <input inputMode="decimal" value={lat} onChange={(e) => setLat(e.target.value)} aria-label="Latitude in decimal degrees" />
-        </label>
-        <label className="field">
-          <span className="field-label">Longitude</span>
-          <input inputMode="decimal" value={lon} onChange={(e) => setLon(e.target.value)} aria-label="Longitude in decimal degrees" />
-        </label>
-        <label className="field">
-          <span className="field-label">{store.region.selection === 'bounds' ? 'New radius (km)' : 'Radius (km)'}</span>
-          <input inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value)} aria-label="Radius in kilometres" />
-        </label>
-        <button type="button" className="btn btn-primary btn-small" onClick={apply}>{store.region.selection === 'bounds' ? 'Use circle' : 'Analyze'}</button>
-      </div>
+      <details className="area-advanced">
+        <summary>Coordinates & pilot regions</summary>
+        <div className="area-advanced-content">
+          <div className="area-coords">
+            <label className="field">
+              <span className="field-label">Latitude</span>
+              <input inputMode="decimal" value={lat} onChange={(e) => setLat(e.target.value)} aria-label="Latitude in decimal degrees" />
+            </label>
+            <label className="field">
+              <span className="field-label">Longitude</span>
+              <input inputMode="decimal" value={lon} onChange={(e) => setLon(e.target.value)} aria-label="Longitude in decimal degrees" />
+            </label>
+            <label className="field">
+              <span className="field-label">{store.region.selection === 'bounds' ? 'New radius (km)' : 'Radius (km)'}</span>
+              <input inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value)} aria-label="Radius in kilometres" />
+            </label>
+            <button type="button" className="btn btn-primary btn-small" onClick={apply}>{store.region.selection === 'bounds' ? 'Use circle' : 'Analyze'}</button>
+          </div>
 
-      <div className="area-presets">
-        <span className="field-label">Pilot regions</span>
-        <div className="preset-row">
-          {REGIONS.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              className={`preset ${r.id === store.regionId ? 'active' : ''}`}
-              onClick={() => {
-                store.selectRegion(r.id);
-                store.toast(`${r.name} loaded.`);
-              }}
-            >
-              {r.shortName}
-            </button>
-          ))}
+          <div className="area-presets">
+            <span className="field-label">Pilot regions</span>
+            <div className="preset-row">
+              {REGIONS.map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  className={`preset ${r.id === store.regionId ? 'active' : ''}`}
+                  onClick={() => {
+                    store.selectRegion(r.id);
+                    store.toast(`${r.name} loaded.`);
+                  }}
+                >
+                  {r.shortName}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="area-advanced-foot">
+            <span className="area-fact">{nf(store.region.areaKm2)} km² · {store.region.selection === 'bounds' ? 'geographic rectangle' : store.region.biome}</span>
+            <button type="button" className="btn btn-small btn-ghost" onClick={share}>Share view</button>
+          </div>
         </div>
-      </div>
+      </details>
 
       <div className="area-actions">
         {isPilot ? (
@@ -186,8 +195,6 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
         >
           {drawOpen ? '✕ Close drawing' : '✎ Draw an area'}
         </button>
-        <button type="button" className="btn btn-small btn-ghost" onClick={share}>Share view</button>
-        <span className="area-fact">{nf(store.region.areaKm2)} km² · {store.region.selection === 'bounds' ? 'geographic rectangle' : store.region.biome}</span>
       </div>
 
       {drawOpen && (

@@ -4,6 +4,7 @@ import { App } from './App';
 import { StoreProvider } from './lib/store';
 import './fonts.css';
 import './styles.css';
+import './ui-upgrade.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

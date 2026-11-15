@@ -1319,3 +1319,68 @@ by `git rev-list --left-right --count main...origin/main` returned `0 0` again.
 | GET Render `/` before push | HTTP 200; old entry `index-BykkYhYB.js` | **verified** for old deployment; new release **not verified** yet |
 | `git commit -m "Final Polish: Draggable Laika, clean attribution, real Wind API integration, and Alert Center overhaul"`; `git push origin main` | exit 0; `8a33e4e..254a683` published to main | **verified** |
 | GET Render `/`, `/assets/index-kHhWYiPO.js`, `/api/v1/health`, `/api/v1/ready` after push | all HTTP 200 at 2026-11-15T07:06:01Z; asset SHA-256 matches the local build; readiness integrity `{ok:true,bad:[],files:20}` | **verified**; `docs/render-final-polish-report.json` |
+
+## 2026-11-15 Workspace Cook skill installation
+
+Installed `Leonxlnx/cook` at `.agents/skills/cook`, from commit
+`b23cac6fd9439dfddcab61b14808e7bf72549b46`, using the skill-installer helper with
+`--repo Leonxlnx/cook --path . --name cook --ref b23cac6fd9439dfddcab61b14808e7bf72549b46`.
+The helper downloaded into temporary staging before the directory was moved into this workspace.
+
+| Command | Output / scope | Status |
+| --- | --- | --- |
+| `npm ci` | initial esbuild/Rollup EPERM locks; temporarily stopped and restored the workspace preview on :4174; retry exit 0, 172 packages installed, 2 toolchain advisories | **verified** |
+| `npm run build` | exit 0, 1,030 modules, Vite build 15.00 s | **verified** |
+| `npm test` | exit 0, 249 total / 245 passed / 0 failed / 4 skipped | **verified** for executed cases |
+| `npm run e2e` against preview on :4174 | exit 0 but 76 passed / 26 failed / 102 executed, then aborted at the existing null `.focus()` selector; static preview also returns 404 for `/api/v1/live-firms` | **partial**; matches the previously recorded baseline gaps |
+| Python source-integrity comparison against the GitHub tree | all 12 downloaded files have matching Git blob SHA-1 hashes | **verified** |
+| `node --check .agents/skills/cook/scripts/side-by-side.mjs` | exit 0 | **verified** |
+
+The pre-existing `docs/e2e-report.json` was restored byte for byte after this baseline run.
+The skill's screenshot comparison helper has not been executed; its ffmpeg integration is
+**not verified**. Application source and data were not changed for this installation.
+
+## 2026-11-15 Local Cook UI upgrade and autonomous Laika
+
+All edits are local and uncommitted. HEAD remains `705f75282b0f7ae05ce4cec3620dea5ddc4eb572`.
+No push, deployment or publishing was performed. Cook's accepted 90-minute cap ended design work;
+stills are ready for review and no video render was started. The complete local ledger is
+`cook/ROUNDS.md`; the 90-point visual target remains **partial**, with typography/mobile density gaps.
+
+| Command / observation | Output / scope | Status |
+| --- | --- | --- |
+| `npx skills add Leonxlnx/cook --global --agent codex --yes`; Codex skill-installer helper | exit 0; installed at both home `.agents/skills/cook` and `.codex/skills/cook`; latter SKILL.md existence true | **verified** |
+| `node --version`; `ffmpeg -version` | v24.19.0; Gyan FFmpeg Essentials 9.0.1 installed via winget, version command exit 0 | **verified** |
+| Baseline `npm ci`; `npm run build`; `npm test` | install exit 0 after releasing preview lock; build exit 0, 1,030 modules; 245 passed / 0 failed / 4 skipped | **verified** for executed cases |
+| Baseline `npm run e2e`, preview :4174 | script exit 0 but 76/102 then existing null focus exception; report preserved at `cook/baseline-e2e-report.json`, original docs report restored | **partial** |
+| Final `npm run build` | exit 0; 1,030 modules; 17.60-second Vite build; zero TypeScript errors | **verified** |
+| Final `npm test` | 249 total; 245 passed / 0 failed / 4 skipped; `.cook-final-tests.log` | **verified** for executed cases |
+| Foreground browser observation on local dev :5173, real wall clock | Laika mounted observed 559ms after reload; no click/key input; fact observed at 46,335ms, absent by 55,593ms; source cadence 45,000ms and hide timeout 10,000ms; `cook/laika-timing.json` | **verified** within this foreground cycle |
+| Browser area/map/globe observations | Nepal heading and computed metrics updated; MapLibre zoom with real bundled 52-point snapshot; five satellite controls and Terra focus/details; Laika keyboard moved 20px; no desktop/mobile viewport overflow; `cook/ui-verification.json` | **verified** within tested paths |
+| Cook `side-by-side.mjs` through Node/ffmpeg | Before/After desktop and mobile images emitted for both rounds in `cook/compare/` | **verified** |
+| WCAG luminance calculation on named palette pairs | 17.67:1 body, 8.38:1 supporting text, 6.16:1 dim text, 8.34:1 primary action; `cook/color-check.json` | **verified** within named opaque pairs; overall accessibility **partial** |
+| `git diff --check` | exit 0 | **verified** |
+
+Timer interval and pending hide timeout are cleared by effect cleanup; drag pointer capture and
+keyboard movement remain implemented. An instrumented unmount/StrictMode test, background-tab
+cadence, final full legacy e2e and full light/high-contrast/reduced-motion sweep are **not verified**.
+Browser timers may be throttled in background tabs. No data, analytics or scientific labels were
+regenerated. The local dev server proxies `/api` to the existing API on :8787.
+
+### Cook release approval — 2026-11-15
+
+The user reviewed and approved the UI, autonomous Laika and responsive navigation, explicitly
+authorized `git add .`, the supplied Final Release commit and `git push origin main`, and
+requested Render verification. This supersedes the initial local-only restriction. The final
+Cook video is waived; stills are the approved visual deliverable. Historical local-only statements
+above apply to the review stage. Existing validation and legacy e2e gaps remain **partial**.
+
+`git fetch origin main` and `git rev-list --left-right --count HEAD...origin/main`: exit 0,
+`0 0`, **verified** before staging. No application or data changes were made after the approved
+build/test/browser evidence; release bookkeeping and privacy cleanup only.
+
+`git diff --cached --check`: exit 0, **verified**. Secret scan against a temporary checkout
+of every staged release file plus `dist` and `dist-server`: exit 0, 232 files / 17.7 MB,
+0 findings, **verified** for publishable scope. Ignored local runtime credentials were excluded
+without changing the scanner rules. Baseline report temporary download paths were redacted;
+the untouched original remains in an ignored local log.

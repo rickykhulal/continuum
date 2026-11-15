@@ -256,3 +256,25 @@ without being asked).
 - CelesTrak refresh from this network (blocked with HTTP 403); the shipped elements are real and current to epoch 2026-303.
 
 Numbers quoted in the demo are those of the 2026-11-02 snapshot and will move when the snapshot is rebuilt.
+
+## Approved Cook UI release — 2026-11-15
+
+The UI adds deep space surfaces, restrained glass, clearer controls and responsive navigation.
+Laika shares a science fact every 45 seconds and hides it after 10 seconds, while retaining
+pointer dragging and keyboard movement. The user approved the stills and waived video output.
+
+![Approved Watch UI](cook/stills/r02/S01.jpg)
+
+[Desktop Before/After](cook/compare/r02/desktop.jpg) ·
+[Mobile Before/After](cook/compare/r02/mobile.jpg) ·
+[Cook ledger and honest scores](cook/ROUNDS.md) · [User instructions](docs/PROMPT.md)
+
+Run `npm ci`, `npm run api` in one terminal and `npm run dev` in another. Build with
+`npm run build`; the Cook comparison helper uses Node 18+ and ffmpeg:
+`node .agents/skills/cook/scripts/side-by-side.mjs --out cook/compare/desktop.jpg cook/refs/R01-watch-desktop.jpg cook/stills/r02/S01.jpg`.
+
+Cook by [Leon Lin](https://github.com/Leonxlnx/cook) is included under its MIT license.
+The UI reuses the project's React, Three.js, MapLibre and vendored fonts and existing NASA and
+Natural Earth assets credited above; no new decorative assets or audio were added.
+Design ran to the user-accepted 90-minute cap. Build is **verified**; tests have 245 passed,
+0 failed and 4 skipped. The 90-point visual rubric and legacy e2e remain **partial**.

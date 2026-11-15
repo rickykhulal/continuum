@@ -1,0 +1,20 @@
+{
+  "status": "verified for observed foreground cycle",
+  "clock": "real wall clock from page reload; no acceleration",
+  "mountedObservedAtMs": 559,
+  "interaction": "No click or keyboard input to Laika",
+  "events": [
+    {
+      "elapsedMs": 869,
+      "fact": null
+    },
+    {
+      "elapsedMs": 46335,
+      "fact": "FRP is fire radiative power, measured in megawatts."
+    },
+    {
+      "elapsedMs": 55593,
+      "fact": null
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { Component, Suspense, useState, useEffect, useRef, useMemo, type ReactNode, type RefObject, type PointerEvent } from 'react';
+import { Component, Suspense, useState, useEffect, useRef, useMemo, useCallback, type ReactNode, type RefObject, type PointerEvent } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { Bounds } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -7,15 +7,18 @@ import * as THREE from 'three';
 import { useStore } from '../lib/store';
 
 const FACTS = [
-  "Woof! Satellites track fires from space.",
-  "I'm Laika — your fire-detection companion.",
-  "VIIRS spots hotspots down to 375 m pixels.",
-  "The 2012 MODIS-to-VIIRS step is real.",
-  "MODIS bridges to VIIRS via biome transfer.",
-  "Freshness matters: the live window is 7 days.",
-  "FRP measures fire radiative power in MW.",
-  "Every point is flagged: archive, live, or reconstructed.",
+  'Did you know? MODIS active-fire pixels are about 1 km.',
+  'VIIRS active-fire pixels are 375 m.',
+  'FRP is fire radiative power, measured in megawatts.',
+  'Continuum labels archive observations, the live window, and calibrated reconstruction separately.',
+  'Open-Meteo supplies current wind forecasts; NASA POWER supplies historical reanalysis.',
+  'Woof! A hotspot detection is not the same as a separate fire.',
+  'MODIS and VIIRS use different sensors, so comparisons need calibration.',
+  'Freshness matters: Continuum labels its seven-day observed window.',
 ];
+
+const FACT_INTERVAL_MS = 45_000;
+const FACT_DURATION_MS = 10_000;
 
 interface PetCompanionProps {
   size?: number;
@@ -63,21 +66,51 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
   const { settings } = useStore();
   const [talking, setTalking] = useState(false);
   const [fact, setFact] = useState('');
+  const lastFactIndex = useRef(-1);
+  const hideFactTimer = useRef<number | null>(null);
   const tether = useRef<SVGSVGElement>(null);
   const width = () => Math.min(size, Math.max(0, window.innerWidth - 40));
   const clamp = (left: number, top: number) => ({
     left: Math.max(0, Math.min(left, window.innerWidth - width())),
     top: Math.max(0, Math.min(top, window.innerHeight - size)),
   });
-  const [position, setPosition] = useState(() => clamp(window.innerWidth - width() - 20, window.innerHeight - size - 20));
+  const anchor = () => clamp(window.innerWidth - width() - 20, window.innerHeight - size - (window.innerWidth <= 700 ? 170 : 120));
+  const [position, setPosition] = useState(anchor);
+  const userMoved = useRef(false);
   const [dragging, setDragging] = useState(false);
   const drag = useRef<{ id: number; x: number; y: number; left: number; top: number; moved: boolean } | null>(null);
 
   useEffect(() => {
-    const resize = () => setPosition(p => clamp(p.left, p.top));
+    const resize = () => setPosition(p => userMoved.current ? clamp(p.left, p.top) : anchor());
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
   }, [size]);
+
+  const showFact = useCallback(() => {
+    // Pick from the remaining facts so consecutive visits never repeat one.
+    let index = Math.floor(Math.random() * (FACTS.length - (lastFactIndex.current < 0 ? 0 : 1)));
+    if (lastFactIndex.current >= 0 && index >= lastFactIndex.current) index++;
+    lastFactIndex.current = index;
+    if (hideFactTimer.current !== null) window.clearTimeout(hideFactTimer.current);
+    setFact(FACTS[index]);
+    setTalking(true);
+    hideFactTimer.current = window.setTimeout(() => {
+      setTalking(false);
+      setFact('');
+      hideFactTimer.current = null;
+    }, FACT_DURATION_MS);
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(showFact, FACT_INTERVAL_MS);
+    return () => {
+      window.clearInterval(interval);
+      if (hideFactTimer.current !== null) {
+        window.clearTimeout(hideFactTimer.current);
+        hideFactTimer.current = null;
+      }
+    };
+  }, [showFact]);
 
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.button !== 0) return;
@@ -91,7 +124,10 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
     start.moved ||= Math.hypot(dx, dy) > 5;
-    if (start.moved) setPosition(clamp(start.left + dx, start.top + dy));
+    if (start.moved) {
+      userMoved.current = true;
+      setPosition(clamp(start.left + dx, start.top + dy));
+    }
   };
   const pointerUp = (event: PointerEvent<HTMLDivElement>) => {
     const start = drag.current;
@@ -99,22 +135,7 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
     drag.current = null;
     setDragging(false);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    if (event.type === 'pointerup' && !start.moved) handleClick();
-  };
-
-  useEffect(() => {
-    if (!talking) return;
-    const timer = setTimeout(() => {
-      setTalking(false);
-      setFact('');
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [talking, fact]);
-
-  const handleClick = () => {
-    const f = FACTS[Math.floor(Math.random() * FACTS.length)];
-    setFact(f);
-    setTalking(true);
+    if (event.type === 'pointerup' && !start.moved) showFact();
   };
 
   return (
@@ -143,16 +164,17 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
         className="pet-drag-handle"
         role="button"
         tabIndex={0}
-        aria-label="Laika: drag to move; arrow keys move; Enter asks for a fire science fact"
+        aria-label="Laika shares a fire science fact every 45 seconds; drag or use arrow keys to move; Enter asks for another fact"
         onPointerDown={pointerDown}
         onPointerMove={pointerMove}
         onPointerUp={pointerUp}
         onPointerCancel={pointerUp}
         onLostPointerCapture={() => { drag.current = null; setDragging(false); }}
         onKeyDown={event => {
-          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleClick(); }
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); showFact(); }
           if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
             event.preventDefault();
+            userMoved.current = true;
             setPosition(p => clamp(p.left + (event.key === 'ArrowRight' ? 20 : event.key === 'ArrowLeft' ? -20 : 0), p.top + (event.key === 'ArrowDown' ? 20 : event.key === 'ArrowUp' ? -20 : 0)));
           }
         }}
@@ -177,6 +199,7 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
         </PetSceneBoundary>
       {talking && (
         <div
+          className="pet-speech-bubble"
           role="status"
           style={{
             position: 'absolute',
@@ -184,19 +207,6 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
             top: position.top < 110 ? 'calc(100% + 12px)' : undefined,
             left: position.left < 110 ? 0 : undefined,
             right: position.left < 110 ? undefined : 0,
-            width: 'min(260px, calc(100vw - 48px))',
-            boxSizing: 'border-box',
-            padding: '6px 10px',
-            borderRadius: 8,
-            background: '#ff8a3d',
-            color: '#0b0c0e',
-            fontSize: 11,
-            fontFamily: 'var(--font-mono, monospace)',
-            fontWeight: 600,
-            whiteSpace: 'normal',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-            pointerEvents: 'none',
-            border: '1px solid rgba(255,255,255,0.4)',
           }}
         >
           {fact}

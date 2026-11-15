@@ -129,7 +129,7 @@ export function Watch() {
       {/* Floating unboxed hero - stays strictly top-left, never overlaps globe center */}
       <div className="watch-hero-clean">
         <div className="watch-hero-eyebrow">
-          <span className="hero-mark">◈</span> ORBITAL OBSERVATORY <span className="sep" /> 2000–{new Date().getFullYear()}
+          <span className="hero-mark" aria-hidden>◈</span> Orbital observatory <span className="sep" /> 2000–{new Date().getFullYear()}
         </div>
         <h1 className="watch-hero-title">
           The fire record,<br />
