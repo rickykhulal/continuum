@@ -98,23 +98,25 @@ export function LiveMap({
     return livePointsForRegion(region, effectiveFires);
   }, [region, effectiveFires]);
 
-  // Timestamps span for slider
+  // Timestamps span for slider. Derive from effectiveFires (store fires + direct-fetch fallback)
+  // so the slider always reflects the real data window, never a 1970 fallback.
   const { minTime, maxTime } = useMemo(() => {
-    if (!regionPoints.length) {
-      // No points in region: anchor the slider to the live window end (Nov 14), not
+    const points = effectiveFires.length > 0 ? effectiveFires : regionPoints;
+    if (!points.length) {
+      // No points at all: anchor the slider to the live window end (Nov 14), not
       // the real-world date (Nov 15), so the slider never selects a day with no data.
       const endTs = windowEnd ? new Date(windowEnd).getTime() : 0;
       return { minTime: endTs, maxTime: endTs };
     }
     let min = Infinity;
     let max = -Infinity;
-    for (const p of regionPoints) {
+    for (const p of points) {
       const t = p[5];
       if (t < min) min = t;
       if (t > max) max = t;
     }
     return { minTime: min, maxTime: max };
-  }, [regionPoints, windowEnd]);
+  }, [effectiveFires, regionPoints, windowEnd]);
 
   // Number of distinct days spanned by the live window (drives the slider max).
   const dayCount = Math.max(1, Math.ceil((maxTime - minTime) / (1000 * 60 * 60 * 24)));

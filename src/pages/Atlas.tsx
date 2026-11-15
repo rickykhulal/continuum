@@ -30,6 +30,8 @@ export function Atlas() {
   const fires = live?.fires ?? [];
   useEffect(() => {
     console.log('[Atlas] Fires loaded:', fires.length, 'for region', region.id);
+    console.log("Region Bounds:", region.bbox);
+    console.log("First 3 Fires:", fires.slice(0, 3));
   }, [fires, region.id]);
   const windowStart = live?.meta.windowStart ?? today;
   const liveRecs = useMemo(() => recordsInRange(records, windowStart, today), [records, windowStart, today]);
@@ -295,9 +297,6 @@ export function Atlas() {
             )
           }
         >
-          console.log("Region Bounds:", region.bbox);
-          console.log("First 3 Fires:", fires.slice(0, 3));
-          console.log("Filtered Region Points:", dayFires.length);
           <LiveMap region={region} fires={fires} day={selectedDate} dayRecord={dayRec} onSelectDay={setSelectedDate} windowStart={windowStart} windowEnd={today} />
           {selectedDate && dayRec ? (
             <div className="day-detail">
