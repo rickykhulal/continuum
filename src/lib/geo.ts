@@ -118,7 +118,16 @@ export function bboxAreaKm2(bbox: [number, number, number, number]): number {
 }
 
 export function pointInBbox(lat: number, lon: number, bbox: [number, number, number, number]): boolean {
-  return lon >= bbox[0] && lat >= bbox[1] && lon <= bbox[2] && lat <= bbox[3];
+  // Drawn bounds may cross the date line, represented with an unwrapped east edge.
+  const x = bbox[0] + ((lon - bbox[0]) % 360 + 360) % 360;
+  return x <= bbox[2] && lat >= bbox[1] && lat <= bbox[3];
+}
+
+/** Geographic rectangle between two globe picks, taking the shorter longitude arc. */
+export function boundsBetween(a: [number, number], b: [number, number]): [number, number, number, number] {
+  const start = normalizeLon(a[1]);
+  const end = start + normalizeLon(b[1] - start);
+  return [Math.min(start, end), Math.min(a[0], b[0]), Math.max(start, end), Math.max(a[0], b[0])];
 }
 
 export function normalizeLon(lon: number): number {

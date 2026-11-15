@@ -1,8 +1,9 @@
-import { Component, Suspense, useState, useEffect, useRef, type ReactNode } from 'react';
+import { Component, Suspense, useState, useEffect, useRef, useMemo, type ReactNode, type RefObject } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { Bounds, OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { Group } from 'three';
+import * as THREE from 'three';
 import { useStore } from '../lib/store';
 
 const FACTS = [
@@ -20,12 +21,28 @@ interface PetCompanionProps {
   size?: number;
 }
 
-function PetModel({ onClick, reduceMotion }: { onClick: () => void; reduceMotion: boolean }) {
+function PetModel({ onClick, reduceMotion, tether }: { onClick: () => void; reduceMotion: boolean; tether: RefObject<SVGSVGElement> }) {
   // This uncompressed GLB needs no WASM decoder, which keeps the strict script CSP.
   const { scene } = useLoader(GLTFLoader, `${import.meta.env.BASE_URL || './'}models/pet1.glb`);
   const floating = useRef<Group>(null);
-  useFrame(({ clock }) => {
+  const waist = useMemo(() => new THREE.Box3().setFromObject(scene).getCenter(new THREE.Vector3()), [scene]);
+  const projected = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ clock, camera, gl }) => {
     if (floating.current) floating.current.position.y = reduceMotion ? 0 : Math.sin(clock.elapsedTime) * 0.2;
+    if (!floating.current || !tether.current) return;
+    floating.current.updateWorldMatrix(true, false);
+    projected.copy(waist);
+    floating.current.localToWorld(projected).project(camera);
+    const canvasBox = gl.domElement.getBoundingClientRect();
+    const pipeBox = tether.current.getBoundingClientRect();
+    if (!pipeBox.width || !pipeBox.height) return;
+    const x = ((canvasBox.left + (projected.x + 1) * canvasBox.width / 2 - pipeBox.left) / pipeBox.width) * 200;
+    const y = ((canvasBox.top + (1 - projected.y) * canvasBox.height / 2 - pipeBox.top) / pipeBox.height) * 240;
+    const curve = `M 200 240 C 138 232, 198 150, ${x} ${y}`;
+    tether.current.querySelectorAll('path').forEach(path => path.setAttribute('d', curve));
+    const socket = tether.current.querySelector('circle');
+    socket?.setAttribute('cx', String(x));
+    socket?.setAttribute('cy', String(y));
   });
   return <group ref={floating}><primitive object={scene} onClick={onClick} /></group>;
 }
@@ -46,6 +63,7 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
   const { settings } = useStore();
   const [talking, setTalking] = useState(false);
   const [fact, setFact] = useState('');
+  const tether = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     if (!talking) return;
@@ -76,22 +94,33 @@ export function PetCompanion({ size = 150 }: PetCompanionProps) {
         overflow: 'visible',
       }}
     >
+      <svg
+        ref={tether}
+        className="pet-oxygen-pipe"
+        aria-hidden="true"
+        viewBox="0 0 200 240"
+        preserveAspectRatio="none"
+        style={{ position: 'absolute', right: -20, bottom: -20, width: 'calc(100% + 20px)', height: size + 85, pointerEvents: 'none', overflow: 'visible' }}
+      >
+        <path d="M 200 240 C 138 232, 198 150, 105 70" fill="none" stroke="#19bdca" strokeWidth="6" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 5px #29e0ee)' }} />
+        <path d="M 200 240 C 138 232, 198 150, 105 70" fill="none" stroke="#bdffff" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="105" cy="70" r="4" fill="#baffff" />
+      </svg>
       <div role="img" aria-label="3D model of Laika the space dog" style={{ height: size, pointerEvents: 'auto' }}>
         <PetSceneBoundary>
           <Canvas
             dpr={[1, 1.5]}
             camera={{ position: [0, 0, 3], fov: 40 }}
-            gl={{ alpha: true }}
+            gl={{ alpha: true, toneMapping: THREE.ACESFilmicToneMapping }}
             fallback={<div style={{ fontSize: 64, textAlign: 'center' }}>🐶</div>}
             style={{ width: '100%', height: '100%', display: 'block', background: 'transparent' }}
           >
-            <ambientLight intensity={1.5} />
-            <directionalLight position={[10, 10, 10]} intensity={2} />
-            <spotLight position={[-10, 10, 10]} intensity={1} />
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[10, 10, 10]} intensity={1.5} />
             <OrbitControls makeDefault enablePan={false} enableZoom={false} />
             <Suspense fallback={null}>
               <Bounds fit clip observe margin={1.4} maxDuration={0}>
-                <PetModel onClick={handleClick} reduceMotion={settings.reduceMotion} />
+                <PetModel onClick={handleClick} reduceMotion={settings.reduceMotion} tether={tether} />
               </Bounds>
             </Suspense>
           </Canvas>

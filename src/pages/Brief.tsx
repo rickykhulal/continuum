@@ -36,6 +36,7 @@ export function Brief() {
   const liveRecs = useMemo(() => recordsInRange(records, live?.meta.windowStart ?? today, today), [records, live, today]);
   const liveSum = liveRecs.reduce((s, r) => s + r.harmonized, 0);
   const liveDays = liveRecs.filter((r) => r.harmonized > 0).length;
+  const observedWindow = liveRecs.length > 0 && liveRecs.every(r => r.source === 'live');
   const next4 = briefAnalogSummary(twin);
   const bandColor = status.band === 'normal' ? '#1b7a4c' : riskColor(status.band);
   const area = store.region.shortName;
@@ -47,12 +48,13 @@ export function Brief() {
       '',
       `AREA: ${region.name} (${region.country})`,
       `CENTRE: ${region.center[0].toFixed(2)}°, ${region.center[1].toFixed(2)}° · ${nf(region.areaKm2)} km²`,
+      ...(region.selection === 'bounds' ? [`BOUNDS (west, south, east, north): ${region.bbox.join(', ')} · geographic rectangle`] : []),
       `RECORD: ${records[0]?.date ?? '2000-11-01'} to ${today} · ${nf(records.length)} harmonized daily values`,
       '',
       `STATUS: ${status.band.toUpperCase()} — ${ordinal(Math.round(status.percentile))} percentile for the first ${status.windowDays} days of ${MONTHS_LONG[month - 1]}.`,
       `Current ${nf(status.current)} vs. historical median ${nf(status.baselineMedian)} (${status.ratioToMedian.toFixed(2)}×).`,
       '',
-      `LIVE WINDOW: ${liveRecs[0]?.date ?? '—'} to ${today}; ${nf(liveSum)} VIIRS-equivalent detections across ${liveDays} active days.`,
+      `${observedWindow ? 'LIVE WINDOW' : 'RECENT RECONSTRUCTION'}: ${liveRecs[0]?.date ?? '—'} to ${today}; ${nf(liveSum)} VIIRS-equivalent detections across ${liveDays} active days.`,
       `Sensor calibration: MODIS → VIIRS ratio ${bias.ratio.toFixed(2)}× (90% CI ${bias.ratioLo.toFixed(2)}–${bias.ratioHi.toFixed(2)}); the 2012 break in the raw record is ${bias.rawBreakPct.toFixed(0)}%, reduced to ${bias.correctedBreakPct.toFixed(0)}% after harmonization.`,
       `Analog seasons: ${twin.analogs.map((a) => `${a.year} (${Math.round(a.similarity)}%)`).join(', ')}. ${next4.headline} ${next4.supplementary} Leave-one-out hit rate ${Math.round(twin.backtestHitRate)}%.`,
       `Season: typical window ${clock.startLabel}–${clock.endLabel}, peak ${clock.peakLabel}; current phase ${clock.phase}, running ${clock.direction} of climatology (${Math.round(clock.yearShare)}% of expected to date).`,
@@ -66,7 +68,7 @@ export function Brief() {
       `Caveat: ${status.provisional ? 'The latest days are provisional.' : 'No provisional days in the current window.'} Supports situational awareness; not a warning, dispatch or evacuation service.`,
     ];
     return lines.join('\n');
-  }, [region, records, today, status, month, liveRecs, liveSum, liveDays, bias, twin, next4, clock]);
+  }, [region, records, today, status, month, liveRecs, liveSum, liveDays, observedWindow, bias, twin, next4, clock]);
 
   const copy = async () => {
     try {
@@ -163,7 +165,7 @@ export function Brief() {
             <div><span>Current month</span><b>{nf(status.current)}</b></div>
             <div><span>Historical median</span><b>{nf(status.baselineMedian)}</b></div>
             <div><span>Ratio to median</span><b>{status.ratioToMedian ? `${status.ratioToMedian.toFixed(2)}×` : '—'}</b></div>
-            <div><span>Live window</span><b>{nf(liveSum)}</b></div>
+            <div><span>{observedWindow ? 'Live window' : 'Recent reconstruction'}</span><b>{nf(liveSum)}</b></div>
             <div><span>Analog median next 4 wk</span><b style={{ color: next4.median == null ? undefined : next4.median >= 0 ? '#ff8a3d' : '#56d6a0' }}>{next4.medianText}</b></div>
             <div><span>Weather source</span><b>NASA POWER</b></div>
           </div>

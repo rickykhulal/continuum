@@ -22,6 +22,8 @@ export interface Region {
   /** Set when the area is a country polygon or sits inside one: unlocks the measured
    *  per-country FIRMS window instead of the pooled pilot calibration. */
   countryId?: string;
+  /** A geographic rectangle selected on the globe; bbox is its exact analysis boundary. */
+  selection?: 'bounds';
 }
 
 export type TrustLevel = 'high' | 'medium' | 'low';

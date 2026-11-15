@@ -1,4 +1,5 @@
 import type { Region } from '../lib/types';
+import { bboxAreaKm2, normalizeLon } from '../lib/geo';
 
 export interface Place {
   name: string;
@@ -91,5 +92,27 @@ export function customRegion(lat: number, lon: number, radiusKm = 140, name?: st
     timezone: 'UTC',
     description: `A custom ${radiusKm} km radius of interest${countryId ? ` inside the ${name} border` : ''}. Its level, bridge ratio and seasonal driver are measured from the live FIRMS window and NASA POWER reanalysis for this point; this is an exploratory AOI, not a curated pilot region.`,
     aliases: [],
+  };
+}
+
+/** Preserve a drawn geographic rectangle rather than substituting a radius. */
+export function customBounds(bbox: Region['bbox'], name = 'Globe area'): Region {
+  const [w, s, e, n] = bbox;
+  if (!bbox.every(Number.isFinite) || s < -90 || n > 90 || s >= n || w >= e || e - w > 180 || w < -360 || e > 360) {
+    throw new Error('Invalid geographic bounds');
+  }
+  const lat = (s + n) / 2;
+  const lon = normalizeLon((w + e) / 2);
+  return {
+    ...customRegion(lat, lon, 140, name),
+    id: `bounds-${bbox.join('_')}`,
+    selection: 'bounds',
+    name,
+    shortName: name,
+    country: 'Drawn area',
+    admin: 'Custom geographic rectangle',
+    bbox: [...bbox],
+    areaKm2: bboxAreaKm2(bbox),
+    description: 'A rectangle drawn on the globe. Point counts use these exact bounds. Historical activity is a calibrated reconstruction unless archive observations cover this area; global snapshot points outside pilot coverage are sampled.',
   };
 }

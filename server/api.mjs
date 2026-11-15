@@ -165,7 +165,7 @@ function requireArea(body) {
     return { region: A.customRegion(c.lat, c.lon, c.radiusKm, 'custom'), resolution: 'geometry-equivalent circle', report };
   }
   if (Number.isFinite(body?.lat) && Number.isFinite(body?.lon)) {
-    const radius = Math.max(20, Math.min(800, Number(body.radius_km) || 140));
+    const radius = validRadius(body.radius_km);
     if (Math.abs(body.lat) > 90 || Math.abs(body.lon) > 180) {
       throw new ApiError(422, 'INVALID_GEOMETRY', 'Latitude must be within ±90 and longitude within ±180.', 'Correct the coordinates.');
     }
@@ -210,7 +210,7 @@ function pickRange(body, records) {
   const last = records[records.length - 1]?.date ?? START_DATE;
   const start = body?.start ?? START_DATE;
   const end = body?.end ?? last;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end)) {
+  if (!validDate(start) || !validDate(end)) {
     throw new ApiError(422, 'DATE_RANGE_INVALID', 'Dates must be ISO 8601 (YYYY-MM-DD).', 'Example: 2024-01-01.');
   }
   if (start > end) throw new ApiError(422, 'DATE_RANGE_INVALID', 'start is after end.', 'Swap the dates.');
@@ -218,6 +218,30 @@ function pickRange(body, records) {
     throw new ApiError(422, 'DATE_RANGE_INVALID', `Data covers ${START_DATE} to ${last}.`, 'Choose a range inside the record.');
   }
   return [start, end];
+}
+
+function validDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const timestamp = Date.parse(`${value}T00:00:00Z`);
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value;
+}
+
+function validRadius(value) {
+  if (value === undefined || value === null) return 140;
+  if ((typeof value !== 'number' && typeof value !== 'string') || String(value).trim() === '' || !Number.isFinite(Number(value)) || Number(value) < 20 || Number(value) > 800) {
+    throw new ApiError(422, 'PARAMETER_INVALID', 'radius_km must be a number from 20 to 800.', 'Omit radius_km to use 140 km.');
+  }
+  return Number(value);
+}
+
+function requestUrl(req) {
+  try {
+    const url = new URL(req.url || '/', 'http://localhost');
+    decodeURI(url.pathname);
+    return url;
+  } catch {
+    throw new ApiError(422, 'PARAMETER_INVALID', 'Invalid request URL.', 'Use a valid URL with encoded query parameters.');
+  }
 }
 
 /** First day the selected sensors do not all cover — later days are provisional, never filled in. */
@@ -267,7 +291,7 @@ function cached(key, compute) {
 
 function areaContext(body) {
   const { region, resolution, report } = requireArea(body);
-  const records = cached(`${region.id}:${region.center}:${region.radiusKm ?? ''}`, () => A.regionRecord(region, live));
+  const records = cached(`${region.id}:${region.bbox}:${region.areaKm2}`, () => A.regionRecord(region, live));
   return { region, records, resolution, report };
 }
 
@@ -294,10 +318,10 @@ function requireAreaFromQuery(url) {
   if (lat !== null && lon !== null) {
     const la = Number(lat);
     const lo = Number(lon);
-    if (!Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) {
+    if (!lat.trim() || !lon.trim() || !Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) {
       throw new ApiError(422, 'INVALID_GEOMETRY', 'Latitude must be within ±90 and longitude within ±180.', 'Correct the coordinates.');
     }
-    const rad = Math.max(20, Math.min(800, Number(radius) || 140));
+    const rad = validRadius(radius);
     return {
       region: A.customRegion(la, lo, rad, 'custom'),
       resolution: 'circle',
@@ -308,21 +332,11 @@ function requireAreaFromQuery(url) {
 }
 
 function pickRangeFromQuery(url, records) {
-  const last = records[records.length - 1]?.date ?? START_DATE;
-  const start = url.searchParams.get('start') ?? START_DATE;
-  const end = url.searchParams.get('end') ?? last;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end)) {
-    throw new ApiError(422, 'DATE_RANGE_INVALID', 'Dates must be ISO 8601 (YYYY-MM-DD).', 'Example: 2024-01-01.');
-  }
-  if (start > end) throw new ApiError(422, 'DATE_RANGE_INVALID', 'start is after end.', 'Swap the dates.');
-  if (end < START_DATE || start > last) {
-    throw new ApiError(422, 'DATE_RANGE_INVALID', `Data covers ${START_DATE} to ${last}.`, 'Choose a range inside the record.');
-  }
-  return [start, end];
+  return pickRange({ start: url.searchParams.get('start') ?? undefined, end: url.searchParams.get('end') ?? undefined }, records);
 }
 
 function recordsFromRegion(region, records) {
-  return cached(`${region.id}:${region.center}:${region.radiusKm ?? ''}`, () => A.regionRecord(region, live));
+  return cached(`${region.id}:${region.bbox}:${region.areaKm2}`, () => A.regionRecord(region, live));
 }
 
 function geoFeatures(region, fires, date) {
@@ -552,7 +566,8 @@ const routes = {
   // ---------------------------------------------------------------- API Key management
   'POST /auth/generate-key': () => {
     const store = readKeyStore();
-    const key = crypto.randomUUID();
+    let key;
+    do { key = crypto.randomUUID(); } while (store.keys.includes(key));
     store.keys.push(key);
     writeKeyStore(store);
     return envelope({ api_key: key, note: 'Store this key. It is shown only once; it is never logged or recoverable.' });
@@ -645,10 +660,10 @@ const GET_ROUTES = {
     }),
   ],
   '/atlas': (req) => {
-    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const url = requestUrl(req);
     const { region, resolution, report } = requireAreaFromQuery(url);
     const records = recordsFromRegion(region, live);
-    const { start, end } = pickRangeFromQuery(url, records);
+    const [start, end] = pickRangeFromQuery(url, records);
     const values = A.recordsInRange(records, start, end).map((r) => ({
       date: r.date,
       year: r.year,
@@ -666,7 +681,7 @@ const GET_ROUTES = {
     return [200, envelope({ region_id: region.id, name: region.name, area_resolution: resolution, area_km2: Math.round(region.areaKm2), start, end, values })];
   },
   '/diagnosis': (req) => {
-    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const url = requestUrl(req);
     const { region } = requireAreaFromQuery(url);
     const records = recordsFromRegion(region, live);
     const bias = A.biasXray(records);
@@ -674,7 +689,7 @@ const GET_ROUTES = {
     return [200, envelope({ region_id: region.id, name: region.name, bias: { ratio: bias.ratio, ratioLo: bias.ratioLo, ratioHi: bias.ratioHi, rawBreakPct: bias.rawBreakPct, correctedBreakPct: bias.correctedBreakPct, breakBasis: bias.breakBasis, seam: bias.seam, reductionPct: bias.reductionPct }, calibration: cal ? { k: cal.k, kSource: cal.kSource, levelSource: cal.levelSource, levelPerDay: cal.levelPerDay, windowDays: cal.windowDays, overlapDays: cal.overlapDays, sumModis: cal.sumModis, sumViirs: cal.sumViirs, frp: cal.frp, viirsShares: cal.viirsShares } : null })];
   },
   '/outlook': (req) => {
-    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const url = requestUrl(req);
     const { region } = requireAreaFromQuery(url);
     const records = recordsFromRegion(region, live);
     const today = records[records.length - 1]?.date ?? START_DATE;
@@ -682,10 +697,10 @@ const GET_ROUTES = {
     return [200, envelope({ region_id: region.id, name: region.name, today, weeks: twin.weeks, backtestHitRate: twin.backtestHitRate, sampleYears: twin.sampleYears, referenceYear: twin.referenceYear, analogs: twin.analogs.map((a) => ({ year: a.year, similarity: a.similarity, correlation: a.correlation, next4WeeksAnomalyPct: a.next4WeeksAnomalyPct })), analogDeparture: A.analogDeparture(twin) })];
   },
   '/brief': (req) => {
-    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const url = requestUrl(req);
     const { region } = requireAreaFromQuery(url);
     const records = recordsFromRegion(region, live);
-    const { start, end } = pickRangeFromQuery(url, records);
+    const [start, end] = pickRangeFromQuery(url, records);
     const sel = A.recordsInRange(records, start, end);
     const status = A.statusFor(region, records, end);
     const bias = A.biasXray(records);
@@ -1033,10 +1048,9 @@ function metricsAuthorized(req) {
 const server = http.createServer(async (req, res) => {
   const id = rid();
   const started = Date.now();
-  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
-  const pathname = url.pathname;
-  const cls = rateClass(pathname);
-  const cors = CORS_HEADERS(req.headers.origin);
+  let pathname = '/';
+  let cls = 'A';
+  let cors = {};
   const ip = clientIp(req);
 
   const log = (status, code) => {
@@ -1047,12 +1061,15 @@ const server = http.createServer(async (req, res) => {
   };
   res.on('finish', () => log(res.statusCode, res.getHeader('X-Error-Code')));
 
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204, { ...securityHeaders(req), ...cors, 'Access-Control-Max-Age': '600' });
-    return res.end();
-  }
-
   try {
+    const url = requestUrl(req);
+    pathname = url.pathname;
+    cls = rateClass(pathname);
+    cors = CORS_HEADERS(req.headers.origin);
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, { ...securityHeaders(req), ...cors, 'Access-Control-Max-Age': '600' });
+      return res.end();
+    }
     const bucket = allow(ip, cls);
     if (!bucket.allowed) {
       res.setHeader('Retry-After', String(bucket.retryAfter));
@@ -1080,7 +1097,7 @@ const server = http.createServer(async (req, res) => {
       // endpoints still enforce keys; embedded GLB images only need blob fetches.
       if (sub !== '/health' && sub !== '/openapi.json' && sub !== '/auth/generate-key') apiKey(req);
       const get = GET_ROUTES[sub];
-      if (get && (req.method === 'GET' || req.method === 'HEAD')) return callGet(get, req, res, cors);
+      if (get && (req.method === 'GET' || req.method === 'HEAD')) return await callGet(get, req, res, cors);
       const handler = routes[`POST ${sub}`];
       if (!handler) {
         res.setHeader('X-Error-Code', 'NOT_FOUND');
@@ -1105,7 +1122,7 @@ const server = http.createServer(async (req, res) => {
       }
       return sendJson(res, 200, result, { ...securityHeaders(req), ...cors });
     }
-    if (GET_ROUTES[pathname] && (req.method === 'GET' || req.method === 'HEAD')) return callGet(GET_ROUTES[pathname], req, res, cors);
+    if (GET_ROUTES[pathname] && (req.method === 'GET' || req.method === 'HEAD')) return await callGet(GET_ROUTES[pathname], req, res, cors);
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.setHeader('X-Error-Code', 'METHOD_NOT_ALLOWED');
       return sendJson(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: `${req.method} is not allowed here.`, request_id: id } }, { ...securityHeaders(req), ...cors });
@@ -1114,19 +1131,22 @@ const server = http.createServer(async (req, res) => {
   } catch (err) {
     const status = err instanceof ApiError ? err.status : 500;
     const code = err instanceof ApiError ? err.code : 'INTERNAL';
+    if (status >= 500) console.error(`[${id}] Internal Server Error`);
+    if (res.headersSent) { res.destroy(); return; }
     res.setHeader('X-Error-Code', code);
-    if (status >= 500) console.error(`[${id}]`, err?.message || err);
     return sendJson(
       res,
       status,
-      { error: { code, message: err instanceof ApiError ? err.message : 'Unexpected server error.', hint: err instanceof ApiError ? err.hint : 'Check the API log and the bundle manifest.', request_id: id } },
+      err instanceof ApiError
+        ? { error: { code, message: err.message, hint: err.hint, request_id: id } }
+        : { error: 'Internal Server Error' },
       { ...securityHeaders(req), ...cors },
     );
   }
 });
 
-function callGet(handler, req, res, cors) {
-  const [status, payload] = handler(req);
+async function callGet(handler, req, res, cors) {
+  const [status, payload] = await handler(req);
   return sendJson(res, status, payload, { ...securityHeaders(req), ...cors });
 }
 

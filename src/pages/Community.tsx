@@ -151,7 +151,7 @@ export function Community() {
         title="Crowdsourced fire-watch"
         intro={
           <div className="community-disclaimer">
-            Community reports are user-generated. Community verification does not make them official NASA data.
+            <span>Community reports are user-generated. Community verification does not make them official NASA data.</span>
             <a href="#/method" className="feed-link" onClick={(e) => { e.preventDefault(); store.setView('method'); }}>
               Read the method
             </a>
@@ -227,7 +227,7 @@ export function Community() {
 
 export function PageHeader({ eyebrow, title, intro, actions }: { eyebrow?: string; title: string; intro?: React.ReactNode; actions?: React.ReactNode }) {
   return (
-    <header className="page-head">
+    <header className="page-head community-page-head">
       {eyebrow && <span className="page-eyebrow">{eyebrow}</span>}
       <h1 className="page-title">{title}</h1>
       {intro && <div className="page-intro">{intro}</div>}
@@ -341,7 +341,7 @@ function ComposeBox({
             <option value="poll">Poll</option>
             <option value="anomaly">Data anomaly</option>
           </select>
-          <button type="submit" className="btn btn-primary" disabled={submitting || !draft.content.trim()}>
+          <button type="submit" className="btn btn-primary compose-submit" disabled={submitting || !draft.content.trim()}>
             {submitting ? 'Posting…' : 'Post'}
           </button>
         </div>

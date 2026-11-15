@@ -77,6 +77,8 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
   };
 
   const isPilot = REGIONS.some((r) => r.id === store.region.id);
+  const latest = store.records.find(r => r.date === store.today);
+  const observedLatest = latest?.source === 'live';
 
   return (
     <div className={`area-bar ${compact ? 'area-bar-compact' : ''}`}>
@@ -130,10 +132,10 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
           <input inputMode="decimal" value={lon} onChange={(e) => setLon(e.target.value)} aria-label="Longitude in decimal degrees" />
         </label>
         <label className="field">
-          <span className="field-label">Radius (km)</span>
+          <span className="field-label">{store.region.selection === 'bounds' ? 'New radius (km)' : 'Radius (km)'}</span>
           <input inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value)} aria-label="Radius in kilometres" />
         </label>
-        <button type="button" className="btn btn-primary btn-small" onClick={apply}>Analyze</button>
+        <button type="button" className="btn btn-primary btn-small" onClick={apply}>{store.region.selection === 'bounds' ? 'Use circle' : 'Analyze'}</button>
       </div>
 
       <div className="area-presets">
@@ -174,7 +176,7 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
         ) : (
           <Badge tone="warn">custom AOI</Badge>
         )}
-        <span title={`Real-time FIRMS observations active through ${store.today}`}><Badge tone="live" pulse>LIVE: {store.today}</Badge></span>
+        <span><Badge tone={observedLatest ? 'live' : 'default'} pulse={observedLatest}>{observedLatest ? 'LIVE' : latest?.source === 'archive' ? 'ARCHIVE' : 'RECONSTRUCTION'}: {store.today}</Badge></span>
         <button
           type="button"
           className={`btn btn-small ${drawOpen ? 'btn-live' : 'btn-ghost'}`}
@@ -185,7 +187,7 @@ export function AreaBar({ compact = false }: { compact?: boolean }) {
           {drawOpen ? '✕ Close drawing' : '✎ Draw an area'}
         </button>
         <button type="button" className="btn btn-small btn-ghost" onClick={share}>Share view</button>
-        <span className="area-fact">{nf(store.region.areaKm2)} km² · {store.region.biome}</span>
+        <span className="area-fact">{nf(store.region.areaKm2)} km² · {store.region.selection === 'bounds' ? 'geographic rectangle' : store.region.biome}</span>
       </div>
 
       {drawOpen && (

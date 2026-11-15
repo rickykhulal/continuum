@@ -10,7 +10,8 @@ import { WindSimulator } from './WindSimulator';
 import type { DailyRecord, LiveFire, Region, SensorId } from '../lib/types';
 import { SENSOR_COLORS, SENSOR_SHORT, SENSOR_NAMES } from '../lib/types';
 import { livePointsForRegion } from '../lib/data';
-import { nf, shortDate } from '../lib/format';
+import { nf, shortDate, longDate } from '../lib/format';
+import { historicalMapSummary } from '../lib/historicalMap';
 
 // Emit the module worker as a Vite asset instead of resolving it beside the app chunk.
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
@@ -47,7 +48,7 @@ export function LiveMap({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [selectedFire, setSelectedFire] = useState<{ lat: number; lon: number } | null>(null);
-  const [selectedSensor, setSelectedSensor] = useState<number | 'all'>('all');
+  const [selectedSensor, setSelectedSensor] = useState<SensorId | 'all'>('all');
   const [displayMode, setDisplayMode] = useState<'detections' | 'pixels'>('detections');
   const [frpScaling, setFrpScaling] = useState<boolean>(false);
   const [pitch, setPitch] = useState<number>(0);
@@ -149,11 +150,12 @@ export function LiveMap({
   }, [regionPoints, selectedSensor, dayOffset, day, minTime, maxTime]);
 
   // If the user picked a date outside the live 7-day window, we have no point geometry
-  // for it (only aggregated daily counts). Show a graceful message instead of 0 points.
+  // for it (only aggregated daily counts). Retain imagery and show regional values.
   const historicalDay = useMemo(() => {
     if (!day || !windowStart || !windowEnd) return null;
     return day < windowStart || day > windowEnd ? day : null;
   }, [day, windowStart, windowEnd]);
+  const historicalSummary = historicalDay ? historicalMapSummary(dayRecord, historicalDay, selectedSensor) : null;
 
   useEffect(() => {
     setSelectedFire(null);
@@ -452,7 +454,7 @@ export function LiveMap({
     <div className="live-map-wrapper">
       <div className="live-map-header">
         <div className="live-map-meta">
-          <span className="live-map-title">Interactive Live Footprint</span>
+          <span className="live-map-title">{historicalDay ? 'Historical Regional Activity' : 'Interactive Live Footprint'}</span>
           <span className="live-map-subtitle">
             NASA GIBS Base · {windowStart && windowEnd ? `${shortDate(windowStart)} – ${shortDate(windowEnd)}` : 'FIRMS NRT 7-Day Window'}
           </span>
@@ -507,32 +509,18 @@ export function LiveMap({
         style={{ height: `${maxHeight}px`, width: '100%', position: 'relative' }}
       >
         {historicalDay && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 20,
-              background: 'rgba(15, 17, 21, 0.9)',
-              border: '1px solid var(--line-bright, #ff9a6a)',
-              borderRadius: '8px',
-              padding: '16px 20px',
-              color: '#fff',
-              fontSize: '13px',
-              maxWidth: '420px',
-              textAlign: 'center',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-            }}
-          >
-            <div style={{ fontWeight: 600, marginBottom: '6px', color: '#ff9a6a' }}>
-              Historical point data not available
-            </div>
-            <div>
-              Showing aggregate region activity for {historicalDay}. Select a date within the
-              last 7 days ({shortDate(windowStart!)} – {shortDate(windowEnd!)}) to see live hotspots.
-            </div>
-          </div>
+          <aside className="historical-map-summary" aria-label="Historical regional summary" aria-live="polite">
+            <div className="historical-map-caption">{historicalSummary?.label ?? 'REGIONAL SUMMARY'} · {longDate(historicalDay)}</div>
+            <strong>{region.shortName}</strong>
+            {historicalSummary ? <>
+              <div className="historical-map-value">{historicalSummary.detections === null ? 'No sensor coverage' : nf(historicalSummary.detections)}
+                <span>{historicalSummary.detections === null ? '' : historicalSummary.reconstructed ? ' estimated sensor detections' : ' sensor detections'}</span>
+              </div>
+              <p>{nf(historicalSummary.harmonized)} harmonized hotspot equivalents · {historicalSummary.partial ? 'partial sensor coverage' : historicalSummary.provisional ? 'provisional' : 'regional daily total'}.</p>
+              <p>{historicalSummary.reconstructed ? 'Calibrated reconstruction; no historical point locations are inferred.' : 'Archive daily aggregates; individual fire locations are not stored for this date.'}</p>
+            </> : <p>Select a day covered by this region’s record to see its daily summary.</p>}
+            {onSelectDay && <button type="button" onClick={() => onSelectDay(null)}>Return to live window</button>}
+          </aside>
         )}
         {!historicalDay && regionPoints.length === 0 && (
           <div
@@ -621,7 +609,7 @@ export function LiveMap({
                 borderColor: selectedSensor === idx ? SENSOR_COLORS[idx] : undefined,
                 color: selectedSensor === idx ? SENSOR_COLORS[idx] : undefined,
               }}
-              onClick={() => setSelectedSensor(selectedSensor === idx ? 'all' : idx)}
+              onClick={() => setSelectedSensor(selectedSensor === idx ? 'all' : idx as SensorId)}
             >
               <span
                 className="sensor-dot"

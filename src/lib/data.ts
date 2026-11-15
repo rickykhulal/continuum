@@ -21,7 +21,7 @@ import type {
 } from './types';
 import { clamp, gaussian, hashString, mean, mulberry32, percentileRank, poisson, quantile, stdev } from './random';
 import { dayOfYear, isoDate, addDays, parseISO, daysBetween, ordinal } from './format';
-import { haversineKm } from './geo';
+import { haversineKm, pointInBbox } from './geo';
 import {
   archiveCoverage,
   archiveDay,
@@ -551,7 +551,7 @@ function observeArea(region: Region, live: LiveBundle) {
   let sumV = 0;
   let overlapDays = 0;
   for (const f of live.fires) {
-    if (f[0] < region.bbox[1] || f[0] > region.bbox[3] || f[1] < region.bbox[0] || f[1] > region.bbox[2]) continue;
+    if (!pointInBbox(f[0], f[1], region.bbox)) continue;
     const iso = new Date(f[5] * 1000).toISOString().slice(0, 10);
     if (!liveSensorAvailability(live.meta, iso)[LIVE_SENSOR_KEYS[f[3]]]) continue;
     const d = day(iso);
@@ -2099,7 +2099,7 @@ export function generateValidationReport(
 export function livePointsForRegion(region: Region, fires: LiveFire[], day?: string): LiveFire[] {
   const bbox = region.bbox;
   return fires.filter((f) => {
-    if (f[0] < bbox[1] || f[0] > bbox[3] || f[1] < bbox[0] || f[1] > bbox[2]) return false;
+    if (!pointInBbox(f[0], f[1], bbox)) return false;
     if (day) {
       const d = new Date(f[5] * 1000).toISOString().slice(0, 10);
       if (d !== day) return false;
@@ -2111,7 +2111,7 @@ export function livePointsForRegion(region: Region, fires: LiveFire[], day?: str
 export function countLiveByDay(fires: LiveFire[], region: Region): Record<string, number> {
   const out: Record<string, number> = {};
   for (const f of fires) {
-    if (f[0] < region.bbox[1] || f[0] > region.bbox[3] || f[1] < region.bbox[0] || f[1] > region.bbox[2]) continue;
+    if (!pointInBbox(f[0], f[1], region.bbox)) continue;
     const d = new Date(f[5] * 1000).toISOString().slice(0, 10);
     out[d] = (out[d] ?? 0) + 1;
   }

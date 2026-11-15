@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -12,6 +13,7 @@ const PORT = Number(process.env.API_TEST_PORT || 4192);
 const BASE = `http://127.0.0.1:${PORT}`;
 const HAS_KEY = Boolean(process.env.FIRMS_MAP_KEY);
 let child;
+let fixtureRoot;
 
 const testServerReady = async () => {
   try {
@@ -26,9 +28,19 @@ before(async () => {
   if (!fs.existsSync(path.join(ROOT, 'dist-server', 'analytics.mjs'))) {
     throw new Error('dist-server/analytics.mjs is missing — run `npm run api:build`');
   }
-  child = spawn(process.execPath, [path.join(ROOT, 'server', 'api.mjs')], {
-    cwd: ROOT,
-    env: { ...process.env, PORT: String(PORT), API_RATE_LIMITS: 'classA:120/min;classB:60/min;classC:200/min' },
+  // A warm global cache and the supported keyless CSV feed can both return 200
+  // without FIRMS_MAP_KEY. Isolate the offline case rather than weakening its 503
+  // assertion or letting this unit suite download hundreds of MB from NASA.
+  fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'continuum-live-contract-'));
+  fs.mkdirSync(path.join(fixtureRoot, 'server'));
+  fs.mkdirSync(path.join(fixtureRoot, 'dist-server'));
+  for (const file of ['api.mjs', 'live.mjs', 'community-store.mjs']) fs.copyFileSync(path.join(ROOT, 'server', file), path.join(fixtureRoot, 'server', file));
+  fs.copyFileSync(path.join(ROOT, 'dist-server', 'analytics.mjs'), path.join(fixtureRoot, 'dist-server', 'analytics.mjs'));
+  const bootstrap = path.join(fixtureRoot, 'bootstrap.mjs');
+  fs.writeFileSync(bootstrap, `${HAS_KEY ? '' : "import { inject } from './server/live.mjs';\ninject({ transport: async () => ({ status: 503, body: 'Offline test fixture' }) });\n"}const { server } = await import('./server/api.mjs');\nserver.listen(Number(process.env.PORT));\n`);
+  child = spawn(process.execPath, [bootstrap], {
+    cwd: fixtureRoot,
+    env: { ...process.env, APP_DATA_PATH: path.join(fixtureRoot, 'data'), DATA_BUNDLE_PATH: path.join(ROOT, 'public', 'data'), PORT: String(PORT), API_RATE_LIMITS: 'classA:120/min;classB:60/min;classC:200/min' },
     stdio: ['ignore', 'ignore', 'pipe'],
   });
   // Wait for server to be ready
@@ -40,15 +52,21 @@ before(async () => {
   throw new Error('API did not start for tests');
 });
 
-after(() => child?.kill());
+after(async () => {
+  if (child && child.exitCode === null) await new Promise(resolve => { child.once('exit', resolve); child.kill(); });
+  if (fixtureRoot) {
+    assert.ok(path.resolve(fixtureRoot).startsWith(path.resolve(os.tmpdir()) + path.sep));
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+});
 
 // ---------------------------------------------------------------------------
-// Test 1: FIRMS_MAP_KEY not configured returns 503
+// Test 1: no cached result and an unavailable keyless upstream returns 503
 // ---------------------------------------------------------------------------
-describe('live-firms without key', () => {
-  test('GET /api/v1/live-firms returns 503 when FIRMS_MAP_KEY is not configured', { skip: HAS_KEY }, async () => {
+describe('live-firms offline without key', () => {
+  test('GET /api/v1/live-firms returns 503 with no cache and offline keyless upstream', { skip: HAS_KEY }, async () => {
     const res = await fetch(`${BASE}/api/v1/live-firms`, { method: 'GET' });
-    assert.equal(res.status, 503, 'should return 503 when key not configured');
+    assert.equal(res.status, 503, 'offline upstream with no last-good cache must return 503');
   });
 
   test('GET /api/v1/live-firms endpoint responds (503 when key missing)', { skip: HAS_KEY }, async () => {
@@ -131,6 +149,7 @@ describe('live-firms rate limiting', () => {
     let limited = 0;
     for (let i = 0; i < 130; i++) {
       const res = await fetch(`${BASE}/api/v1/live-firms`, { method: 'GET' });
+      await res.body?.cancel();
       if (res.status === 429) {
         limited++;
         assert.ok(res.headers.get('retry-after'), '429 must carry Retry-After');
@@ -149,6 +168,7 @@ describe('live-firms 429 rate limit', () => {
     let got429 = false;
     for (let i = 0; i < 130; i++) {
       const res = await fetch(`${BASE}/api/v1/live-firms`, { method: 'GET' });
+      await res.body?.cancel();
       if (res.status === 429) {
         got429 = true;
         assert.ok(res.headers.get('retry-after'), '429 must carry Retry-After');

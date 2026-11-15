@@ -10,7 +10,7 @@ import {
   statusFor,
   recordsInRange,
 } from '../lib/data';
-import { customRegion } from '../data/places';
+import { customRegion, customBounds } from '../data/places';
 import { countryById, countryRegion, installWorldLayer, loadWorldLayer, uninstallWorldLayer } from '../lib/countries';
 import { isoDate } from '../lib/format';
 import { t as translate, type Lang, type StringKey } from '../lib/i18n';
@@ -49,6 +49,7 @@ interface Store {
   setView: (v: ViewId) => void;
   selectRegion: (id: string) => void;
   selectCustom: (lat: number, lon: number, radiusKm?: number, name?: string, countryId?: string) => void;
+  selectBounds: (bbox: Region['bbox']) => void;
   /** Any of the 241 country polygons in the bundle, framed by its real border. */
   selectCountry: (id: string) => void;
   live: LiveBundle | null;
@@ -126,6 +127,7 @@ interface HashState {
   lon?: number;
   rad?: number;
   name?: string;
+  bbox?: Region['bbox'];
   res?: CalendarResolution;
   span?: CalendarSpan;
   fy?: number;
@@ -155,6 +157,11 @@ function parseHash(): HashState {
   const hasPoint = params.has('lat') && params.has('lon') && Number.isFinite(lat) && Number.isFinite(lon)
     && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
   const rad = Number(params.get('rad'));
+  const boxValues = params.get('box')?.split(',').map(Number);
+  let bbox: Region['bbox'] | undefined;
+  if (boxValues?.length === 4 && params.get('box')?.split(',').every(v => v.trim())) {
+    try { bbox = customBounds(boxValues as Region['bbox']).bbox; } catch { /* invalid share bounds */ }
+  }
   const resRaw = params.get('res');
   const res = (['day', 'week', 'month', 'quarter', 'year'] as CalendarResolution[]).find((r) => r === resRaw);
   const spanRaw = params.get('span');
@@ -165,7 +172,7 @@ function parseHash(): HashState {
   const gap = ([0, 1, 5, 10] as FrameGap[]).find((g) => params.has('gap') && String(g) === String(gapRaw));
   return {
     view,
-    regionId: hasPoint || countryId ? regionId : REGIONS.some((r) => r.id === regionId) ? regionId : fallback.regionId,
+    regionId: bbox || hasPoint || countryId ? regionId : REGIONS.some((r) => r.id === regionId) ? regionId : fallback.regionId,
     metric,
     mode,
     from: params.get('from') ?? undefined,
@@ -174,6 +181,7 @@ function parseHash(): HashState {
     lon: hasPoint ? lon : undefined,
     rad: Number.isFinite(rad) && rad > 0 ? Math.min(2000, rad) : undefined,
     name: params.get('n')?.slice(0, 80) ?? undefined,
+    bbox,
     res,
     span,
     fy,
@@ -198,7 +206,10 @@ function hashFor(
     qs.set('to', range[1]);
   }
   if (custom && custom.id === regionId) {
-    if (custom.countryId) {
+    if (custom.selection === 'bounds') {
+      qs.set('box', custom.bbox.join(','));
+      qs.set('n', custom.shortName);
+    } else if (custom.countryId) {
       qs.set('c', custom.countryId);
     } else {
       qs.set('lat', custom.center[0].toFixed(4));
@@ -223,7 +234,7 @@ const Ctx = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const initial = useMemo(parseHash, []);
   const initialCustom = useMemo(
-    () => (initial.lat != null && initial.lon != null ? customRegion(initial.lat, initial.lon, initial.rad ?? 140, initial.name) : null),
+    () => initial.bbox ? customBounds(initial.bbox, initial.name) : (initial.lat != null && initial.lon != null ? customRegion(initial.lat, initial.lon, initial.rad ?? 140, initial.name) : null),
     [initial],
   );
   const [view, setViewState] = useState<ViewId>(initial.view);
@@ -380,6 +391,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setRangeState((r) => [r[0], live?.meta.windowEnd ?? r[1]]);
   }, [live]);
 
+  const selectBounds = useCallback((bbox: Region['bbox']) => {
+    const reg = customBounds(bbox);
+    setCustom(reg);
+    setRegionId(reg.id);
+    setSelectedDate(null);
+    setRangeState((r) => [r[0], live?.meta.windowEnd ?? r[1]]);
+  }, [live]);
+
   const selectCountry = useCallback((id: string) => {
     const entry = countryById(id);
     if (!entry) return;
@@ -429,7 +448,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const applyHash = () => {
       const h = parseHash();
       setViewState(h.view);
-      if (h.lat != null && h.lon != null) {
+      if (h.bbox) {
+        const reg = customBounds(h.bbox, h.name);
+        setCustom(reg);
+        setRegionId(reg.id);
+      } else if (h.lat != null && h.lon != null) {
         const reg = customRegion(h.lat, h.lon, h.rad ?? 140, h.name);
         setCustom(reg);
         setRegionId(reg.id);
@@ -489,7 +512,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider
       value={{
         view, region, regionId,
-        setView, selectRegion, selectCustom, selectCountry,
+        setView, selectRegion, selectCustom, selectBounds, selectCountry,
         live, loading, loadError, retryLoad,
         records, today,
         range, setRange,

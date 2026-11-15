@@ -55,7 +55,8 @@ export {
   refreshLiveBundle,
 } from '../src/lib/data';
 export { platformEquivalent, archiveRatio, archiveSupplementary } from '../src/lib/archive';
-export { customRegion, searchPlaces, PLACES } from '../src/data/places';
+export { historicalMapSummary } from '../src/lib/historicalMap';
+export { customRegion, customBounds, searchPlaces, PLACES } from '../src/data/places';
 export { hydrateWorldLayer, installWorldLayer, uninstallWorldLayer, countryRegion, countryById, worldCountries, countryWindow, windowMeta_, searchWorld, SPELLING_ALIASES, alignCountryFiresToRealtime } from '../src/lib/countries';
 export { SENSOR_SHORT } from '../src/lib/types';
 export { loadWeather, stressBand } from '../src/lib/weather';
@@ -75,7 +76,7 @@ export {
   MAX_VERTICES,
   MIN_RING_POINTS,
 } from '../src/lib/geometry';
-export { bboxAreaKm2, haversineKm, pointInBbox, R_EARTH_KM } from '../src/lib/geo';
+export { bboxAreaKm2, boundsBetween, haversineKm, pointInBbox, R_EARTH_KM } from '../src/lib/geo';
 export { isoDate, addDays, parseISO, dayOfYear } from '../src/lib/format';
 
 // A browser fetches the climate driver through loadLiveBundle; a Node process has no relative

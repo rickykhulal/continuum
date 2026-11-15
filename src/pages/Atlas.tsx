@@ -34,6 +34,7 @@ export function Atlas() {
   const liveRecs = useMemo(() => recordsInRange(records, windowStart, today), [records, windowStart, today]);
   const liveCount = useMemo(() => liveRecs.reduce((s, r) => s + r.harmonized, 0), [liveRecs]);
   const liveDays = useMemo(() => liveRecs.filter((r) => r.harmonized > 0).length, [liveRecs]);
+  const observedWindow = liveRecs.length > 0 && liveRecs.every(r => r.source === 'live');
   const cmp = useMemo(() => monthComparison(records, month, metric, mode, today), [records, month, metric, mode, today]);
   const trend = useMemo(() => annualSeries(records, metric, mode), [records, metric, mode]);
   const firstYear = records[0]?.year ?? 2000;
@@ -89,7 +90,7 @@ export function Atlas() {
         intro={region.description}
         chips={
           <>
-            <Badge tone="live" pulse>LIVE FIRMS WINDOW</Badge>
+            <Badge tone={observedWindow ? 'live' : 'default'} pulse={observedWindow}>{observedWindow ? 'LIVE FIRMS WINDOW' : 'RECENT RECONSTRUCTION'}</Badge>
             <Badge tone="default">{firstYear}–{lastYear} record</Badge>
             <Badge tone={store.status.band === 'extreme' || store.status.band === 'high' ? 'warn' : 'good'}>
               {store.status.band.toUpperCase()} · {ordinal(Math.round(store.status.percentile))} pct
@@ -121,7 +122,7 @@ export function Atlas() {
           <span className="atlas-kpi-sub">{nf(cmp.currentValue)} now · median {nf(cmp.median)}</span>
         </div>
         <div className="atlas-kpi-card">
-          <span className="atlas-kpi-label">Live window</span>
+          <span className="atlas-kpi-label">{observedWindow ? 'Live window' : 'Recent reconstruction'}</span>
           <div className="atlas-kpi-val">{nf(liveCount)}</div>
           <span className="atlas-kpi-sub">VIIRS-eq · {liveDays} active days · {shortDate(windowStart)}–{shortDate(today)}</span>
         </div>

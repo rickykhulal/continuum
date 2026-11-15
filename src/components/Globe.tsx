@@ -1,10 +1,10 @@
-import { useEffect, useImperativeHandle, useRef, forwardRef, memo } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState, forwardRef, memo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { REGIONS } from '../lib/data';
 import { loadSatellites, type OrbitSatellite } from '../lib/satellites';
 import { propagateAt, groundTrack, swathPolygon, swathCovers } from '../lib/sgp4';
-import { subsolarPoint, latLonToVec3, vec3ToLatLon, normalizeLon, decodeLand, fittedMapBounds, type Topology } from '../lib/geo';
+import { subsolarPoint, latLonToVec3, vec3ToLatLon, normalizeLon, decodeLand, fittedMapBounds, boundsBetween, bboxAreaKm2, type Topology } from '../lib/geo';
 import { whereAt, countryWindow, windowMeta_ } from '../lib/countries';
 import { SENSOR_COLORS, type Region } from '../lib/types';
 import { gibsBasemapUrl } from '../lib/basemap';
@@ -193,6 +193,18 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
   ref,
 ) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [drawStatus, setDrawStatus] = useState('');
+  const drawingRef = useRef(false);
+  const drawControlRef = useRef<((enabled: boolean) => void) | null>(null);
+  const drawPreviewRef = useRef<((region: Region) => void) | null>(null);
+  const toggleDrawing = () => {
+    const enabled = !drawingRef.current;
+    drawingRef.current = enabled;
+    setDrawing(enabled);
+    setDrawStatus(enabled ? 'Drag between two points on Earth to select a geographic rectangle. Escape cancels.' : '');
+    drawControlRef.current?.(enabled);
+  };
   const store = useStore();
   const storeRef = useRef(store);
   storeRef.current = store;
@@ -216,6 +228,7 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
 
   useEffect(() => {
     detailRequestRef.current?.(store.region);
+    drawPreviewRef.current?.(store.region);
   }, [store.region]);
 
   useImperativeHandle(ref, () => ({
@@ -768,6 +781,53 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
     const raycaster = new THREE.Raycaster();
     const ndc = new THREE.Vector2();
     let down: { x: number; y: number } | null = null;
+    let drag: { id: number; start: [number, number] } | null = null;
+    const drawGeometry = new THREE.BufferGeometry();
+    const drawLine = new THREE.LineLoop(drawGeometry, new THREE.LineBasicMaterial({ color: '#6cf0e6', depthTest: true }));
+    drawLine.visible = false;
+    scene.add(drawLine);
+
+    const earthPoint = (ev: PointerEvent): [number, number] | null => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      ndc.set(((ev.clientX - rect.left) / rect.width) * 2 - 1, -((ev.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      const hit = raycaster.intersectObject(earth)[0];
+      return hit ? vec3ToLatLon(hit.point.x, hit.point.y, hit.point.z) : null;
+    };
+    const previewBounds = (bbox: Region['bbox']) => {
+      const [w, s, e, n] = bbox;
+      const points: THREE.Vector3[] = [];
+      const corners = [[w, s], [e, s], [e, n], [w, n], [w, s]];
+      for (let edge = 0; edge < 4; edge++) {
+        for (let i = 0; i < 48; i++) {
+          const t = i / 48;
+          const lon = corners[edge][0] + (corners[edge + 1][0] - corners[edge][0]) * t;
+          const lat = corners[edge][1] + (corners[edge + 1][1] - corners[edge][1]) * t;
+          points.push(new THREE.Vector3(...latLonToVec3(lat, lon, 1.006)));
+        }
+      }
+      drawGeometry.setFromPoints(points);
+      drawLine.visible = true;
+    };
+    drawPreviewRef.current = (region) => {
+      if (region.selection === 'bounds') previewBounds(region.bbox);
+      else if (!drawingRef.current) drawLine.visible = false;
+    };
+    drawPreviewRef.current(storeRef.current.region);
+    const releaseDrag = () => {
+      if (drag && renderer.domElement.hasPointerCapture(drag.id)) renderer.domElement.releasePointerCapture(drag.id);
+      drag = null;
+      down = null;
+    };
+    drawControlRef.current = (enabled) => {
+      releaseDrag();
+      controls.enabled = !enabled;
+      controls.autoRotate = false;
+      focusTween = null;
+      drawLine.visible = false;
+      if (!enabled) drawPreviewRef.current?.(storeRef.current.region);
+      renderer.domElement.style.cursor = enabled ? 'crosshair' : '';
+    };
 
     function pick(ev: PointerEvent): boolean {
       const rect = renderer.domElement.getBoundingClientRect();
@@ -832,11 +892,46 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
     }
 
     const onPointerDown = (ev: PointerEvent) => {
+      if (ev.button !== 0 || !ev.isPrimary) return;
       down = { x: ev.clientX, y: ev.clientY };
+      if (drawingRef.current) {
+        const start = earthPoint(ev);
+        if (!start) { down = null; setDrawStatus('Start your selection on Earth.'); return; }
+        drag = { id: ev.pointerId, start };
+        renderer.domElement.setPointerCapture(ev.pointerId);
+        previewBounds(boundsBetween(start, start));
+      }
+    };
+    const onPointerMove = (ev: PointerEvent) => {
+      if (!drag || ev.pointerId !== drag.id) return;
+      const end = earthPoint(ev);
+      if (!end) { drawLine.visible = false; setDrawStatus('Keep the end of your selection on Earth.'); return; }
+      const bounds = boundsBetween(drag.start, end);
+      previewBounds(bounds);
+      setDrawStatus(`${bboxAreaKm2(bounds).toLocaleString(undefined, { maximumFractionDigits: 0 })} km² · release to select`);
     };
     const onPointerUp = (ev: PointerEvent) => {
       if (!down) return;
       const moved = Math.hypot(ev.clientX - down.x, ev.clientY - down.y);
+      if (drawingRef.current) {
+        const end = earthPoint(ev);
+        const bounds = drag && ev.pointerId === drag.id && end ? boundsBetween(drag.start, end).map(v => Number(v.toFixed(6))) as Region['bbox'] : null;
+        releaseDrag();
+        if (!bounds || moved <= 6 || bboxAreaKm2(bounds) < 0.01) {
+          drawLine.visible = false;
+          setDrawStatus('Drag a larger rectangle with both corners on Earth.');
+          return;
+        }
+        previewBounds(bounds);
+        storeRef.current.selectBounds(bounds);
+        drawingRef.current = false;
+        setDrawing(false);
+        controls.enabled = true;
+        renderer.domElement.style.cursor = '';
+        setDrawStatus('Area selected. Atlas and Brief now use these geographic bounds. Historical estimates retain their provenance labels.');
+        onToast('Globe area selected — open Atlas or Brief to analyze it.');
+        return;
+      }
       down = null;
       if (moved > 6) return;
       const hit = pick(ev);
@@ -845,8 +940,11 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
         apiRef.current?.setSelected(null);
       }
     };
+    const onPointerCancel = () => { releaseDrag(); drawLine.visible = false; };
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('pointermove', onPointerMove);
     renderer.domElement.addEventListener('pointerup', onPointerUp);
+    renderer.domElement.addEventListener('pointercancel', onPointerCancel);
 
     // --- camera focus -----------------------------------------------------
     let focusTween: { from: THREE.Vector3; to: THREE.Vector3; t: number } | null = null;
@@ -1054,7 +1152,7 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
       }
       const camDist = camera.position.length();
       // Hold the view still while inspecting a region; the slow spin resumes once zoomed out.
-      controls.autoRotate = !storeRef.current.settings.reduceMotion && camDist > 2.55;
+      controls.autoRotate = !drawingRef.current && !storeRef.current.settings.reduceMotion && camDist > 2.55;
       controls.update();
       const zoomMix = 1 - THREE.MathUtils.smoothstep(camDist, 1.55, 2.45);
       let wantDetail = 0;
@@ -1129,6 +1227,13 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
     animate();
 
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && drawingRef.current) {
+        drawingRef.current = false;
+        setDrawing(false);
+        setDrawStatus('Area drawing cancelled.');
+        drawControlRef.current?.(false);
+        return;
+      }
       if (e.key === 'r' || e.key === 'R') apiRef.current?.reset();
     };
     window.addEventListener('keydown', onKey);
@@ -1148,7 +1253,12 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
       viewCache.clear();
       window.removeEventListener('keydown', onKey);
       renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      renderer.domElement.removeEventListener('pointermove', onPointerMove);
       renderer.domElement.removeEventListener('pointerup', onPointerUp);
+      renderer.domElement.removeEventListener('pointercancel', onPointerCancel);
+      releaseDrag();
+      drawControlRef.current = null;
+      drawPreviewRef.current = null;
       controls.dispose();
       scene.traverse((o) => {
         const mesh = o as THREE.Mesh;
@@ -1168,5 +1278,15 @@ export const Globe = memo(forwardRef<GlobeHandle, Props>(function Globe(
     };
   }, [onSelectSat, onTick, onToast]);
 
-  return <div className="globe-canvas" ref={mountRef} role="application" aria-label="Orbital watch. Drag to rotate Earth, scroll to zoom, click a satellite to focus." />;
+  return <>
+    <div className="globe-canvas" ref={mountRef} role="application" aria-label="Orbital watch. Drag to rotate Earth, scroll to zoom, click a satellite to focus. Activate Draw Area to drag a geographic rectangle." />
+    <div className="globe-draw-tool">
+      <button type="button" className={`btn btn-small ${drawing ? 'btn-primary' : 'btn-ghost'}`} aria-pressed={drawing} onClick={toggleDrawing}>{drawing ? 'Cancel drawing' : 'Draw Area'}</button>
+      {store.region.selection === 'bounds' && !drawing && <div className="globe-area-links">
+        <button type="button" className="btn btn-small btn-ghost" onClick={() => store.setView('atlas')}>Open Atlas</button>
+        <button type="button" className="btn btn-small btn-ghost" onClick={() => store.setView('brief')}>Open Brief</button>
+      </div>}
+      <p role="status">{drawStatus}</p>
+    </div>
+  </>;
 }));
