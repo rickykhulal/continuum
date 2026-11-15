@@ -29,9 +29,6 @@ export function Atlas() {
   // to an empty array only during the initial load before the bundle resolves.
   const fires = live?.fires ?? [];
   useEffect(() => {
-    console.log('[Atlas] Fires loaded:', fires.length, 'for region', region.id);
-    console.log("Region Bounds:", region.bbox);
-    console.log("First 3 Fires:", fires.slice(0, 3));
   }, [fires, region.id]);
   const windowStart = live?.meta.windowStart ?? today;
   const liveRecs = useMemo(() => recordsInRange(records, windowStart, today), [records, windowStart, today]);

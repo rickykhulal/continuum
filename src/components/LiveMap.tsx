@@ -65,7 +65,6 @@ export function LiveMap({
       })
       .then((data) => {
         const fires = data && data.fires ? data.fires : [];
-        console.log("Direct fetch loaded fires:", fires.length);
         setLocalFires(fires);
       })
       .catch((err) => console.error("Direct fetch failed:", err));
@@ -91,9 +90,6 @@ export function LiveMap({
   // Compute live window points for this region. Fall back to the directly fetched
   // bundle if the store-provided fires array is empty (e.g. deployed site fetch failure).
   const effectiveFires = fires.length > 0 ? fires : localFires;
-  if (effectiveFires.length === 0) {
-    console.error("BOTH fires and localFires are empty for region:", region.id);
-  }
   const regionPoints = useMemo(() => {
     return livePointsForRegion(region, effectiveFires);
   }, [region, effectiveFires]);
@@ -105,7 +101,7 @@ export function LiveMap({
     if (!points.length) {
       // No points at all: anchor the slider to the live window end (Nov 14), not
       // the real-world date (Nov 15), so the slider never selects a day with no data.
-      const endTs = windowEnd ? new Date(windowEnd).getTime() : 0;
+      const endTs = windowEnd ? new Date(windowEnd).getTime() / 1000 : 0;
       return { minTime: endTs, maxTime: endTs };
     }
     let min = Infinity;
@@ -119,7 +115,7 @@ export function LiveMap({
   }, [effectiveFires, regionPoints, windowEnd]);
 
   // Number of distinct days spanned by the live window (drives the slider max).
-  const dayCount = Math.max(1, Math.ceil((maxTime - minTime) / (1000 * 60 * 60 * 24)));
+  const dayCount = Math.max(1, Math.ceil((maxTime - minTime) / 86400));
 
   // Filter points based on sensor and day slider
   const filteredPoints = useMemo(() => {
@@ -492,22 +488,6 @@ export function LiveMap({
         style={{ height: `${maxHeight}px`, width: '100%', position: 'relative' }}
       >
         {/* On-screen debug overlay: confirms data is loaded and the map is drawing points. */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 10,
-            left: 10,
-            zIndex: 9999,
-            background: 'red',
-            color: 'white',
-            padding: '10px',
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            border: '2px solid #fff',
-          }}
-        >
-          Loaded Fires: {fires.length} | Local Fires: {localFires.length} | Region: {region.id} | MaxTime: {new Date(maxTime).toISOString().slice(0, 10)}
-        </div>
         {historicalDay && (
           <div
             style={{
