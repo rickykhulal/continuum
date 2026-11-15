@@ -110,6 +110,13 @@ export function LiveMap({
     });
   }, [regionPoints, selectedSensor, dayOffset, day, minTime, maxTime]);
 
+  // If the user picked a date outside the live 7-day window, we have no point geometry
+  // for it (only aggregated daily counts). Show a graceful message instead of 0 points.
+  const historicalDay = useMemo(() => {
+    if (!day || !windowStart || !windowEnd) return null;
+    return day < windowStart || day > windowEnd ? day : null;
+  }, [day, windowStart, windowEnd]);
+
   // Initialize MapLibre GL
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -135,6 +142,11 @@ export function LiveMap({
           },
         },
         layers: [
+          {
+            id: 'background',
+            type: 'background',
+            paint: { 'background-color': '#0a0a0a' },
+          },
           {
             id: 'gibs-layer',
             type: 'raster',
@@ -435,6 +447,34 @@ export function LiveMap({
         className="live-map-canvas"
         style={{ height: `${maxHeight}px`, width: '100%', position: 'relative' }}
       >
+        {historicalDay && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 20,
+              background: 'rgba(15, 17, 21, 0.9)',
+              border: '1px solid var(--line-bright, #ff9a6a)',
+              borderRadius: '8px',
+              padding: '16px 20px',
+              color: '#fff',
+              fontSize: '13px',
+              maxWidth: '420px',
+              textAlign: 'center',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+            }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: '6px', color: '#ff9a6a' }}>
+              Historical point data not available
+            </div>
+            <div>
+              Showing aggregate region activity for {historicalDay}. Select a date within the
+              last 7 days ({shortDate(windowStart!)} – {shortDate(windowEnd!)}) to see live hotspots.
+            </div>
+          </div>
+        )}
         {popupInfo && (
           <div
             className="map-popup-card"

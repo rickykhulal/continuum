@@ -24,6 +24,9 @@ export function Atlas() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<SVGSVGElement>(null);
 
+  // The store loads public/data/live_fires.json via loadLiveBundle() on mount, so live.fires
+  // already carries the bundled snapshot geometry (~2,500+ points for California). Fall back
+  // to an empty array only during the initial load before the bundle resolves.
   const fires = live?.fires ?? [];
   const windowStart = live?.meta.windowStart ?? today;
   const liveRecs = useMemo(() => recordsInRange(records, windowStart, today), [records, windowStart, today]);
