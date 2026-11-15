@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-15T03:50:24.430Z",
+  "generated_at": "2026-11-15T03:58:39.180Z",
   "port": "http://127.0.0.1:4181",
   "passed": 49,
   "total": 49,
@@ -227,7 +227,7 @@
     {
       "name": "Gauges report bundle readiness and process state",
       "ok": true,
-      "detail": "bundle_ready=1, uptime 6.251s"
+      "detail": "bundle_ready=1, uptime 6.784s"
     },
     {
       "name": "Duration series carry a route label and a non-negative max",

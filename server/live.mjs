@@ -192,7 +192,9 @@ async function refresh() {
       const tuples = parseTuples(text, src);
       if (!tuples) { continue; }
       perSatelliteCounts[src.key] = tuples.length;
-      all.push(...tuples);
+      // Global windows can contain hundreds of thousands of points. A spread
+      // call exceeds the engine's argument limit before the cache is populated.
+      for (const tuple of tuples) all.push(tuple);
     }
 
     if (all.length > 0) {

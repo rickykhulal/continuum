@@ -1239,3 +1239,21 @@ flagged a synthetic invalid-key literal, which was shortened to an obvious test 
 was read or emitted. `SECRET_SCAN_ROOT` set to a scratch copy of all publishable working files
 plus dist/dist-server reports **clean**, 201 files / 17.4 MB (**verified** within that scope).
 Runtime credentials and the ignored local environment are excluded from the release.
+
+### Large live feed follow-up
+
+Local server shutdown exposed `[live] refresh failed: Maximum call stack size exceeded`.
+The provider merged a global CSV with `all.push(...tuples)`, exceeding the engine's argument
+limit. `node --test tests/live-volume.test.mjs` reproduced this with 180,000 synthetic points:
+exit 1, live response 503 instead of 200 (**verified** failure). The provider now appends
+points in a loop. The same command returns exit 0, all 180,000 points with unchanged
+acquisition timestamps, sensor count and date bounds (**verified**). The test copies the
+exact provider into an isolated temporary root, so its synthetic cache cannot enter data_raw
+or the production application. No upstream credentials or network are used by that test.
+
+The deployed polish commit `addf32d` was **verified** at Render: entry `index-Dab97m8q.js`
+matches the local asset byte for byte; `/api/v1/health` and `/api/v1/ready` both return 200,
+with integrity true for 20 files. The live-feed follow-up is published and checked separately.
+
+After the volume fix, `npm run build` exits 0 (16.29 s, same entry), and `npm test` exits 0:
+230 total, **226 passed / 0 failed / 4 skipped** (**verified** for executed cases).
