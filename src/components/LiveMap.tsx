@@ -59,10 +59,14 @@ export function LiveMap({
   // pull it directly from the public folder so the map never shows 0 detections.
   useEffect(() => {
     fetch('/data/live_fires.json')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch live_fires.json: ' + res.status);
+        return res.json();
+      })
       .then((data) => {
-        console.log("Direct fetch loaded fires:", data.fires?.length);
-        setLocalFires(data.fires || []);
+        const fires = data && data.fires ? data.fires : [];
+        console.log("Direct fetch loaded fires:", fires.length);
+        setLocalFires(fires);
       })
       .catch((err) => console.error("Direct fetch failed:", err));
   }, []);
@@ -87,13 +91,21 @@ export function LiveMap({
   // Compute live window points for this region. Fall back to the directly fetched
   // bundle if the store-provided fires array is empty (e.g. deployed site fetch failure).
   const effectiveFires = fires.length > 0 ? fires : localFires;
+  if (effectiveFires.length === 0) {
+    console.error("BOTH fires and localFires are empty for region:", region.id);
+  }
   const regionPoints = useMemo(() => {
     return livePointsForRegion(region, effectiveFires);
   }, [region, effectiveFires]);
 
   // Timestamps span for slider
   const { minTime, maxTime } = useMemo(() => {
-    if (!regionPoints.length) return { minTime: 0, maxTime: 0 };
+    if (!regionPoints.length) {
+      // No points in region: anchor the slider to the live window end (Nov 14), not
+      // the real-world date (Nov 15), so the slider never selects a day with no data.
+      const endTs = windowEnd ? new Date(windowEnd).getTime() : 0;
+      return { minTime: endTs, maxTime: endTs };
+    }
     let min = Infinity;
     let max = -Infinity;
     for (const p of regionPoints) {
@@ -102,7 +114,10 @@ export function LiveMap({
       if (t > max) max = t;
     }
     return { minTime: min, maxTime: max };
-  }, [regionPoints]);
+  }, [regionPoints, windowEnd]);
+
+  // Number of distinct days spanned by the live window (drives the slider max).
+  const dayCount = Math.max(1, Math.ceil((maxTime - minTime) / (1000 * 60 * 60 * 24)));
 
   // Filter points based on sensor and day slider
   const filteredPoints = useMemo(() => {
@@ -489,7 +504,7 @@ export function LiveMap({
             border: '2px solid #fff',
           }}
         >
-          Loaded Fires: {fires.length} | Local Fires: {localFires.length} | Region Points: {regionPoints.length}
+          Loaded Fires: {fires.length} | Local Fires: {localFires.length} | Region: {region.id} | MaxTime: {new Date(maxTime).toISOString().slice(0, 10)}
         </div>
         {historicalDay && (
           <div
@@ -625,15 +640,15 @@ export function LiveMap({
         </div>
 
         <div className="live-map-slider-row">
-          <label htmlFor="time-slider">7-Day Window Filter: Day {dayOffset} of 7</label>
+          <label htmlFor="time-slider">7-Day Window Filter: Day {dayOffset} of {dayCount}</label>
           <input
             id="time-slider"
             type="range"
             min="1"
-            max="7"
+            max={dayCount}
             step="1"
             value={dayOffset}
-            onChange={(e) => setDayOffset(Number(e.target.value))}
+            onChange={(e) => setDayOffset(Math.min(Number(e.target.value), dayCount))}
           />
         </div>
       </div>
