@@ -295,6 +295,9 @@ export function Atlas() {
             )
           }
         >
+          console.log("Region Bounds:", region.bbox);
+          console.log("First 3 Fires:", fires.slice(0, 3));
+          console.log("Filtered Region Points:", dayFires.length);
           <LiveMap region={region} fires={fires} day={selectedDate} dayRecord={dayRec} onSelectDay={setSelectedDate} windowStart={windowStart} windowEnd={today} />
           {selectedDate && dayRec ? (
             <div className="day-detail">
