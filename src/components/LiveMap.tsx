@@ -277,11 +277,22 @@ export function LiveMap({
         ],
         { padding: 40, duration: 800 }
       );
+
+      // MapLibre often fails to render if the container size changes after initialization.
+      // Force a resize once the style has loaded, so the canvas and tiles are drawn at the
+      // correct dimensions instead of staying a black void.
+      setTimeout(() => map.resize(), 500);
     });
 
     mapRef.current = map;
 
+    // Resize the map whenever the container (or window) changes size so MapLibre redraws the
+    // tiles and points at the correct dimensions instead of staying black.
+    const resizeObserver = new ResizeObserver(() => map.resize());
+    resizeObserver.observe(mapContainer.current);
+
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
     };
@@ -448,6 +459,24 @@ export function LiveMap({
         className="live-map-canvas"
         style={{ height: `${maxHeight}px`, width: '100%', position: 'relative' }}
       >
+        {/* On-screen debug overlay: confirms data is loaded and the map is drawing points. */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            zIndex: 30,
+            background: 'rgba(0, 0, 0, 0.5)',
+            padding: '5px 8px',
+            color: '#fff',
+            fontSize: '11px',
+            fontFamily: 'monospace',
+            borderRadius: '4px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+          }}
+        >
+          Loaded Fires: {fires.length} | Region Points: {regionPoints.length}
+        </div>
         {historicalDay && (
           <div
             style={{
