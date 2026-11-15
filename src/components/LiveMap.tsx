@@ -66,7 +66,9 @@ export function LiveMap({
         : live.status === 'stale'
           ? 'LIVE STALE'
           : live.status === 'offline'
-            ? 'Live data temporarily unavailable'
+            ? fires.length > 0
+              ? 'Bundled snapshot (Live API offline)'
+              : 'Live data temporarily unavailable'
             : 'Live feed not configured';
 
   // Compute live window points for this region
@@ -121,24 +123,23 @@ export function LiveMap({
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Use NASA GIBS EPSG:3857 Web Mercator WMTS as base layer. Blue Marble Next Generation
-    // carries a fixed-date (2004-01-01) global mosaic that always has imagery, so the base
-    // map never goes black even when the live FIRMS feed is down. GoogleMapsCompatible tile
-    // grid (y from the top) matches MapLibre's default (tms: false).
+    // Use CartoDB Dark Matter as the base layer. It matches the dark theme, has excellent
+    // uptime, and serves tiles up to zoom 19, so the map never goes black even when the live
+    // FIRMS feed is down.
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: {
         version: 8,
         sources: {
-          'gibs-imagery': {
+          'carto-dark': {
             type: 'raster',
             tiles: [
-              'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/2004-01-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
+              'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+              'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+              'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
             ],
             tileSize: 256,
-            minzoom: 1,
-            maxzoom: 8,
-            attribution: '© NASA Worldview / GIBS',
+            attribution: '© OpenStreetMap contributors © CARTO',
           },
         },
         layers: [
@@ -148,11 +149,11 @@ export function LiveMap({
             paint: { 'background-color': '#0a0a0a' },
           },
           {
-            id: 'gibs-layer',
+            id: 'carto-layer',
             type: 'raster',
-            source: 'gibs-imagery',
+            source: 'carto-dark',
             minzoom: 0,
-            maxzoom: 8,
+            maxzoom: 19,
           },
         ],
       },
@@ -472,6 +473,30 @@ export function LiveMap({
             <div>
               Showing aggregate region activity for {historicalDay}. Select a date within the
               last 7 days ({shortDate(windowStart!)} – {shortDate(windowEnd!)}) to see live hotspots.
+            </div>
+          </div>
+        )}
+        {!historicalDay && regionPoints.length === 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 20,
+              background: 'rgba(15, 17, 21, 0.9)',
+              border: '1px solid var(--line-bright, #ff9a6a)',
+              borderRadius: '8px',
+              padding: '16px 20px',
+              color: '#fff',
+              fontSize: '13px',
+              maxWidth: '420px',
+              textAlign: 'center',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+            }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: '6px', color: '#ff9a6a' }}>
+              No fire data available for this region
             </div>
           </div>
         )}

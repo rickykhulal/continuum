@@ -28,6 +28,9 @@ export function Atlas() {
   // already carries the bundled snapshot geometry (~2,500+ points for California). Fall back
   // to an empty array only during the initial load before the bundle resolves.
   const fires = live?.fires ?? [];
+  useEffect(() => {
+    console.log('[Atlas] Fires loaded:', fires.length, 'for region', region.id);
+  }, [fires, region.id]);
   const windowStart = live?.meta.windowStart ?? today;
   const liveRecs = useMemo(() => recordsInRange(records, windowStart, today), [records, windowStart, today]);
   const liveCount = useMemo(() => liveRecs.reduce((s, r) => s + r.harmonized, 0), [liveRecs]);
