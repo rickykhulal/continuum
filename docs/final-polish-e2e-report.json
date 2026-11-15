@@ -1,0 +1,73 @@
+{
+  "scope": "Real UI and bundled detection geometry; wind/community responses intercepted with isolated browser fixtures. No server reports written.",
+  "pass": 10,
+  "total": 10,
+  "results": [
+    {
+      "name": "Laika shows only model and bubble with grab cursor",
+      "pass": true,
+      "detail": {
+        "text": "🐶",
+        "cursor": "grab"
+      }
+    },
+    {
+      "name": "Pointer dragging moves Laika and tether without opening a bubble",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 1252,
+          "y": 634,
+          "w": 150,
+          "h": 150,
+          "path": "M 1412 804 C 1332 796, 1407 809.2513691882834, 1327 709.2513691882834"
+        },
+        "after": {
+          "x": 1072,
+          "y": 514,
+          "path": "M 1412 804 C 1332 796, 1227 690.041542778192, 1147 590.041542778192",
+          "bubble": false
+        }
+      }
+    },
+    {
+      "name": "Keyboard opens Laika speech bubble",
+      "pass": true
+    },
+    {
+      "name": "Alert Center displays verified reports and measured FRP without simulation messages",
+      "pass": true,
+      "detail": {
+        "text": "Alert centerFire detections & community reports✕Area-day alerts27Verified reports1FRP threshold50 MWData through14 NovRefresh alertsVerified community anomaliesVerified anomaly fixtureBrowser fixture · 14 Nov · verified community reportRecent high-FRP detectionsBundled FIRMS snapshot · refreshing live feed · 2026-11-07 – 2026-11-14. Selected area and seven pilot regions. Detections ≥ 50 MW, newest first; overlapping areas may share detections.Fetching latest fire detections...High FRP detected in Amazon arc · 105 points14 Nov · peak 993.2 MWHigh FRP detected in SE Australia · 6 points14 Nov · peak 295.6 MWHigh FRP detected in Greece · 1 points14 Nov · peak 91.3 MWHigh FRP detected in Pantanal · 2 points14 Nov · peak 70.3 MWHigh FRP detected in Amazon arc · 89 points13 Nov · peak 610.4 MWHigh FRP detected in Greece · 3 points13 Nov · peak 87.7 MWHigh FRP detected in California · 1 points13 Nov · peak 56.5 MWHigh FRP detected in Amazon arc · 86 points12 Nov · peak 1562.1 MWHigh FRP detected in California · 49 points12 Nov · peak 224.3 MWHigh FRP detected in SE Australia · 1 points12 Nov · peak 89.3 MWHigh FRP detected in Pantanal · 1 points12 Nov · peak 70.3 MWHigh FRP detected in Amazon arc · 112 points11 Nov · peak 573.6 MWHigh FRP detected in SE Australia · 35 points11 Nov · peak 259.9 MWHigh FRP detected in California · 18 points11 Nov · peak 137.1 MWHigh FRP detected in Pantanal · 1 points11 Nov · peak 56.2 MWHigh FRP detected in California · 49 points10 Nov · peak 253.5 MWHigh FRP detected in Amazon arc · 23 points10 Nov · peak 190.1 MWHigh FRP detected in SE Australia · 8 points10 Nov · peak 90.3 MWHigh FRP detected in Amazon arc · 94 points9 Nov · peak 654.6 MWHigh FRP detected in California · 14 points9 Nov · peak 300.7 MWHigh FRP detected in SE Australia · 9 points9 Nov · peak 130.4 MWHigh FRP detected in Amazon arc · 198 points8 Nov · peak 923.2 MWHigh FRP detected in SE Australia · 11 points8 Nov · peak 79.9 MWHigh FRP detected in Amazon arc · 177 points7 Nov · peak 451.4 MWHigh FRP detected in SE Australia · 6 points7 Nov · peak 196.4 MWHigh FRP detected in Pantanal · 18 points7 Nov · peak 159.4 MWHigh FRP detected in California · 1 points7 Nov · peak 92.3 MWDetection reportNASA FIRMS · provisionalCONTINUUM FIRE REPORT — AMAZON ARC\n2026-11-14 · Bundled FIRMS snapshot · refreshing live feed\n105 detections with FRP ≥ 50 MW.\nPeak FRP: 993.2 MW. Summed detection FRP: 16246.7 MW.\nMeasured window: 2026-11-07 to 2026-11-14. Counts are satellite detections, not separate fires.\nNASA FIRMS NRT observations; provisional. Research context, not an official warning.Copy reportDownload reportOpen Atlas →",
+        "fire": "High FRP detected in Amazon arc · 105 points14 Nov · peak 993.2 MW",
+        "report": "CONTINUUM FIRE REPORT — AMAZON ARC\n2026-11-14 · Bundled FIRMS snapshot · refreshing live feed\n105 detections with FRP ≥ 50 MW.\nPeak FRP: 993.2 MW. Summed detection FRP: 16246.7 MW.\nMeasured window: 2026-11-07 to 2026-11-14. Counts are satellite detections, not separate fires.\nNASA FIRMS NRT observations; provisional. Research context, not an official warning."
+      }
+    },
+    {
+      "name": "Clicked fire opens wind loading state",
+      "pass": true
+    },
+    {
+      "name": "Current wind displays provider speed and direction",
+      "pass": true,
+      "detail": "Wind conditionsSelected fire · -29.3041, -67.4245↑Wind from W (270°) at 18.0 km/hOpen-Meteo · current forecast at 10 m · 2026-11-15T12:00 UTCWind provides context for possible smoke movement. It does not predict fire spread or evacuation routes.Close"
+    },
+    {
+      "name": "Historical selection uses exact date and converted POWER wind",
+      "pass": true,
+      "detail": "Wind conditionsChilecito area center · -29.1600, -67.5000↑Wind from E (90°) at 18.0 km/hNASA POWER · daily reanalysis at 10 m · 2022-01-01Wind provides context for possible smoke movement. It does not predict fire spread or evacuation routes.Close"
+    },
+    {
+      "name": "Provider failure shows error and retry without invented wind",
+      "pass": true
+    },
+    {
+      "name": "Retry recovers provider wind",
+      "pass": true
+    },
+    {
+      "name": "Production CSP allows both wind providers",
+      "pass": true
+    }
+  ]
+}

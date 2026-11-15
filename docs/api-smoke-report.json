@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-15T04:34:12.257Z",
+  "generated_at": "2026-11-15T07:01:26.063Z",
   "port": "http://127.0.0.1:4181",
   "passed": 49,
   "total": 49,
@@ -127,7 +127,7 @@
     {
       "name": "POST /area/weather — live or documented 503",
       "ok": true,
-      "detail": "source NASA POWER, n=3968"
+      "detail": "source NASA POWER, n=3969"
     },
     {
       "name": "422 PARAMETER_INVALID without an area",
@@ -227,7 +227,7 @@
     {
       "name": "Gauges report bundle readiness and process state",
       "ok": true,
-      "detail": "bundle_ready=1, uptime 8.197s"
+      "detail": "bundle_ready=1, uptime 4.918s"
     },
     {
       "name": "Duration series carry a route label and a non-negative max",

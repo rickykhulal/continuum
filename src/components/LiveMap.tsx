@@ -518,6 +518,7 @@ export function LiveMap({
               </div>
               <p>{nf(historicalSummary.harmonized)} harmonized hotspot equivalents · {historicalSummary.partial ? 'partial sensor coverage' : historicalSummary.provisional ? 'provisional' : 'regional daily total'}.</p>
               <p>{historicalSummary.reconstructed ? 'Calibrated reconstruction; no historical point locations are inferred.' : 'Archive daily aggregates; individual fire locations are not stored for this date.'}</p>
+              <button type="button" className="btn btn-small" onClick={() => setSelectedFire({ lat: region.center[0], lon: region.center[1] })}>View historical wind for this area</button>
             </> : <p>Select a day covered by this region’s record to see its daily summary.</p>}
             {onSelectDay && <button type="button" onClick={() => onSelectDay(null)}>Return to live window</button>}
           </aside>
@@ -651,6 +652,8 @@ export function LiveMap({
         <WindSimulator
           lat={selectedFire.lat}
           lon={selectedFire.lon}
+          date={day}
+          locationLabel={historicalDay ? `${region.shortName} area center` : undefined}
           onClose={() => setSelectedFire(null)}
         />,
         document.body,

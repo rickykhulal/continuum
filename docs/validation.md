@@ -1257,3 +1257,63 @@ with integrity true for 20 files. The live-feed follow-up is published and check
 
 After the volume fix, `npm run build` exits 0 (16.29 s, same entry), and `npm test` exits 0:
 230 total, **226 passed / 0 failed / 4 skipped** (**verified** for executed cases).
+
+## 2026-11-15 Final wind, Laika and Alert Center changes
+
+Base `8a33e4e`; `git fetch origin main` and `git rev-list --left-right --count
+main...origin/main` returned `0 0` before publishing. Laika's model wrapper now supports
+pointer capture, touch dragging and keyboard movement; the speech bubble moves with it and
+the projected tether stays anchored to the viewport corner. The visible model attribution
+and chat text were removed. Model provenance remains in NOTICE.
+
+Wind requests use the clicked detection's coordinates. An explicitly selected past date
+uses NASA POWER's WS10M/WD10M daily reanalysis; current selections use Open-Meteo's current
+10 m forecast. POWER m/s is converted to km/h, north/360 degrees and calm wind are handled,
+and provider failures produce an error/retry state rather than invented readings. Historical
+days without individual detection geometry offer wind at the clearly labelled area center.
+The production CSP permits both providers. These products are labelled forecast/reanalysis.
+
+Alert Center fetches `/api/v1/community/feed` and `/api/v1/live-firms`. Only explicitly verified
+anomaly posts enter the report list. High-FRP alerts are computed from actual detection tuples
+for the selected area and seven pilot regions, grouped by observed day, newest first, at a
+stated inclusive 50 MW threshold. Point counts are detections, not separate fires. The drawer
+labels the bundled snapshot or stale fallback when the latest feed cannot be obtained.
+Copy/download actions export the measured report; Atlas navigation selects its observed date.
+The prior simulated dispatch and analog forecast surfaces were removed from this drawer.
+
+| Command | Output / scope | Status |
+| --- | --- | --- |
+| `npm ci` | initial EPERM from the project's running preview holding esbuild.exe; after restarting that preview, 172 packages installed, exit 0; 2 known toolchain advisories | **verified** |
+| Baseline `npm run build`; `npm test` | exit 0; 1,028 modules; 237 total / 233 passed / 0 failed / 4 skipped | **verified** for executed cases |
+| Baseline `npm run e2e`, preview on :4174 | 76 true / 102 executed; aborted at the legacy null `.focus()` selector | **partial**; known unrelated UI expectations retain failures |
+| `npm run api:build` → `npm run bundle` → `npm run build` | exit 0; bundle `continuum-2026-11-14-58d98f95f252`; only manifest created_at moved, so no golden recapture; final build 1,030 modules, 15.15 s, zero TypeScript errors, entry `index-kHhWYiPO.js` | **verified** |
+| Final `npm test` | 249 total / 245 passed / 0 failed / 4 skipped; provider selection, units, fill values, cancellation, HTTP errors, measured FRP and verified-post filtering | **verified** for executed cases; keyed live cases **not verified** |
+| `node scripts/e2e-final-polish.mjs` against API on :8787 | 10/10; real UI and bundled detection geometry; isolated browser response fixtures for wind/community, no server posts written; pointer drag/tether, keyboard bubble, verified report filtering, clicked-fire loading/current wind, historical date/units, error/retry, CSP | **verified** within this scope; `docs/final-polish-e2e-report.json` |
+| Provider GETs using curl, parsed with `parseWind` | Open-Meteo 200: 5 km/h from 314 degrees at 2026-11-15T06:30 UTC; POWER for 2022-01-01 at -29.2/-67.5: 200, WS10M 2.97 m/s → 10.692 km/h, WD10M 198 degrees | **verified**; `docs/wind-provider-report.json` |
+| `npm run validate` | exit 1, 22/23; unchanged VIIRS-SNPP freshness sentinel `9999-99-99..0000-00-00`; all 20 manifest files and all 10 dist/data files match | **partial**; existing metadata gap retained, no assertion relaxed |
+| `npm run smoke` | exit 0, 49/49 including readiness, API contracts and security headers | **verified** |
+| `npm run secret-scan` | exit 1; ignored local .env reported by presence only, no contents read or printed | **partial** for whole workspace |
+| `SECRET_SCAN_ROOT=<temporary copy of git publishable files plus dist/dist-server>`; `npm run secret-scan` | exit 0, 210 files / 17.5 MB, clean; ignored runtime credentials excluded | **verified** for release scope |
+| `git diff --check` | exit 0 | **verified** |
+
+The repository-wide browser audit remains **partial**. Its old Alert Center assertions were
+updated to require observed FRP, date, provenance and report copy/download because that product
+behavior was explicitly replaced; other failing legacy assertions were not relaxed. The
+freshness metadata failure is an existing release gap and will also affect the CI validation
+step. Build/test success does not certify that gate. No live/archive data was regenerated and
+no keyed backfill was run. Render results are recorded after publishing below.
+
+### Publication continuation — 2026-11-15
+
+The interrupted final-polish task resumed on the same base. `git fetch origin main` followed
+by `git rev-list --left-right --count main...origin/main` returned `0 0` again.
+
+| Command | Output / scope | Status |
+| --- | --- | --- |
+| `npm run build` | exit 0; zero TypeScript errors; entry `index-kHhWYiPO.js`; Vite 68 s with an older browser sweep still running | **verified** |
+| `npm test` | retry exit 0; 249 total / 245 passed / 0 failed / 4 skipped, 13.05 s; first run had one local ECONNRESET while the old sweep was running | **verified** for executed cases |
+| `node scripts/e2e-final-polish.mjs`, API on :8787 | retry exit 0; 10/10; first run timed out while the build and old sweep overlapped; rerun after build completion and stopping the stale sweep | **verified** for focused fixture scope |
+| `npm run validate` | exit 1; 22/23; existing VIIRS-SNPP sentinel failure; all 10 built data files match | **partial** |
+| `npm run smoke` | exit 0; 49/49 | **verified** |
+| `SECRET_SCAN_ROOT=<temporary checkout of the staged release plus dist/dist-server>`; `npm run secret-scan` | exit 0; 211 files / 17.5 MB; clean | **verified** for release scope |
+| GET Render `/` before push | HTTP 200; old entry `index-BykkYhYB.js` | **verified** for old deployment; new release **not verified** yet |

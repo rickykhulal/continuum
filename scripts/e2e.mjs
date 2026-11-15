@@ -250,19 +250,19 @@ try {
     await new Promise(r => setTimeout(r, 500));
     const items = [...document.querySelectorAll('.alert-item')];
     const msg = document.querySelector('.phone-bubble pre')?.textContent || '';
-    return { open: !!document.querySelector('.drawer'), count: items.length, msg: msg.slice(0, 220), dispatchButtons: [...document.querySelectorAll('.dispatch-actions button')].map(b => b.textContent.trim()) };`);
-  check('Alert center opens with 7 ranked regions', drawer.open && drawer.count === 7, drawer);
-  check('Dispatch preview carries live + calibration content', /CONTINUUM WATCH/.test(drawer.msg) && /Sensor calibration/.test(drawer.msg), drawer.msg);
+    return { open: !!document.querySelector('.drawer'), count: items.length, msg, dispatchButtons: [...document.querySelectorAll('.dispatch-actions button')].map(b => b.textContent.trim()) };`);
+  check('Alert center opens with measured high-FRP detections', drawer.open && drawer.count > 0 && /detections with FRP/.test(drawer.msg), drawer);
+  check('Detection report carries observed date, FRP and provenance', /CONTINUUM FIRE REPORT/.test(drawer.msg) && /Peak FRP:/.test(drawer.msg) && /NASA FIRMS NRT observations/.test(drawer.msg), drawer.msg);
 
   const dispatchCopy = await ev(`
-    const b = [...document.querySelectorAll('.dispatch-actions button')].find(x => x.textContent.includes('Copy message'));
+    const b = [...document.querySelectorAll('.dispatch-actions button')].find(x => x.textContent.includes('Copy report'));
     b?.click(); await new Promise(r => setTimeout(r, 500));
     return { toast: document.querySelector('.toast')?.textContent?.trim() || '', clip: await navigator.clipboard.readText().then(t => t.slice(0, 90)).catch(() => 'blocked') };`);
-  check('Dispatch message copies to clipboard', /CONTINUUM WATCH/.test(dispatchCopy.clip || '') || /copied/i.test(dispatchCopy.toast || ''), dispatchCopy);
+  check('Detection report copies to clipboard', /CONTINUUM FIRE REPORT/.test(dispatchCopy.clip || '') || /copied/i.test(dispatchCopy.toast || ''), dispatchCopy);
 
   await ev(`[...document.querySelectorAll('.dispatch-actions button')].find(x => x.textContent.includes('Download'))?.click(); return true;`);
   const dispatchFile = await waitFile(/\.txt$/i);
-  check('Dispatch message downloads as .txt', !!dispatchFile, dispatchFile);
+  check('Detection report downloads as .txt', !!dispatchFile, dispatchFile);
 
   await ev(`document.querySelector('.drawer-head .icon-btn')?.click(); await new Promise(r => setTimeout(r, 300)); return true;`);
 

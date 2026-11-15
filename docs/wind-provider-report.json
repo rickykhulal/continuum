@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-11-15T06:39:17.154Z",
+  "current": {
+    "status": 200,
+    "wind": {
+      "time": "2026-11-15T06:30",
+      "interval": 900,
+      "temperature": 17.7,
+      "windspeed": 5,
+      "winddirection": 314,
+      "is_day": 0,
+      "weathercode": 3
+    }
+  },
+  "historical": {
+    "status": 200,
+    "wind": {
+      "WS10M": {
+        "20220101": 2.97
+      },
+      "WD10M": {
+        "20220101": 198
+      }
+    }
+  }
+}

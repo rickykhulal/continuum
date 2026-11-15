@@ -56,6 +56,8 @@ export {
 } from '../src/lib/data';
 export { platformEquivalent, archiveRatio, archiveSupplementary } from '../src/lib/archive';
 export { historicalMapSummary } from '../src/lib/historicalMap';
+export { windRequest, parseWind, windCompass, fetchWind } from '../src/lib/wind';
+export { highFrpAlerts, verifiedCommunityAlerts, HIGH_FRP_MW } from '../src/lib/realAlerts';
 export { customRegion, customBounds, searchPlaces, PLACES } from '../src/data/places';
 export { hydrateWorldLayer, installWorldLayer, uninstallWorldLayer, countryRegion, countryById, worldCountries, countryWindow, windowMeta_, searchWorld, SPELLING_ALIASES, alignCountryFiresToRealtime } from '../src/lib/countries';
 export { SENSOR_SHORT } from '../src/lib/types';

@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { apiFetch } from '../lib/api';
-import { analogDeparture, biasXray, getRecord, recordsInRange, twinAnalogs } from '../lib/data';
+import { REGIONS } from '../lib/data';
+import { classifyLiveResponse } from '../lib/liveClient';
+import { highFrpAlerts, verifiedCommunityAlerts, HIGH_FRP_MW, type CommunityAlert } from '../lib/realAlerts';
+import type { LiveFire } from '../lib/types';
 import { Badge } from './ui';
-import { MONTHS_LONG, nf, pct, riskColor, shortDate, ordinal } from '../lib/format';
+import { nf, shortDate } from '../lib/format';
 import type { ViewId } from '../lib/store';
 
 const TOUR: { view: ViewId; title: string; body: string; award: string }[] = [
@@ -71,220 +74,145 @@ export function AlertCenter() {
   const store = useStore();
   const open = store.alertsOpen;
   const [selected, setSelected] = useState<string | null>(null);
-  const alerts = store.alerts;
-  const current = alerts.find((a) => a.region.id === selected) ?? alerts[0];
-  const [community, setCommunity] = useState<{ posts: any[]; announcements: any[] } | null>(null);
+  const [community, setCommunity] = useState<CommunityAlert[]>([]);
   const [communityError, setCommunityError] = useState<string | null>(null);
+  const [communityLoading, setCommunityLoading] = useState(false);
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [liveNotice, setLiveNotice] = useState('Bundled FIRMS snapshot');
+  const [fresh, setFresh] = useState<{ fires: LiveFire[]; start: string; end: string } | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!open) return;
-    let cancelled = false;
-    apiFetch('/community/feed')
-      .then((r) => {
-        if (!r.ok) throw new Error(`community feed ${r.status}`);
-        return r.json();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    setCommunity([]);
+    setCommunityError(null);
+    setCommunityLoading(true);
+    setLiveLoading(true);
+    setFresh(null);
+    setLiveNotice('Bundled FIRMS snapshot · refreshing live feed');
+    let feedDone = false;
+    let liveDone = false;
+    const feed = apiFetch('/community/feed', { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error(`Community feed unavailable (HTTP ${response.status}).`);
+        const reports = verifiedCommunityAlerts(await response.json());
+        if (!controller.signal.aborted) setCommunity(reports);
       })
-      .then((data) => {
-        if (!cancelled) setCommunity(data);
+      .catch(error => { if (!controller.signal.aborted) setCommunityError(error instanceof Error ? error.message : 'Community feed unavailable.'); })
+      .finally(() => { feedDone = true; if (!controller.signal.aborted) setCommunityLoading(false); });
+    const live = apiFetch('/live-firms', { signal: controller.signal })
+      .then(async response => {
+        const result = classifyLiveResponse(response.status, await response.json().catch(() => null), null);
+        if (controller.signal.aborted) return;
+        if (result.provenance === 'live' && result.meta) {
+          const fires = result.data.filter((fire): fire is LiveFire => Array.isArray(fire) && fire.length >= 6 &&
+            fire.every(Number.isFinite) && Math.abs(fire[0]) <= 90 && Math.abs(fire[1]) <= 180 &&
+            Number.isInteger(fire[3]) && fire[3] >= 0 && fire[3] <= 3 &&
+            Number.isInteger(fire[4]) && fire[4] >= 0 && fire[4] <= 2);
+          setFresh({ fires, start: result.meta.windowStart, end: result.meta.windowEnd });
+          setLiveNotice(result.status === 'stale' ? 'Cached FIRMS feed · stale' : 'Latest FIRMS feed');
+        } else setLiveNotice('Live feed unavailable · bundled FIRMS snapshot');
       })
-      .catch((err) => {
-        if (!cancelled) setCommunityError(err instanceof Error ? err.message : 'Could not load community feed.');
-      });
-    return () => { cancelled = true; };
-  }, [open]);
-  const message = useMemo(() => {
-    if (!current) return '';
-    const r = current.region;
-    const st = current.status;
-    const liveRecs = store.live ? recordsInRange(getRecord(r.id, store.live), store.live.meta.windowStart, store.live.meta.windowEnd) : [];
-    const liveSum = liveRecs.reduce((s, d) => s + d.harmonized, 0);
-    const bias = store.live ? biasXray(getRecord(r.id, store.live)) : null;
-    return [
-      `CONTINUUM WATCH — ${r.shortName.toUpperCase()}`,
-      `${st.date} · ${st.band.toUpperCase()} activity · ${ordinal(Math.round(st.percentile))} percentile`,
-      `First ${st.windowDays} days of ${MONTHS_LONG[Number(st.date.slice(5, 7)) - 1]}: ${nf(st.current)} VIIRS-eq vs median ${nf(st.baselineMedian)} (${st.ratioToMedian ? st.ratioToMedian.toFixed(1) + '×' : '—'}).`,
-      `Live window: ${nf(liveSum)} detections across ${nf(liveRecs.filter((d) => d.harmonized > 0).length)} active days.`,
-      bias ? `Sensor calibration ${bias.ratio.toFixed(2)}× (90% CI ${bias.ratioLo.toFixed(2)}–${bias.ratioHi.toFixed(2)}). Raw 2012 break reduced from ${bias.rawBreakPct.toFixed(0)}% to ${bias.correctedBreakPct.toFixed(0)}%.` : '',
-      st.provisional ? 'Latest days are provisional.' : 'No provisional days in the current window.',
-      'Research advisory — not an official warning, dispatch or evacuation service. Continuum · NASA Space Apps 2026.',
-    ].filter(Boolean).join('\n');
-  }, [current, store.live]);
+      .catch(() => { if (!controller.signal.aborted) setLiveNotice('Live feed unavailable · bundled FIRMS snapshot'); })
+      .finally(() => { liveDone = true; if (!controller.signal.aborted) setLiveLoading(false); });
+    Promise.allSettled([feed, live]).then(() => clearTimeout(timer));
+    const timeout = () => {
+      setCommunityLoading(false);
+      setLiveLoading(false);
+      if (!feedDone) setCommunityError('Community refresh timed out. Please retry.');
+      if (!liveDone) setLiveNotice('Live feed unavailable · bundled FIRMS snapshot');
+    };
+    controller.signal.addEventListener('abort', timeout, { once: true });
+    return () => {
+      controller.signal.removeEventListener('abort', timeout);
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [open, attempt]);
 
-  const forecast = useMemo(() => {
-    if (!current) return null;
-    const recs = getRecord(current.region.id, store.live);
-    if (!recs.length) return null;
-    const twin = twinAnalogs(recs, store.today);
-    return { next4: analogDeparture(twin), hitRate: twin.backtestHitRate, seasons: twin.analogs.length };
-  }, [current, store.live, store.today]);
-
-  useEffect(() => {
-    if (open && alerts.length && !selected) setSelected(alerts[0].region.id);
-  }, [open, alerts, selected]);
-
+  const start = fresh?.start ?? store.live?.meta.windowStart ?? '';
+  const end = fresh?.end ?? store.live?.meta.windowEnd ?? '';
+  const alerts = useMemo(() => highFrpAlerts(fresh?.fires ?? store.live?.fires ?? [], [store.region, ...REGIONS], start, end), [fresh, store.live, store.region, start, end]);
+  const current = alerts.find(alert => alert.id === selected) ?? alerts[0];
+  const message = current ? [
+    `CONTINUUM FIRE REPORT — ${current.region.shortName.toUpperCase()}`,
+    `${current.date} · ${liveNotice}`,
+    `${nf(current.points)} detections with FRP ≥ ${HIGH_FRP_MW} MW.`,
+    `Peak FRP: ${current.peakFrp.toFixed(1)} MW. Summed detection FRP: ${current.totalFrp.toFixed(1)} MW.`,
+    `Measured window: ${start} to ${end}. Counts are satellite detections, not separate fires.`,
+    'NASA FIRMS NRT observations; provisional. Research context, not an official warning.',
+  ].join('\n') : '';
   if (!open) return null;
-  const high = alerts.filter((a) => a.status.percentile >= 90).length;
-  const elevated = alerts.filter((a) => a.status.percentile >= 75).length;
 
   return (
-    <div className="drawer-wrap" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) store.setAlertsOpen(false); }}>
+    <div className="drawer-wrap" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) store.setAlertsOpen(false); }}>
       <aside className="drawer" role="dialog" aria-modal="true" aria-labelledby="alert-title">
         <header className="drawer-head">
-          <div>
-            <div className="eyebrow">Alert center · simulation</div>
-            <h2 id="alert-title">Risk radar</h2>
-          </div>
+          <div><div className="eyebrow">Alert center</div><h2 id="alert-title">Fire detections &amp; community reports</h2></div>
           <button type="button" className="icon-btn" onClick={() => store.setAlertsOpen(false)} aria-label="Close alert center">✕</button>
         </header>
-
         <div className="alert-summary">
-          <div><span>High or extreme</span><b style={{ color: '#ff8a3d' }}>{high}</b></div>
-          <div><span>Elevated or above</span><b>{elevated}</b></div>
-          <div><span>Watched</span><b>{store.watchlist.length}/7</b></div>
-          <div><span>Data through</span><b>{shortDate(store.today)}</b></div>
+          <div><span>Area-day alerts</span><b>{nf(alerts.length)}</b></div>
+          <div><span>Verified reports</span><b>{communityLoading || communityError ? '—' : nf(community.length)}</b></div>
+          <div><span>FRP threshold</span><b>{HIGH_FRP_MW} MW</b></div>
+          <div><span>Data through</span><b>{end ? shortDate(end) : 'Unavailable'}</b></div>
         </div>
-
-        {community && (
-          <div className="alert-community">
-            <div className="drawer-section-head">
-              <span className="eyebrow">Community feed · verified anomalies</span>
-              {communityError && <span className="badge" style={{ color: '#ff453a' }}>{communityError}</span>}
-            </div>
-            <div className="alert-list">
-              {(community.announcements || []).slice(0, 6).map((a) => (
-                <button
-                  key={a.id}
-                  type="button"
-                  className="alert-item"
-                  onClick={() => {
-                    const p = (community?.posts || []).find((x) => x.id === a.sourcePostId);
-                    store.toast(p ? `${p.author}: ${p.content}` : `Verified alert from ${a.author}.`);
-                  }}
-                >
-                  <span className="alert-band" style={{ background: '#ff8a3d' }} />
-                  <span className="alert-item-main">
-                    <span className="alert-item-title">{a.author}<small>community report</small></span>
-                    <span className="alert-item-meta">{shortDate(a.createdAt.slice(0, 10))} · anomaly</span>
-                  </span>
-                  <span aria-hidden>⚠</span>
-                </button>
-              ))}
-              {(community.announcements || []).length === 0 && (
-                <div className="empty">No verified community anomalies yet.</div>
-              )}
-            </div>
+        <button type="button" className="btn btn-small btn-ghost" onClick={() => setAttempt(a => a + 1)} disabled={communityLoading || liveLoading}>Refresh alerts</button>
+        <section className="alert-community" aria-label="Verified community anomalies">
+          <div className="drawer-section-head"><span className="eyebrow">Verified community anomalies</span></div>
+          <div className="alert-list" aria-live="polite">
+            {communityLoading && <p role="status">Fetching community reports...</p>}
+            {communityError && <p role="status">{communityError}</p>}
+            {!communityLoading && !communityError && !community.length && <div className="empty">No verified community anomalies yet.</div>}
+            {community.map(report => <button key={report.id} type="button" className="alert-item community-alert" onClick={() => { store.setAlertsOpen(false); store.setView('community'); }}>
+              <span className="alert-band" style={{ background: '#ff8a3d' }} />
+              <span className="alert-item-main">
+                <span className="alert-item-title">{report.content}</span>
+                <span className="alert-item-meta">{report.author} · {shortDate(report.createdAt.slice(0, 10))} · verified community report</span>
+              </span>
+            </button>)}
           </div>
-        )}
-
-        {forecast && (
-          <div className="alert-future">
-            <div>
-              <div className="eyebrow">Predict the future · 4 weeks</div>
-              <strong style={{ color: forecast.next4 >= 0 ? 'var(--accent)' : 'var(--green)' }}>{pct(forecast.next4)}</strong>
-              <span>{forecast.seasons} analog seasons · {Math.round(forecast.hitRate)}% backtest</span>
-            </div>
-            <button
-              type="button"
-              className="btn btn-small btn-ghost"
-              onClick={() => {
-                if (current) store.selectRegion(current.region.id);
-                store.setAlertsOpen(false);
-                store.setView('outlook');
-              }}
-            >
-              Open outlook →
-            </button>
+        </section>
+        <section aria-label="High FRP fire detections">
+          <div className="drawer-section-head"><span className="eyebrow">Recent high-FRP detections</span></div>
+          <p className="drawer-note">{liveNotice} · {start && end ? `${start} – ${end}` : 'Window unavailable'}. Selected area and seven pilot regions. Detections ≥ {HIGH_FRP_MW} MW, newest first; overlapping areas may share detections.</p>
+          {liveLoading && <p role="status">Fetching latest fire detections...</p>}
+          <div className="alert-list">
+            {alerts.map(alert => <button key={alert.id} type="button" className={`alert-item fire-alert ${current?.id === alert.id ? 'active' : ''}`} aria-pressed={current?.id === alert.id} onClick={() => setSelected(alert.id)}>
+              <span className="alert-band" style={{ background: '#ff8a3d' }} />
+              <span className="alert-item-main">
+                <span className="alert-item-title">High FRP detected in {alert.region.shortName} · {nf(alert.points)} points</span>
+                <span className="alert-item-meta">{shortDate(alert.date)} · peak {alert.peakFrp.toFixed(1)} MW</span>
+              </span>
+            </button>)}
+            {!alerts.length && <div className="empty">{store.loading || liveLoading ? 'Loading fire detections...' : 'No high-FRP detections in the measured window for these areas.'}</div>}
           </div>
-        )}
-
-        <div className="alert-list">
-          {alerts.map((a) => {
-            const active = (current?.region.id ?? '') === a.region.id;
-            const watching = store.watchlist.includes(a.region.id);
-            return (
-              <button
-                key={a.region.id}
-                type="button"
-                className={`alert-item ${active ? 'active' : ''}`}
-                onClick={() => setSelected(a.region.id)}
-                aria-pressed={active}
-              >
-                <span className="alert-band" style={{ background: riskColor(a.status.band) }} />
-                <span className="alert-item-main">
-                  <span className="alert-item-title">{a.region.shortName}<small>{a.region.country}</small></span>
-                  <span className="alert-item-meta">{a.status.band} · {ordinal(Math.round(a.status.percentile))} pct · {a.status.freshnessDays} d lag</span>
-                </span>
-                <span className={`watch-star ${watching ? 'on' : ''}`} aria-hidden>{watching ? '●' : '○'}</span>
-              </button>
-            );
-          })}
-          {!alerts.length && <div className="empty">Loading regional status…</div>}
-        </div>
-
-        {current && (
-          <div className="dispatch">
-            <div className="drawer-section-head">
-              <span className="eyebrow">Dispatch preview</span>
-              <Badge tone="warn">SIMULATED MESSAGE</Badge>
-            </div>
-            <div className="phone-bubble">
-              <div className="bubble-head">
-                <strong>CONTINUUM WATCH</strong>
-                <span>{shortDate(store.today)}</span>
-              </div>
-              <pre>{message}</pre>
-            </div>
-            <div className="dispatch-actions">
-              <button
-                type="button"
-                className="btn btn-small btn-primary"
-                onClick={() => copyText(message, () => store.toast('Dispatch message copied — ready for a duty officer to review.'), () => store.toast('Clipboard blocked. Select the text manually.'))}
-              >
-                Copy message
-              </button>
-              <button
-                type="button"
-                className="btn btn-small btn-ghost"
-                onClick={() => {
-                  const blob = new Blob([message], { type: 'text/plain;charset=utf-8' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `continuum_watch_${current.region.id}_${store.today}.txt`;
-                  document.body.appendChild(a);
-                  a.click();
-                  a.remove();
-                  setTimeout(() => URL.revokeObjectURL(url), 3000);
-                  store.toast('Dispatch message downloaded.');
-                }}
-              >
-                Download
-              </button>
-              <button
-                type="button"
-                className="btn btn-small btn-ghost"
-                onClick={() => {
-                  store.selectRegion(current.region.id);
-                  store.setAlertsOpen(false);
-                  store.setView('atlas');
-                }}
-              >
-                Open Atlas →
-              </button>
-              <button
-                type="button"
-                className={`btn btn-small ${store.watchlist.includes(current.region.id) ? 'btn-live' : 'btn-ghost'}`}
-                onClick={() => store.toggleWatch(current.region.id)}
-              >
-                {store.watchlist.includes(current.region.id) ? '● Watching' : '○ Watch'}
-              </button>
-            </div>
-            <p className="drawer-note">
-              Nothing is sent. This is the message a duty officer could review, built from the same uncertainty-bearing
-              record as the screen. Automatic dispatch would require an official agreement and is deliberately absent.
-            </p>
+        </section>
+        {current && <div className="dispatch alert-report">
+          <div className="drawer-section-head"><span className="eyebrow">Detection report</span><Badge>NASA FIRMS · provisional</Badge></div>
+          <div className="phone-bubble"><pre>{message}</pre></div>
+          <div className="dispatch-actions">
+            <button type="button" className="btn btn-small btn-primary" onClick={() => copyText(message, () => store.toast('Detection report copied.'), () => store.toast('Clipboard blocked. Select the text manually.'))}>Copy report</button>
+            <button type="button" className="btn btn-small btn-ghost" onClick={() => {
+              const url = URL.createObjectURL(new Blob([message], { type: 'text/plain;charset=utf-8' }));
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `continuum_fire_${current.region.id}_${current.date}.txt`;
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+              setTimeout(() => URL.revokeObjectURL(url), 3000);
+            }}>Download report</button>
+            <button type="button" className="btn btn-small btn-ghost" onClick={() => {
+              if (current.region.id !== store.region.id) store.selectRegion(current.region.id);
+              store.setSelectedDate(current.date);
+              store.setAlertsOpen(false);
+              store.setView('atlas');
+            }}>Open Atlas →</button>
           </div>
-        )}
+        </div>}
       </aside>
     </div>
   );

@@ -1,20 +1,16 @@
-import { useId, type CSSProperties } from 'react';
+import { useEffect, useId, useState, type CSSProperties } from 'react';
+import { fetchWind, windCompass, type WindData } from '../lib/wind';
 
 export interface WindSimulatorProps {
   lat: number;
   lon: number;
+  date?: string | null;
+  locationLabel?: string;
   onClose: () => void;
 }
 
-// Fixed demonstration scenario, not observed wind or an operational forecast.
-const simulatedWind = { direction: 'NE', degrees: 45, speedMetersPerSecond: 12 } as const;
-
 function formatCoordinates(lat: number, lon: number): string {
   return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-}
-
-function formatWind(): string {
-  return `${simulatedWind.direction} (${simulatedWind.degrees}°) at ${simulatedWind.speedMetersPerSecond} m/s`;
 }
 
 const styles = {
@@ -97,21 +93,43 @@ const styles = {
   },
 } satisfies Record<string, CSSProperties>;
 
-export function WindSimulator({ lat, lon, onClose }: WindSimulatorProps) {
+export function WindSimulator({ lat, lon, date, locationLabel, onClose }: WindSimulatorProps) {
   const titleId = useId();
+  const [wind, setWind] = useState<WindData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setWind(null);
+    setError(null);
+    setLoading(true);
+    fetchWind(lat, lon, date, controller.signal)
+      .then(data => { if (!controller.signal.aborted) setWind(data); })
+      .catch(err => { if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'Could not fetch wind data.'); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [lat, lon, date, attempt]);
 
   return (
-    <aside aria-labelledby={titleId} style={styles.panel}>
-      <p style={styles.eyebrow}>Wind / Smoke Evacuation Simulator</p>
+    <aside className="wind-panel" aria-labelledby={titleId} style={styles.panel}>
+      <p style={styles.eyebrow}>Wind conditions</p>
       <h2 id={titleId} style={styles.heading}>
-        <span aria-hidden="true">🔥</span> Fire Detected at {formatCoordinates(lat, lon)}
+        {locationLabel ?? 'Selected fire'} · {formatCoordinates(lat, lon)}
       </h2>
-      <div style={styles.wind}>
-        <span aria-hidden="true" style={styles.arrow}>↗</span>
-        <p style={styles.windText}>Wind Direction: <strong>{formatWind()}</strong></p>
+      <div aria-live="polite" aria-busy={loading}>
+        {loading && <p role="status">Fetching wind data...</p>}
+        {error && <div role="status"><p>{error}</p><button type="button" className="btn btn-small" onClick={() => setAttempt(a => a + 1)}>Retry wind data</button></div>}
+        {wind && <>
+          <div style={styles.wind}>
+            <span aria-hidden="true" style={{ ...styles.arrow, transform: `rotate(${wind.direction + 180}deg)` }}>↑</span>
+            <p style={styles.windText}>Wind from <strong>{windCompass(wind.direction)} ({wind.direction.toFixed(0)}°) at {wind.speedKmh.toFixed(1)} km/h</strong></p>
+          </div>
+          <p style={styles.scenario}>{wind.source} · {wind.historical ? 'daily reanalysis at 10 m' : 'current forecast at 10 m'} · {wind.time}{wind.historical ? '' : ' UTC'}</p>
+          <p style={styles.advisory}>Wind provides context for possible smoke movement. It does not predict fire spread or evacuation routes.</p>
+        </>}
       </div>
-      <p style={styles.advisory}>Downwind areas should be on alert.</p>
-      <p style={styles.scenario}>Simulation · fixed wind scenario</p>
       <button type="button" onClick={onClose} style={styles.close}>Close</button>
     </aside>
   );

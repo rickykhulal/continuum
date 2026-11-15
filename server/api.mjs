@@ -823,7 +823,7 @@ function securityHeaders(req) {
     // blob: in img-src is not slack — the PNG export rasterizes an SVG blob through new Image(),
     // and without it the CSP silently kills the download while the rest of the app looks fine.
     'Content-Security-Policy':
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; connect-src 'self' blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; connect-src 'self' blob: https://api.open-meteo.com https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
     'Permissions-Policy': 'geolocation=(), camera=(), microphone=()',
   };
   if (proto === 'https') h['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains';
