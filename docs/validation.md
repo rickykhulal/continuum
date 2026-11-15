@@ -1163,3 +1163,14 @@ console checks. These occurred in the baseline too (72 true / 102, 30 false, sam
 Passing integration checks do not certify these paths or repair the malformed sensor metadata.
 No freshness tolerance, assertion, or secret-scan rule was relaxed. No raw data was refreshed or
 bundle rebuilt. Deployment is checked separately after pushing; these are local results.
+
+### Render runtime packaging
+
+After integration commit `cbf3ecf`, the Render origin served the exact local entry
+`index-B7CDkrgM.js` and emitted worker (`200`, JavaScript MIME, GIBS allowed by CSP).
+`GET https://continuum-6ofw.onrender.com/api/v1/ready` returned **503**, with eight missing
+manifest assets: `tle/satellites.txt` and all seven `textures/earth_*.jpg` entries. These files
+are tracked and copied into the built static app, but the Docker runtime stage copied only
+`public/data`. The runtime image now also copies `public/tle` and `public/textures`, retaining
+the existing integrity checks and manifest hashes. The host readiness failure is **verified**;
+the following redeploy is verified separately after pushing this packaging change.

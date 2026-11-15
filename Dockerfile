@@ -44,6 +44,8 @@ ENV NODE_ENV=production \
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/dist-server ./dist-server
 COPY --from=build /app/public/data ./public/data
+COPY --from=build /app/public/tle ./public/tle
+COPY --from=build /app/public/textures ./public/textures
 COPY --from=build /app/server ./server
 
 # Non-root: the process only reads files and binds an unprivileged port.
