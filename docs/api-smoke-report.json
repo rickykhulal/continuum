@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T15:40:37.355Z",
+  "generated_at": "2026-11-15T01:47:16.627Z",
   "port": "http://127.0.0.1:4181",
   "passed": 49,
   "total": 49,
@@ -27,12 +27,12 @@
     {
       "name": "GET /openapi.json",
       "ok": true,
-      "detail": "openapi 3.1.0, 18 paths"
+      "detail": "openapi 3.1.0, 25 paths"
     },
     {
       "name": "POST /area/summary (pilot region)",
       "ok": true,
-      "detail": "9498 days, total 69529"
+      "detail": "9510 days, total 69607"
     },
     {
       "name": "POST /area/summary (circle AOI)",
@@ -47,7 +47,7 @@
     {
       "name": "POST /area/summary (country border carries its measured window)",
       "ok": true,
-      "detail": "8 days, total 233 against 233 detections measured inside the Kenya border"
+      "detail": "8 days, total 112 against 112 detections measured inside the Kenya border"
     },
     {
       "name": "A border with no detections prints its measured zero",
@@ -57,7 +57,7 @@
     {
       "name": "GET /meta publishes the whole world index",
       "ok": true,
-      "detail": "241 borders, 181 with detections, 98.43% of window rows inside a border"
+      "detail": "241 borders, 178 with detections, 98.95% of window rows inside a border"
     },
     {
       "name": "POST /area/calendar",
@@ -72,7 +72,7 @@
     {
       "name": "POST /area/day — live points joined to the record",
       "ok": true,
-      "detail": "record live, 5 live points"
+      "detail": "record archive, 0 live points"
     },
     {
       "name": "POST /area/bias — measured k_area",
@@ -87,17 +87,17 @@
     {
       "name": "POST /area/twin — analogs + leave-one-out backtest",
       "ok": true,
-      "detail": "3 analog seasons, backtest hit rate 75% over 20 seasons"
+      "detail": "3 analog seasons, backtest hit rate 55% over 20 seasons"
     },
     {
       "name": "POST /sandbox/run — correction shrinks the injected bias",
       "ok": true,
-      "detail": "raw -82.2% → residual 1.3%, weekly MAE 15.8%"
+      "detail": "raw -82.1% → residual 1.7%, weekly MAE 16.2%"
     },
     {
       "name": "POST /sandbox/run — correction=false reports the raw bias only",
       "ok": true,
-      "detail": "raw -82.2%"
+      "detail": "raw -82.1%"
     },
     {
       "name": "POST /export/csv",
@@ -107,7 +107,7 @@
     {
       "name": "POST /export/geojson",
       "ok": true,
-      "detail": "21 features in the live window"
+      "detail": "0 features in the live window"
     },
     {
       "name": "POST /brief (text)",
@@ -117,7 +117,7 @@
     {
       "name": "POST /brief (PDF, FR-27)",
       "ok": true,
-      "detail": "1725 bytes, header %PDF-1.4"
+      "detail": "1726 bytes, header %PDF-1.4"
     },
     {
       "name": "POST /brief (Spanish)",
@@ -127,7 +127,7 @@
     {
       "name": "POST /area/weather — live or documented 503",
       "ok": true,
-      "detail": "source NASA POWER, n=3959"
+      "detail": "source NASA POWER, n=3968"
     },
     {
       "name": "422 PARAMETER_INVALID without an area",
@@ -227,7 +227,7 @@
     {
       "name": "Gauges report bundle readiness and process state",
       "ok": true,
-      "detail": "bundle_ready=1, uptime 6.761s"
+      "detail": "bundle_ready=1, uptime 7.456s"
     },
     {
       "name": "Duration series carry a route label and a non-negative max",

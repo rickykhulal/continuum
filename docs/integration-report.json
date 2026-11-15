@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-15",
+  "base_commit": "cc6a1b8",
+  "origin": "http://127.0.0.1:8787",
+  "build": { "status": "verified", "exit": 0, "modules": 1024, "entry": "index-B7CDkrgM.js" },
+  "tests": { "status": "verified", "exit": 0, "total": 223, "passed": 219, "failed": 0, "skipped": 4 },
+  "smoke": { "status": "verified", "exit": 0, "passed": 49, "total": 49 },
+  "validation": { "status": "partial", "exit": 1, "passed": 22, "total": 23, "gap": "Stored VIIRS-SNPP freshness metadata has sentinel dates outside the window." },
+  "secrets": {
+    "workspace": { "status": "partial", "exit": 1, "gap": "Ignored local .env reported by presence, without reading its contents." },
+    "tracked_files_and_build": { "status": "verified", "exit": 0, "files": 198, "findings": 0 }
+  },
+  "pet": {
+    "status": "verified",
+    "method": "CUA primary-navigation clicks, visible 3D scene and accessible companion/fact controls",
+    "pages": ["watch", "atlas", "diagnosis", "outlook", "brief", "method", "community", "developers"],
+    "visible_on_all_pages": true,
+    "fact_button": "Woof! Satellites track fires from space."
+  },
+  "map_and_wind": {
+    "status": "verified",
+    "method": "CUA fresh Atlas load and native click on a rendered fire point, followed by simulator Close",
+    "initial_hotspots_visible": true,
+    "loaded_fires_debug_overlay": false,
+    "timestamp_tuple_index": 5,
+    "clicked_coordinates": { "lat": 42.0371, "lon": -123.5495 },
+    "acquisition_time": "2026-11-10T20:42:00Z",
+    "wind": { "direction": "NE", "degrees": 45, "meters_per_second": 12, "provenance": "Simulation" },
+    "panel_inside_viewport": true,
+    "panels_after_close": 0,
+    "worker": { "status": 200, "mime": "text/javascript; charset=utf-8", "bytes": 519547 },
+    "basemap": "NASA GIBS Blue Marble"
+  },
+  "full_e2e": { "status": "partial", "exit": 0, "passed": 73, "failed": 29, "recorded": 102, "fatal": "Cannot read properties of null (reading 'focus')", "report": "e2e-report.json" },
+  "deployment": { "status": "not verified", "url": "https://continuum-6ofw.onrender.com/", "note": "This report records local checks before the integration push. Deployment is checked separately afterward." }
+}

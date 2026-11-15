@@ -808,7 +808,7 @@ function securityHeaders(req) {
     // blob: in img-src is not slack — the PNG export rasterizes an SVG blob through new Image(),
     // and without it the CSP silently kills the download while the rest of the app looks fine.
     'Content-Security-Policy':
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; connect-src 'self' https://power.larc.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; connect-src 'self' https://power.larc.nasa.gov https://gibs.earthdata.nasa.gov; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
     'Permissions-Policy': 'geolocation=(), camera=(), microphone=()',
   };
   if (proto === 'https') h['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains';
@@ -824,6 +824,7 @@ function sendJson(res, status, payload, extra = {}) {
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',

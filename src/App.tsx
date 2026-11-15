@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore, type ViewId } from './lib/store';
 import type { StringKey } from './lib/i18n';
 import { AlertCenter, JudgeTour, SettingsPanel, Toasts } from './components/Overlays';
+import { PetCompanion } from './components/PetCompanion';
 import { nf, riskColor, ordinal } from './lib/format';
 import { provenanceMix, REGIONS } from './lib/data';
 import { initSound, isSoundEnabled, setSoundEnabled, playClick, playAlertChime } from './lib/sound';
@@ -380,6 +381,7 @@ export function App() {
       <SettingsPanel />
       <JudgeTour />
       <Toasts />
+      <PetCompanion />
     </div>
   );
 }

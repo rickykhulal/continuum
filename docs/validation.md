@@ -1123,3 +1123,43 @@ Release blockers include shifted acquisition timestamps (`alignLiveToRealtime`, 
 Stored data remains through November 2 on `continuum-2026-11-02-920de0617606`; the later bundle creation date is not fresher data. Measured pilot observation coverage is 30,895/66,486 area-days (46.47%), with remaining days reconstructed. Current API/browser functionality and scientific accuracy are not certified by the passing file-integrity check. Current-source e2e is **not verified**; target deployment/load/rollback/alerts are **not verified**, with host-bound execution **blocked** where a host/engine is required.
 
 Machine reports updated: `validation-report.json`, `api-smoke-report.json`, `e2e-report.json`. Preview was stopped. No new NASA fire download, archive promotion, dependency upgrade or deployment was performed.
+
+## 2026-11-15 pet and wind integration
+
+Base: `cc6a1b8`, following `git pull origin main` (already up to date). The pet is mounted once
+in the application shell. Its GLTF loader now runs inside Canvas/Suspense, renders the loaded
+scene with Drei Float, and retains a keyboard-operated fact button and a fallback. Model credit
+and its CC BY 4.0 license are recorded in NOTICE and linked from the companion.
+
+The map already used acquisition timestamp tuple index `5`; no `Loaded Fires:` overlay remained.
+The obsolete debug comment was removed. Browser checks reproduced three separate integration
+defects: the production worker URL was missing, CARTO tiles displayed `API KEY REQUIRED`, and
+the first source update was skipped while the new GeoJSON worker loaded. The build now emits the
+worker, the API serves `.mjs` with JavaScript MIME, and the map uses key-free NASA GIBS tiles with
+the corresponding CSP connection permission. Source updates wait for registration instead of
+every source being loaded. A fire click opens the wind panel through a body portal, so parent
+panel styling cannot place it outside the viewport. Area/date/sensor/window changes clear the
+selection. The fixed wind scenario remains explicitly labelled Simulation.
+
+| Command or browser action | Output | Status |
+| --- | --- | --- |
+| `npm ci` | exit 0; 172 added, 173 audited | **verified** |
+| `npm run build` | exit 0; 1,024 modules; module worker emitted; entry `index-B7CDkrgM.js` | **verified** |
+| `npm test` | exit 0; 223 tests, 219 passed, 0 failed, 4 skipped | **verified** within executed cases; skipped live-key cases remain **not verified** |
+| `npm run smoke` | exit 0; 49/49 | **verified** |
+| `npm run validate` | exit 1; 22/23; VIIRS-SNPP freshness is `9999-99-99..0000-00-00`, outside the stored window | **verified** failure; existing data metadata needs repair |
+| `npm run secret-scan` in the workspace | exit 1; local `.env` reported by presence only; `git check-ignore .env` confirms it is ignored | **verified** failure for the complete local workspace |
+| `SECRET_SCAN_ROOT` set to a scratch copy of tracked working files plus `dist/` and `dist-server/`; `npm run secret-scan` | exit 0; 198 files, 17.5 MB, no credentials found | **verified** for the publishable files and built bundle; the workspace failure above is retained |
+| `npm run api`; GET emitted worker asset | 200; `text/javascript; charset=utf-8`; 519,547 bytes | **verified** |
+| GET NASA GIBS Blue Marble WMTS tile | 200; `image/jpeg`; 10,170 bytes | **verified** |
+| CUA: navigate all eight primary pages and inspect Laika visibility/current navigation | 8/8 `petVisible: true`, 8/8 `aria-current: page`; loaded 3D scene visible | **verified** |
+| CUA: fresh Atlas load, click rendered California fire at viewport `(270, 630)` | points visible before toggling controls; wind panel `42.0371, -123.5495`, NE (45°) at 12 m/s; popup time `2026-11-10T20:42:00Z`; panel bounds inside viewport | **verified** |
+| CUA: click simulator Close, then Laika fact button | wind panel count 0; `Woof! Satellites track fires from space.` visible | **verified** |
+| API on :8787; `E2E_ORIGIN=http://127.0.0.1:8787 npm run e2e` | erroneous exit 0; 73 true / 102 recorded assertions, 29 false; fatal null `.focus()` | **partial**; complete sweep still cannot finish |
+
+The full browser report retains its failures in `docs/e2e-report.json`: Watch/Atlas expectations,
+missing live geometry in store-derived exports/metrics, country search/state cases, and network/
+console checks. These occurred in the baseline too (72 true / 102, 30 false, same fatal `.focus()`).
+Passing integration checks do not certify these paths or repair the malformed sensor metadata.
+No freshness tolerance, assertion, or secret-scan rule was relaxed. No raw data was refreshed or
+bundle rebuilt. Deployment is checked separately after pushing; these are local results.

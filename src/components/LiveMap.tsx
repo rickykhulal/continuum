@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useLiveFirms } from '../lib/liveClient';
 import { ALLOW_MOCK_LIVE } from '../lib/liveClient';
 import * as maplibregl from 'maplibre-gl';
 import type { MapGeoJSONFeature } from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { WindSimulator } from './WindSimulator';
 import type { DailyRecord, LiveFire, Region, SensorId } from '../lib/types';
 import { SENSOR_COLORS, SENSOR_SHORT, SENSOR_NAMES } from '../lib/types';
 import { livePointsForRegion } from '../lib/data';
 import { nf, shortDate } from '../lib/format';
+
+// Emit the module worker as a Vite asset instead of resolving it beside the app chunk.
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
 const CONFIDENCE_LABEL: Record<number, string> = {
   0: 'Low',
@@ -39,6 +45,8 @@ export function LiveMap({
 }: LiveMapProps) {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [selectedFire, setSelectedFire] = useState<{ lat: number; lon: number } | null>(null);
   const [selectedSensor, setSelectedSensor] = useState<number | 'all'>('all');
   const [displayMode, setDisplayMode] = useState<'detections' | 'pixels'>('detections');
   const [frpScaling, setFrpScaling] = useState<boolean>(false);
@@ -147,27 +155,30 @@ export function LiveMap({
     return day < windowStart || day > windowEnd ? day : null;
   }, [day, windowStart, windowEnd]);
 
+  useEffect(() => {
+    setSelectedFire(null);
+    setPopupInfo(null);
+  }, [region.id, day, selectedSensor, dayOffset]);
+
   // Initialize MapLibre GL
   useEffect(() => {
     if (!mapContainer.current) return;
+    setMapReady(false);
 
-    // Use CartoDB Dark Matter as the base layer. It matches the dark theme, has excellent
-    // uptime, and serves tiles up to zoom 19, so the map never goes black even when the live
-    // FIRMS feed is down.
+    // NASA GIBS Blue Marble is a key-free basemap; overzoom its final native tile level.
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: {
         version: 8,
         sources: {
-          'carto-dark': {
+          'nasa-gibs': {
             type: 'raster',
             tiles: [
-              'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-              'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-              'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+              'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
             ],
             tileSize: 256,
-            attribution: '© OpenStreetMap contributors © CARTO',
+            maxzoom: 8,
+            attribution: 'NASA GIBS · Blue Marble',
           },
         },
         layers: [
@@ -177,11 +188,11 @@ export function LiveMap({
             paint: { 'background-color': '#0a0a0a' },
           },
           {
-            id: 'carto-layer',
+            id: 'gibs-layer',
             type: 'raster',
-            source: 'carto-dark',
+            source: 'nasa-gibs',
             minzoom: 0,
-            maxzoom: 19,
+            paint: { 'raster-saturation': -0.6, 'raster-brightness-max': 0.65 },
           },
         ],
       },
@@ -278,8 +289,13 @@ export function LiveMap({
       map.on('click', 'fires-layer', (e: { features?: MapGeoJSONFeature[] }) => {
         if (!e.features || !e.features[0]) return;
         const f = e.features[0];
+        if (f.geometry.type !== 'Point') return;
         const props = f.properties || {};
         const geom = f.geometry as GeoJSON.Point;
+        const [lon, lat] = geom.coordinates;
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+        setSelectedFire({ lat, lon });
 
         setPopupInfo({
           lngLat: [geom.coordinates[0], geom.coordinates[1]],
@@ -310,6 +326,7 @@ export function LiveMap({
       // Force a resize once the style has loaded, so the canvas and tiles are drawn at the
       // correct dimensions instead of staying a black void.
       setTimeout(() => map.resize(), 500);
+      setMapReady(true);
     });
 
     mapRef.current = map;
@@ -369,7 +386,9 @@ export function LiveMap({
   // Update fire points GeoJSON when filtered points or mode changes
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    // The load handler has registered the source; its worker can still be loading.
+    // Waiting for every source to be loaded here would skip the first point update.
+    if (!map || !mapReady) return;
 
     const firesSource = map.getSource('fires-source') as maplibregl.GeoJSONSource | undefined;
     if (!firesSource) return;
@@ -403,7 +422,7 @@ export function LiveMap({
       map.setPaintProperty('fires-layer', 'circle-opacity', displayMode === 'pixels' ? 0.45 : 0.85);
       map.setPaintProperty('fires-layer', 'circle-stroke-width', (displayMode === 'pixels' || frpScaling) ? 0 : 1);
     }
-  }, [filteredPoints, displayMode, frpScaling]);
+  }, [filteredPoints, displayMode, frpScaling, mapReady]);
 
   // Checks if the bundled static snapshot is still reachable (staleness detection only; no live data fetch)
   useEffect(() => {
@@ -487,7 +506,6 @@ export function LiveMap({
         className="live-map-canvas"
         style={{ height: `${maxHeight}px`, width: '100%', position: 'relative' }}
       >
-        {/* On-screen debug overlay: confirms data is loaded and the map is drawing points. */}
         {historicalDay && (
           <div
             style={{
@@ -641,6 +659,14 @@ export function LiveMap({
           Bundled FIRMS NRT snapshot · Data loaded at page load · Reload page for latest
         </span>
       </div>
+      {selectedFire && createPortal(
+        <WindSimulator
+          lat={selectedFire.lat}
+          lon={selectedFire.lon}
+          onClose={() => setSelectedFire(null)}
+        />,
+        document.body,
+      )}
     </div>
   );
 }

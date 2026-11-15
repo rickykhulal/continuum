@@ -15,6 +15,11 @@ Data and imagery
 - NASA Visible Earth imagery: Blue Marble day mosaic, Black Marble 2012 night lights, cloud
   composite — public domain / NASA imagery, downscaled to 2048x1024 for this app.
 - Natural Earth 110m coastline/land vector data (public domain) used for the land topology.
+- "Laika the Explorer" 3D model by beagleknight, CC BY 4.0, bundled as public/models/pet1.glb.
+  Source: https://sketchfab.com/3d-models/laika-the-explorer-33dbae0c33a44422bccf753710c3910b
+  Author: https://sketchfab.com/beagleknight
+  License: https://creativecommons.org/licenses/by/4.0/
+  Display changes: framed to the companion viewport, lit and animated in the app.
 
 Runtime libraries
 -----------------
